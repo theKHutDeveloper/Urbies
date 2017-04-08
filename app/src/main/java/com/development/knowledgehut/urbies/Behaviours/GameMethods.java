@@ -475,7 +475,21 @@ public class GameMethods {
 
         matchedDetails.setSpecialType();
 
-        int numberToRemove = 0;
+        ArrayList<Integer>matchesThatCanBeIntersectingElement = new ArrayList<>();
+        for(int i = 0; i < matchedDetails.getReturnedMatches().size(); i++) {
+            matchesThatCanBeIntersectingElement.add(matchedDetails.getReturnedMatches().get(i));
+        }
+        //get a list of matches that can be valid intersecting element, without having to remove matches
+        if(!obstacles.isEmpty()) {
+            for (int i = 0; i < obstacles.size(); i++) {
+                if (matchesThatCanBeIntersectingElement.contains(obstacles.get(i).getLocation())) {
+                    int index = matchesThatCanBeIntersectingElement.indexOf(obstacles.get(i).getLocation());
+                    matchesThatCanBeIntersectingElement.remove(index);
+                }
+            }
+        }
+
+        /*int numberToRemove = 0;
         if (!obstacles.isEmpty()) {
             for (int i = 0; i < obstacles.size(); i++) {
                 if (matchedDetails.getReturnedMatches().contains(obstacles.get(i).getObstacle().getLocation())) {
@@ -495,7 +509,7 @@ public class GameMethods {
                 }
             }
         }
-
+*/
 
         if (matchedDetails.getMatchShape() == Urbies.MatchShape.LINE_OF_FOUR_HORIZONTAL ||
                 matchedDetails.getMatchShape() == Urbies.MatchShape.LINE_OF_FOUR_VERTICAL ||
@@ -504,9 +518,9 @@ public class GameMethods {
                 matchedDetails.setIntersecting_element(userSelect[0]);
             } else {
                 if (!matchedDetails.getReturnedMatches().isEmpty()) {
-                    if (matchedDetails.getReturnedMatches().size() > 2) {
-                        matchedDetails.setIntersecting_element(matches.get(2));
-                    } else matchedDetails.setIntersecting_element(matches.get(0));
+                    if (matchesThatCanBeIntersectingElement.size() > 2) {
+                        matchedDetails.setIntersecting_element(matchesThatCanBeIntersectingElement.get(2));
+                    } else matchedDetails.setIntersecting_element(matchesThatCanBeIntersectingElement.get(0));
                 }
             }
         } else {
@@ -534,6 +548,21 @@ public class GameMethods {
     }
 
 
+    /********************************************************************************
+     * Find the location of a specific position in the list of tile positions
+     ********************************************************************************/
+    public int findLocationByPosition(Point position, ArrayList<Point>tilePos){
+        int found = -1;
+
+        for(int i = 0; i < tilePos.size(); i++){
+            if(tilePos.get(i) == position){
+                found = i;
+                break;
+            }
+        }
+
+        return found;
+    }
     /********************************************************************************
      * Find user matches by column
      ********************************************************************************/
@@ -980,7 +1009,7 @@ public class GameMethods {
                     num = num - width;
                 }
             }
-            System.out.println("valid yPositions for match " + matchedList.get(i) + " = " + yPositions);
+            //System.out.println("valid yPositions for match " + matchedList.get(i) + " = " + yPositions);
 
             /////////////////////////
             //set the initial values
@@ -1130,14 +1159,37 @@ public class GameMethods {
             }
         }
 
-        System.out.println("near match obstacles = "+nearMatchObstacles);
-        System.out.println("starting point = "+startingPoint);
-        System.out.println("pos = "+pos);
-        System.out.println("loc = "+loc);
+        //System.out.println("near match obstacles = "+nearMatchObstacles);
+        //System.out.println("starting point = "+startingPoint);
+        //System.out.println("pos = "+pos);
+        //System.out.println("loc = "+loc);
 
         return list;
     }
 
+    //returns a list of empty tile locations, where the tile is active
+    private ArrayList<Integer> getEmptyTiles(ArrayList<Integer>map, ArrayList<Point>tilePos, List<UrbieAnimation>objects){
+        ArrayList<Integer>emptyTiles = new ArrayList<>();
+
+        for(int i = 0; i < tilePos.size(); i++){
+            if(map.get(i) == 1){
+                boolean found = false;
+
+                for(int j = 0; j < objects.size(); j++){
+                    if(tilePos.get(i).equals(objects.get(j).getPosition())){
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(!found){
+                    emptyTiles.add(i);
+                }
+            }
+        }
+
+        return emptyTiles;
+    }
 
     /***********************************************************************************************
      *getEmptyTilesInRow :
@@ -1179,7 +1231,7 @@ public class GameMethods {
 
      *************************************************/
     public ArrayList<DataStore> separateTheMadness(List<UrbieAnimation>objects, ArrayList<Integer>matches, ArrayList<Obstacles>obstacles, int width, ArrayList<Point>tilePos, ArrayList<Integer>map,
-                                                   ArrayList<Integer>matchesOffScreen//, ArrayList<Integer>emptyTiles
+                                                   ArrayList<Integer>matchesOffScreen, ArrayList<DataStore>future
     ){
         ArrayList<Integer> obstacleLocations = new ArrayList<>();
         ArrayList<Integer> glassLocations = new ArrayList<>();
@@ -1189,6 +1241,10 @@ public class GameMethods {
         ArrayList<DataStore>store = new ArrayList<>();
         ArrayList<Integer> moveDownList = new ArrayList<>();
         ArrayList<Point> positions = new ArrayList<>();
+        ArrayList<Point> leftOverPositions = new ArrayList<>();
+        ArrayList<DataStore> belowMatchesToMoveDown = new ArrayList<>();
+        ArrayList<Integer>emptyTiles = new ArrayList<>();
+
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         //!!get a list of invisible obstacle locations e.g. WOOD, CEMENT and also GLASS obstacles
@@ -1202,14 +1258,14 @@ public class GameMethods {
                     glassLocations.add(obstacles.get(i).getLocation());
                 }
             }
-            System.out.println("STM ObstacleLocations = "+obstacleLocations);
-            System.out.println("STM GlassLocations = "+glassLocations);
+          //  System.out.println("STM ObstacleLocations = "+obstacleLocations);
+          //  System.out.println("STM GlassLocations = "+glassLocations);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         //1. Are there any obstacles that are damaged near the matched list elements?
         ////////////////////////////////////////////////////////////////////////////////////////////
-        if(!obstacles.isEmpty()) {
+        if(!obstacleLocations.isEmpty()) {
             nearMatchObstacles = getActualNearMatchesThatAreObstacles(matches, obstacleLocations, width, map);
 
             //handle damaged urbs e.g. deduct counter etc
@@ -1224,73 +1280,101 @@ public class GameMethods {
                                 objects.get(urb_num).setStatus(NONE);
                                 objects.get(urb_num).setVisible(Urbies.VisibilityStatus.VISIBLE);
                                 int index = obstacleLocations.indexOf(obstacles.get(i).getLocation());
+                                obstacles.get(i).clearStatus();
                                 obstacleLocations.remove(index);
                             }
                         }
                     }
                 }
-                System.out.println("STM nearMatchObstacles = " + nearMatchObstacles);
+               // System.out.println("STM nearMatchObstacles = " + nearMatchObstacles);
             }
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         //2. Are there matches that are below obstacles, if so remove from matches array list
         ////////////////////////////////////////////////////////////////////////////////////////////
-        ArrayList<Integer> matchesBelow = matchesBelowObstacles(matches, obstacleLocations, width);
-        if(!matchesBelow.isEmpty()){
-            for(int i = 0; i < matchesBelow.size(); i++){
-                int index = matches.indexOf(matchesBelow.get(i));
-                if(index > -1) matches.remove(index);
+        ArrayList<Integer> matchesBelow = new ArrayList<>();
+        if(!obstacleLocations.isEmpty()) {
+            matchesBelow = matchesBelowObstacles(matches, obstacleLocations, width);
+            if (!matchesBelow.isEmpty()) {
+                for (int i = 0; i < matchesBelow.size(); i++) {
+                    int index = matches.indexOf(matchesBelow.get(i));
+                    if (index > -1) matches.remove(index);
+                }
+              //  System.out.println("STM matchesBelow = " + matchesBelow);
+                matchesOffScreen.addAll(matchesBelow);
             }
-            System.out.println("STM matchesBelow = "+matchesBelow);
-            matchesOffScreen.addAll(matchesBelow);
+
+            //stores a list of objects to move down that are below blocked obstacles
+            belowMatchesToMoveDown = manageMatchesUnderObstacles(matchesBelow, width, obstacleLocations, objects, tilePos, map);
+           // System.out.println("STM belowMatchesToMoveDown = " + belowMatchesToMoveDown);
         }
-
-        //stores a list of objects to move down that are below blocked obstacles
-        ArrayList<DataStore> belowMatchesToMoveDown = manageMatchesUnderObstacles(matchesBelow, width, obstacleLocations, objects, tilePos, map);
-        System.out.println("STM belowMatchesToMoveDown = "+belowMatchesToMoveDown);
-
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         //3. Does the matched list contain a urb submerged in GLASS? - if so remove glass urb from match list
         ////////////////////////////////////////////////////////////////////////////////////////////
-        for(int i = 0; i < matches.size(); i++){
-            if(glassLocations.contains(matches.get(i))){
-                for(int j = 0; j < obstacles.size(); j++){
-                    if(obstacles.get(j).getLocation() == matches.get(i)){
-                        int urb_num = findBitmapByMapLocation(objects, tilePos, obstacles.get(j).getLocation());
-                        if(urb_num > -1){
-                            objects.get(urb_num).setStatus(NONE);
-                            int index = glassLocations.indexOf(obstacles.get(j).getLocation());
-                            glassLocations.remove(index);
+        if(!glassLocations.isEmpty()) {
+            for (int i = 0; i < matches.size(); i++) {
+                if (glassLocations.contains(matches.get(i))) {
+                    for (int j = 0; j < obstacles.size(); j++) {
+                        if (obstacles.get(j).getLocation() == matches.get(i)) {
+                            int urb_num = findBitmapByMapLocation(objects, tilePos, obstacles.get(j).getLocation());
+                            if (urb_num > -1) {
+                                objects.get(urb_num).setStatus(NONE);
+                                obstacles.get(j).deductDestroyCounter();
+                                obstacles.get(j).clearStatus();
+                                int index = glassLocations.indexOf(obstacles.get(j).getLocation());
+                                glassLocations.remove(index);
+                            }
+                            break;
                         }
-                        break;
                     }
+                    matches.remove(i);
+                    i--;
                 }
-                matches.remove(i);
-                i--;
             }
         }
-
         ////////////////////////////////////////////////////////////////////////////////////////////
         //4. Start looping through matches, considering any broken obstacles and empty tiles
         ////////////////////////////////////////////////////////////////////////////////////////////
         ArrayList<Point>tempPosition = new ArrayList<>();
+        ArrayList<Point>emptyTilePositions = new ArrayList<>();
+        boolean emptyTilesReplaced = false;
+        boolean tilesComplete = false;
+
+        //Are there any empty tiles, only happens with invisible blocks
+        emptyTiles = getEmptyTiles(map, tilePos, objects);
+        System.out.println("Empty tiles = "+ emptyTiles);
 
         for(int i = 0; i < matches.size(); i++){
             int startingPoint = matches.get(i);
-            for(int j = 0; j < obstacleIndexWhereZero.size(); j++){
-                if(matches.get(i)%width == obstacles.get(obstacleIndexWhereZero.get(j)).getLocation()%width && obstacles.get(obstacleIndexWhereZero.get(j)).getLocation() > matches.get(i)){
-                    startingPoint = obstacles.get(obstacleIndexWhereZero.get(j)).getLocation();
-                    break;
+
+            if(!obstacleIndexWhereZero.isEmpty() && !emptyTiles.isEmpty()){
+                //reset the startingPoint where the broken tile exists
+                for (int j = 0; j < obstacleIndexWhereZero.size(); j++) {
+                    if (matches.get(i) % width == obstacles.get(obstacleIndexWhereZero.get(j)).getLocation() % width && obstacles.get(obstacleIndexWhereZero.get(j)).getLocation() > matches.get(i)) {
+                        startingPoint = obstacles.get(obstacleIndexWhereZero.get(j)).getLocation();
+
+                        //if empty tiles exist and there is a broken obstacle then change the starting point location
+                        if(!emptyTiles.isEmpty()) {
+                            //get a list of the empty tiles locations, this should focus on the location of where the empty tiles are
+                            for(int b = 0; b < emptyTiles.size(); b++){
+                                emptyTilePositions.add(tilePos.get(emptyTiles.get(b)));
+                            }
+
+                            //add the contents of emptyTilePositions to tempPosition
+                            tempPosition.addAll(emptyTilePositions);
+                            emptyTilesReplaced = true;
+                            tilesComplete = true;
+                        }
+                        break;
+                    }
                 }
             }
-            //NOTE will need to do something when there are empty tiles also
-
 
             //Identify the valid positions that objects will be able to drop down to
-            tempPosition.add(tilePos.get(startingPoint));
             int num = startingPoint - width;
+            tempPosition.add(tilePos.get(startingPoint));
 
             while (num >= 0) {
                 if (map.get(num) == 1) {
@@ -1306,32 +1390,87 @@ public class GameMethods {
                 num = num - width;
             }
 
-
             //Identify the objects that will be moved down
             int counter = 0;
-            num = startingPoint - width;
+
+            if(!emptyTilesReplaced) {
+                num = startingPoint - width;
+            } else {
+                num = startingPoint;
+            }
+
             while(num >=0){
                 int urb_num = findBitmapByMapLocation(objects, tilePos, num);
-                if(map.get(num) == 1 && !matches.contains(num) && !moveDownList.contains(num) && objects.get(urb_num).getStatus() == NONE){
-                    moveDownList.add(num);
-                    positions.add(tempPosition.get(counter));
-                    counter++;
+                if(urb_num > -1) {
+                    if (map.get(num) == 1 && !matches.contains(num) && !moveDownList.contains(num) && objects.get(urb_num).getStatus() == NONE) {
+                        moveDownList.add(num);
+                        positions.add(tempPosition.get(counter));
+                        tempPosition.remove(counter);
+                    }
                 }
                 num = num - width;
             }
 
+            if(!obstacleIndexWhereZero.isEmpty() && moveDownList.isEmpty()){
+                //leftOverPositions.remove(0);    remove where startingPoint coordinates are
+                boolean remove = leftOverPositions.remove(tilePos.get(startingPoint));
+                if(remove){System.out.println("false positive removed");}
+            }
+
+            leftOverPositions.addAll(tempPosition);
+            uniqueArrayPointList(leftOverPositions);
+            tempPosition.clear();
+            emptyTiles.clear();
+            emptyTilesReplaced = false;
+            obstacleIndexWhereZero.clear();
         }
 
+        //remove any leftOverPositions that are also in positions
+        for(int i = leftOverPositions.size() - 1; i >= 0; i--){
+            if(positions.contains(leftOverPositions.get(i))){
+                leftOverPositions.remove(i);
+            }
+        }
 
         for(int i = 0; i < moveDownList.size(); i++){
             DataStore d = new DataStore();
             d.setElement(moveDownList.get(i));
-            d.setPosition(tempPosition.get(i));
+            d.setPosition(positions.get(i));
             store.add(d);
         }
 
-        //add back any matches removed previously
+        for(int i = 0; i < leftOverPositions.size(); i++){
+            DataStore d = new DataStore();
+            d.setElement(findLocationByPosition(leftOverPositions.get(i), tilePos)); //need to get element based on position of leftOverPosition
+            d.setPosition(leftOverPositions.get(i));
+            future.add(d);
+        }
+
+        System.out.println("MoveDownList = "+moveDownList);
+        System.out.println("LeftOverPositions = "+leftOverPositions);
+
         matches.addAll(matchesBelow);
+
+        if(tilesComplete){
+            int counter = -1;
+            for(int k = 0; k < objects.size(); k++){
+                if(objects.get(k).getY() < 0){
+                    objects.get(k).setActive(true);
+                    objects.get(k).setLocation(counter);
+                    counter--;
+                    System.out.println(k + ", "+objects.get(k).getPosition() + ", "+objects.get(k).getLocation());
+                    matches.add(objects.get(k).getLocation());
+                }
+            }
+        }
+
+        if(!belowMatchesToMoveDown.isEmpty()){
+            store.addAll(belowMatchesToMoveDown);
+        }
+
+        for(int i = 0; i < store.size(); i++){
+            System.out.println("store "+ i + " = " + " "+ store.get(i).getElement() + ", " + store.get(i).getPosition());
+        }
         return store;//belowMatchesToMoveDown;
     }
 
@@ -1398,6 +1537,7 @@ public class GameMethods {
     //gets the matches below obstacles and their relevant positions to move down if necessary
     private ArrayList<DataStore> manageMatchesUnderObstacles(ArrayList<Integer>belowObstacleMatches, int width, ArrayList<Integer>obstacleLocations, List<UrbieAnimation>objects, ArrayList<Point>tilePos, ArrayList<Integer>map){
         ArrayList<DataStore> dataStore = new ArrayList<>();
+        int counter = -1;
 
         for(int i = 0; i < belowObstacleMatches.size(); i++){
             int num = belowObstacleMatches.get(i) - width;
@@ -1421,7 +1561,6 @@ public class GameMethods {
                                 dataStore.add(d);
                                 int urbToSetOffScreen = findBitmapByMapLocation(objects, tilePos, belowObstacleMatches.get(i));
                                 objects.get(urbToSetOffScreen).setActive(false);
-                                objects.get(urbToSetOffScreen).setY(-200);
                             }
                         }
                     }

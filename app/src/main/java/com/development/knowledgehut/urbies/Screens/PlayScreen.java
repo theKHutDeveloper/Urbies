@@ -34,8 +34,10 @@ import java.util.List;
 import java.util.Random;
 
 import static com.development.knowledgehut.urbies.Implementations.AndroidGame.OFFSET_Y;
+import static com.development.knowledgehut.urbies.Screens.Urbies.UrbieStatus.CEMENT;
 import static com.development.knowledgehut.urbies.Screens.Urbies.UrbieStatus.GLASS;
 import static com.development.knowledgehut.urbies.Screens.Urbies.UrbieStatus.NONE;
+import static com.development.knowledgehut.urbies.Screens.Urbies.UrbieStatus.WOODEN;
 import static java.util.Collections.reverseOrder;
 
 class PlayScreen extends Screen {
@@ -363,11 +365,11 @@ class PlayScreen extends Screen {
 
         } else if (Urbies.level == 11) {
             Collections.addAll(values,
-                    1, 2, 80, 4, 1,
+                    1, 2, 3, 4, 1,
                     1, 5, 1, 2, 1,
                     3, 4, 5, 1, 2,
                     2, 5, 3, 4, 1,
-                    1, 6, 2, 6, 1,
+                    1, 4, 2, 6, 1,
                     2, 3, 6, 5, 6);
             urbTypesInLevel.add(Urbies.UrbieType.BABY);
             urbTypesInLevel.add(Urbies.UrbieType.PAC);
@@ -539,17 +541,12 @@ class PlayScreen extends Screen {
 
                             gameMethods.uniqueArrayIntegerList(userMatchOne);
 
-                            //identify if matches are next to any obstacles
+                            objectsToMoveDown();
                             if (levelManager.isWood() || levelManager.isCement()) {
                                 findDamagedObstacles(obstacleTiles);
                             }
-
-
-                            objectsToMoveDown();
                             clearDamagedObstacle(obstacleTiles);
-                            if (!updateMoveDownElements.isEmpty()) {
-                                addEmptyTilesAfterBrokenObstacleRemoved(updateMoveDownElements);
-                            }
+
 
                             if (!objectsToMoveDown.isEmpty()) {
                                 for (int i = 0; i < objectsToMoveDown.size(); i++) {
@@ -561,14 +558,6 @@ class PlayScreen extends Screen {
                             for (int i = 0; i < userMatchOne.size(); i++) {
                                 urbMatchOne.add(findObjectByPosition(userMatchOne.get(i), Urbs));
                             }
-
-                            /*if (!matchesOffScreen.isEmpty()) {
-                                for (int i = 0; i < matchesOffScreen.size(); i++) {
-                                    urbMatchOne.add(gameMethods.findObjectByPosition(matchesOffScreen.get(i), Urbs));
-                                    System.out.println("matchesOffScreen " + matchesOffScreen.get(i));
-                                }
-
-                            }*/
 
                             //count number of urbs by type
                             for (int i = 0; i < urbMatchOne.size(); i++) {
@@ -776,7 +765,7 @@ class PlayScreen extends Screen {
                                 tileWidth, obstacleTiles
                         );
 
-                        System.out.println("possibleMatches = " + possibleMatches);
+                        //System.out.println("possibleMatches = " + possibleMatches);
                         for (int i = 0; i < Urbs.size(); i++) {
                             if (Urbs.get(i).getType() == Urbies.UrbieType.MAGICIAN ||
                                     Urbs.get(i).getType() == Urbies.UrbieType.STRIPE_HORIZONTAL ||
@@ -988,32 +977,17 @@ class PlayScreen extends Screen {
                             Collections.sort(userMatchOne, reverseOrder());
                         }
 
-                        //identify if matches are next to any obstacles
+                        objectsToMoveDown();
                         if (levelManager.isWood() || levelManager.isCement()) {
                             findDamagedObstacles(obstacleTiles);
                         }
-
-                        objectsToMoveDown();
                         clearDamagedObstacle(obstacleTiles);
-                        if (!updateMoveDownElements.isEmpty()) {
-                            addEmptyTilesAfterBrokenObstacleRemoved(updateMoveDownElements);
-                        }
-
-                        //maybe here is where I create a new method that checks if any obstacles that are invisible are now visible and should be included in any move down
-                        //action because there are empty tiles below
 
                         if (!objectsToMoveDown.isEmpty()) {
                             for (int i = 0; i < objectsToMoveDown.size(); i++) {
                                 urbsToMoveDown.add(gameMethods.findBitmapByMapLocation(Urbs, tileLocations, objectsToMoveDown.get(i)));
                             }
                         }
-
-                        /*if (!matchesOffScreen.isEmpty()) {
-                            for (int i = 0; i < matchesOffScreen.size(); i++) {
-                                urbMatchOne.add(gameMethods.findObjectByPosition(matchesOffScreen.get(i), Urbs));
-                                System.out.println("matchesOffScreen " + matchesOffScreen.get(i));
-                            }
-                        }*/
 
                         //add the contents of userMatchOne into another arraylist which holds the urb value
                         for (int i = 0; i < userMatchOne.size(); i++) {
@@ -1335,12 +1309,12 @@ class PlayScreen extends Screen {
 
                                     Collections.sort(userMatchOne, reverseOrder());
 
-                                    //identify if matches are next to any obstacles
+
+
+                                    objectsToMoveDown();
                                     if (levelManager.isWood() || levelManager.isCement()) {
                                         findDamagedObstacles(obstacleTiles);
                                     }
-
-                                    objectsToMoveDown();
                                     clearDamagedObstacle(obstacleTiles);
                                     if (!updateMoveDownElements.isEmpty()) {
                                         addEmptyTilesAfterBrokenObstacleRemoved(updateMoveDownElements);
@@ -1926,8 +1900,8 @@ class PlayScreen extends Screen {
 
         int moveValue = 0;
 
-        System.out.println(Urbs.get(0).getX() + "," + Urbs.get(0).getY() + " offset = "+OFFSET_Y);
-        System.out.println(e1.getX() + ","+e1.getY());
+        //System.out.println(Urbs.get(0).getX() + "," + Urbs.get(0).getY() + " offset = "+OFFSET_Y);
+        //System.out.println(e1.getX() + ","+e1.getY());
 
         switch (getSlope(e1.getX(), e1.getY(), e2.getX(), e2.getY())) {
             case 1: moveValue = -tileWidth;
@@ -1950,7 +1924,7 @@ class PlayScreen extends Screen {
                 if (one + moveValue > 0 && one + moveValue < levelManager.getLevelTileMap().getMapLevel().size()
                         && levelManager.getLevelTileMap().getMapLevel().get(one + moveValue) == 1
                         && ((((one + moveValue) / tileWidth == one / tileWidth) || ((one + moveValue) % tileWidth == one % tileWidth)))) {
-                    System.out.println("move " + one + " and " + (one + moveValue));
+                    //System.out.println("move " + one + " and " + (one + moveValue));
                     two = one + moveValue;
                     urbTwo = getIndex(two);
 
@@ -2100,42 +2074,23 @@ class PlayScreen extends Screen {
             int damage;
 
             for (int i = 0; i < obstacles.size(); i++) {
-                if (obstacles.get(i).getStatus() != GLASS) {
-                    damage = gameMethods.isMatchNextToObstacle(
-                            obstacles.get(i).getObstacle().getLocation(),
-                            userMatchOne,
-                            levelManager.getLevelTileMap().getMapLevel().size(),
-                            tileWidth);
+                if (obstacles.get(i).getOldStatus() != GLASS) {
+                    damage = gameMethods.isMatchNextToObstacle(obstacles.get(i).getObstacle().getLocation(),
+                            userMatchOne, levelManager.getLevelTileMap().getMapLevel().size(), tileWidth);
 
-                    System.out.println("damage = " + damage);
                     if (damage != -1) {
-
-                        switch (obstacles.get(i).getStatus()) {
+                        switch (obstacles.get(i).getOldStatus()) {
                             case WOODEN:
-                                obstacles.get(i).deductDestroyCounter();
-
                                 if (obstacles.get(i).getDestroyCounter() == 0) {
                                     obstacles.get(i).getObstacle().changeBitmapProperties(Assets.wood_break_anim, 30, 7, 4000, false, true);
-                                    int obstacleUrb = gameMethods.findBitmapByMapLocation(Urbs, tileLocations, obstacles.get(i).getObstacle().getLocation());
-                                    Urbs.get(obstacleUrb).setVisible(Urbies.VisibilityStatus.VISIBLE);
-                                    Urbs.get(obstacleUrb).setStatus(NONE);
-                                    obstacles.get(i).clearStatus();
-                                    levelManager.addToWoodenCounter();
                                 }
                                 else if (obstacles.get(i).getDestroyCounter() == 1) {
                                     obstacles.get(i).getObstacle().changeBitmapProperties(Assets.wood_25, 20, 1, 2000, true, true);
                                 }
-                                break;
+                            break;
                             case CEMENT:
-                                obstacles.get(i).deductDestroyCounter();
-
                                 if (obstacles.get(i).getDestroyCounter() == 0) {
                                     obstacles.get(i).getObstacle().changeBitmapProperties(Assets.cement_break_anim, 30, 6, 4000, false, true);
-                                    int obstacleUrb = gameMethods.findBitmapByMapLocation(Urbs, tileLocations, obstacles.get(i).getObstacle().getLocation());
-                                    Urbs.get(obstacleUrb).setVisible(Urbies.VisibilityStatus.VISIBLE);
-                                    Urbs.get(obstacleUrb).setStatus(NONE);
-                                    obstacles.get(i).clearStatus();
-                                    levelManager.addToCementCounter();
                                 }
                                 else if (obstacles.get(i).getDestroyCounter() == 1) {
                                     obstacles.get(i).getObstacle().changeBitmapProperties(Assets.cement_25, 20, 1, 2000, true, true);
@@ -2144,7 +2099,7 @@ class PlayScreen extends Screen {
                                 } else if (obstacles.get(i).getDestroyCounter() == 3) {
                                     obstacles.get(i).getObstacle().changeBitmapProperties(Assets.cement_75, 20, 1, 2000, true, true);
                                 }
-                                break;
+                            break;
                         }
                     }
                 }
@@ -2159,29 +2114,15 @@ class PlayScreen extends Screen {
 
                 //has already been accounted for and is awaiting deletion
                 if(obstacles.get(i).getStatus() == NONE && obstacles.get(i).getObstacle().animFinished()){
-                    obstacles.remove(i);
-                }
-                else if (obstacles.get(i).getDestroyCounter() == 0 && obstacles.get(i).getObstacle().animFinished()) {
-                    //set urb underneath obstacle to be free
-                    int obstacleUrb = gameMethods.findBitmapByMapLocation(Urbs, tileLocations, obstacles.get(i).getObstacle().getLocation());
-
-                    switch (obstacles.get(i).getStatus()) {
+                    switch (obstacles.get(i).getOldStatus()) {
                         case GLASS:
                             levelManager.addToGlassCounter();
                             break;
+                        case CEMENT:
+                            levelManager.addToCementCounter(); break;
+                        case WOODEN:
+                            levelManager.addToWoodenCounter(); break;
                     }
-
-
-                    //identify empty tiles below cleared obstacle, this is only relevant for INVISIBLITY STATUSES
-                    if (obstacles.get(i).getStatus() == Urbies.UrbieStatus.CEMENT || obstacles.get(i).getStatus() == Urbies.UrbieStatus.WOODEN) {
-                        updateMoveDownElements.addAll(gameMethods.getEmptyTilesBelowSelectedTileIfExists(
-                                obstacles.get(i).getObstacle().getLocation(),
-                                tileLocations,
-                                tileWidth, Urbs));
-                        //System.out.println("helper = " + helper);
-                    }
-                    //obstacle has been cleared now
-                    Urbs.get(obstacleUrb).setStatus(NONE);
                     obstacles.remove(i);
                 }
             }
@@ -2200,10 +2141,10 @@ class PlayScreen extends Screen {
 
         ArrayList<Integer> sorted = gameMethods.sortPointArrayInDescendingOrderByY(futureCoordinates);
 
-        System.out.println("BEFORE ANY REMOVALS" );
+        /*System.out.println("BEFORE ANY REMOVALS" );
         System.out.println("urbMatchOne = "+urbMatchOne);
         System.out.println("userMatchOne = "+userMatchOne);
-        System.out.println("matchesOffScreen = "+matchesOffScreen);
+        System.out.println("matchesOffScreen = "+matchesOffScreen);*/
 
         if (!matchesOffScreen.isEmpty()) {
             for(int a = urbMatchOne.size() -1; a >= 0; a--){
@@ -2222,10 +2163,12 @@ class PlayScreen extends Screen {
             }
         }
 
+        System.out.println("AFTER ANY REMOVALS" );
         System.out.println("urbMatchOne = "+urbMatchOne);
         System.out.println("futureCoordinates = "+futureCoordinates);
         System.out.println("futurePositions = "+futurePositions);
         System.out.println("userMatchOne = "+userMatchOne);
+
 
         if (!sorted.isEmpty()) {
             System.out.println("sorted = "+ sorted);
@@ -2249,9 +2192,9 @@ class PlayScreen extends Screen {
      ***********************************************************************************************/
     private void addEmptyTilesAfterBrokenObstacleRemoved(ArrayList<Integer> elementsToAdd) {
 
-        System.out.println("futurePositions = " + futurePositions);
+        /*System.out.println("futurePositions = " + futurePositions);
         System.out.println("futureCoordinates = " + futureCoordinates);
-        System.out.println("elementsToAdd = " + elementsToAdd);
+        System.out.println("elementsToAdd = " + elementsToAdd);*/
 
         if (elementsToAdd.size() > 1) {
             //make sure empty tile array starts at the highest element
@@ -2275,9 +2218,9 @@ class PlayScreen extends Screen {
                 futurePositions.set(j + 1, key);
             }
 
-            System.out.println("futurePositions = " + futurePositions);
+            /*System.out.println("futurePositions = " + futurePositions);
             System.out.println("futureCoordinates = " + futureCoordinates);
-            System.out.println("elementsToAdd = " + elementsToAdd);
+            System.out.println("elementsToAdd = " + elementsToAdd);*/
         }
 
         if (!futureCoordinates.isEmpty()) {
@@ -2287,9 +2230,9 @@ class PlayScreen extends Screen {
             }
         }
 
-        System.out.println("futurePositions = " + futurePositions);
+      /*  System.out.println("futurePositions = " + futurePositions);
         System.out.println("futureCoordinates = " + futureCoordinates);
-        System.out.println("elementsToAdd = " + elementsToAdd);
+        System.out.println("elementsToAdd = " + elementsToAdd);*/
     }
 
     /********************************************************
@@ -2731,6 +2674,21 @@ class PlayScreen extends Screen {
                 }
             }
         }
+
+        /*for(i = 0; i < values.size(); i++) {
+            for (j = 0; j < tileLocations.size(); j++) {
+                if (values.get(i).getPosition() == tileLocations.get(j)) {
+                    values.get(i).setLocation(j);
+                    break;
+                }
+            }
+        }*/
+
+        /*System.out.println("Sort Urbs Method");
+        for(i = 0; i < values.size(); i++){
+            System.out.print(i + " = " + values.get(i).getLocation());
+            System.out.println(" ");
+        }*/
     }
 
 
@@ -2798,7 +2756,7 @@ class PlayScreen extends Screen {
         //remove locations where urb is held by an obstacle
         for (int i = shuffledLocations.size() - 1; i >= 0; i--) {
             int urbLoc = gameMethods.findObjectByPosition(shuffledLocations.get(i), Urbs);
-            System.out.println("urbLoc = " + urbLoc);
+            //System.out.println("urbLoc = " + urbLoc);
             if (urbLoc > -1) {
                 if (Urbs.get(urbLoc).getStatus() != NONE || Urbs.get(urbLoc).getY() < 0) {
                     shuffledLocations.remove(i);
@@ -2821,7 +2779,7 @@ class PlayScreen extends Screen {
         }
 
         if (!shuffledLocations.isEmpty()) Collections.shuffle(shuffledLocations);
-        System.out.println("shuffledLocations = " + shuffledLocations);
+        //System.out.println("shuffledLocations = " + shuffledLocations);
         return shuffledLocations;
     }
 
@@ -2866,9 +2824,9 @@ class PlayScreen extends Screen {
         }
 
         sortUrbs(objects);
-        System.out.println("shuffled locations");
+        //System.out.println("shuffled locations");
         for (int i = 0; i < objects.size(); i++) {
-            System.out.println(objects.get(i).getLocation());
+            //System.out.println(objects.get(i).getLocation());
         }
        /* for (int i = 0; i < newLocations.size(); i++) {
             if(objects.get(i).getStatus() == NONE) {
@@ -3131,12 +3089,12 @@ class PlayScreen extends Screen {
             userMatchOne.add(pos2);
             Collections.sort(userMatchOne, reverseOrder());
 
-            //identify if matches are next to any obstacles
+
+            objectsToMoveDown();
+
             if (levelManager.isWood() || levelManager.isCement()) {
                 findDamagedObstacles(obstacleTiles);
             }
-
-            objectsToMoveDown();
 
             if (!objectsToMoveDown.isEmpty()) {
                 for (int i = 0; i < objectsToMoveDown.size(); i++) {
@@ -3200,11 +3158,12 @@ class PlayScreen extends Screen {
             Collections.sort(userMatchOne, reverseOrder());
 
             //identify if matches are next to any obstacles
+            /**/
+
+            objectsToMoveDown();
             if (levelManager.isWood() || levelManager.isCement()) {
                 findDamagedObstacles(obstacleTiles);
             }
-
-            objectsToMoveDown();
 
             if (!objectsToMoveDown.isEmpty()) {
                 for (int i = 0; i < objectsToMoveDown.size(); i++) {
@@ -3235,11 +3194,12 @@ class PlayScreen extends Screen {
 
         userMatchOne.add(pos2);
 
+        /**/
+
+        objectsToMoveDown();
         if (levelManager.isWood() || levelManager.isCement()) {
             findDamagedObstacles(obstacleTiles);
         }
-
-        objectsToMoveDown();
 
         if (!objectsToMoveDown.isEmpty()) {
             for (int i = 0; i < objectsToMoveDown.size(); i++) {
@@ -3264,18 +3224,24 @@ class PlayScreen extends Screen {
     private void objectsToMoveDown() {
         if (!urbMatchOne.isEmpty()) {
             for (int i = 0; i < urbMatchOne.size(); i++) {
-                System.out.println("urb positions" + Urbs.get(urbMatchOne.get(i)).getY());
+             //   System.out.println("urb positions" + Urbs.get(urbMatchOne.get(i)).getY());
             }
         }
 
+        ArrayList<DataStore>futureValues = new ArrayList<>();
         //for testing purposes only
-        ArrayList<DataStore> store = gameMethods.separateTheMadness(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen);
+        ArrayList<DataStore> store = gameMethods.separateTheMadness(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen,
+                futureValues);
 
         for(int i = 0; i < store.size(); i++){
             objectsToMoveDown.add(store.get(i).getElement());
             coordinatesToMoveTo.add(store.get(i).getPosition());
         }
 
+        for(int i = 0; i < futureValues.size(); i++){
+            futurePositions.add(futureValues.get(i).getElement());
+            futureCoordinates.add(futureValues.get(i).getPosition());
+        }
 
         //objectsToMoveDown = gameMethods.moveDownTest(Urbs, userMatchOne, levelManager.getLevelTileMap().getMapLevel(), obstacleTiles, coordinatesToMoveTo, futureCoordinates, futurePositions, matchesOffScreen, tileLocations, tileWidth);
         /*objectsToMoveDown = gameMethods.listOfObjectToMoveDown(
@@ -3333,12 +3299,12 @@ class PlayScreen extends Screen {
             Collections.sort(userMatchOne, reverseOrder());
 
             //identify if matches are next to any obstacles
+            /**/
+
+            objectsToMoveDown();
             if (levelManager.isWood() || levelManager.isCement()) {
                 findDamagedObstacles(obstacleTiles);
             }
-
-            objectsToMoveDown();
-
             if (!objectsToMoveDown.isEmpty()) {
                 for (int i = 0; i < objectsToMoveDown.size(); i++) {
                     urbsToMoveDown.add(gameMethods.findBitmapByMapLocation(Urbs, tileLocations, objectsToMoveDown.get(i)));
@@ -3466,12 +3432,12 @@ class PlayScreen extends Screen {
         Collections.sort(userMatchOne, reverseOrder());
 
         //identify if matches are next to any obstacles
+       /* */
+
+        objectsToMoveDown();
         if (levelManager.isWood() || levelManager.isCement()) {
             findDamagedObstacles(obstacleTiles);
         }
-
-        objectsToMoveDown();
-
         if (!objectsToMoveDown.isEmpty()) {
             for (int i = 0; i < objectsToMoveDown.size(); i++) {
                 urbsToMoveDown.add(gameMethods.findBitmapByMapLocation(Urbs, tileLocations, objectsToMoveDown.get(i)));
@@ -3550,12 +3516,12 @@ class PlayScreen extends Screen {
         Collections.sort(userMatchOne, reverseOrder());
 
         //identify if matches are next to any obstacles
+        /**/
+
+        objectsToMoveDown();
         if (levelManager.isWood() || levelManager.isCement()) {
             findDamagedObstacles(obstacleTiles);
         }
-
-        objectsToMoveDown();
-
         if (!objectsToMoveDown.isEmpty()) {
             for (int i = 0; i < objectsToMoveDown.size(); i++) {
                 urbsToMoveDown.add(gameMethods.findBitmapByMapLocation(Urbs, tileLocations, objectsToMoveDown.get(i)));
@@ -3633,12 +3599,12 @@ class PlayScreen extends Screen {
         Collections.sort(userMatchOne, reverseOrder());
 
         //identify if matches are next to any obstacles
+        /**/
+
+        objectsToMoveDown();
         if (levelManager.isWood() || levelManager.isCement()) {
             findDamagedObstacles(obstacleTiles);
         }
-
-        objectsToMoveDown();
-
         if (!objectsToMoveDown.isEmpty()) {
             for (int i = 0; i < objectsToMoveDown.size(); i++) {
                 urbsToMoveDown.add(gameMethods.findBitmapByMapLocation(Urbs, tileLocations, objectsToMoveDown.get(i)));

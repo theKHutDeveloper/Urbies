@@ -7,6 +7,7 @@ import com.development.knowledgehut.urbies.Screens.Urbies;
 public class Obstacles {
     private BitmapAnimation bmp;
     private Urbies.UrbieStatus status;
+    private Urbies.UrbieStatus oldStatus;
     private Urbies.VisibilityStatus visibilityStatus;
     private int numberUntilDestroyed;
     private int destroyCounter;
@@ -14,6 +15,7 @@ public class Obstacles {
     public Obstacles(BitmapAnimation bmp, Urbies.UrbieStatus status, Urbies.VisibilityStatus visibilityStatus){
         this.bmp = bmp;
         this.status = status;
+        oldStatus = status;
         this.visibilityStatus = visibilityStatus;
 
         switch(status){
@@ -39,6 +41,8 @@ public class Obstacles {
     public Urbies.UrbieStatus getStatus(){
         return status;
     }
+
+    public Urbies.UrbieStatus getOldStatus(){ return oldStatus; }
 
     public int getLocation(){
         return bmp.getLocation();

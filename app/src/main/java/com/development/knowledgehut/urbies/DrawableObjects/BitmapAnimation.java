@@ -240,6 +240,10 @@ public class BitmapAnimation implements Comparable<BitmapAnimation> {
         current_frame = 0;
     }
 
+    public Point getPosition(){
+        return position;
+    }
+
     public int getX(){
         return position.x;
     }

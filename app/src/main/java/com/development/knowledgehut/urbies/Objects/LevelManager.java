@@ -163,12 +163,12 @@ public class LevelManager {
             case 2: moves = 8; minScore = 2000; break;
             case 3: moves = 15; minScore = 3500; break;
             case 4: moves = 20; minScore = 4500; break;
-            case 5: moves = 15; minScore = 6000; break;
-            case 6: moves = 20; minScore = 7000; break;
-            case 7: moves = 10; glass = 5; break;
-            case 8: moves = 12; glass = 6; break;
-            case 9: moves = 30; glass = 8; break;
-            case 10: moves = 20; glass = 13; break;
+            case 5: moves = 100; minScore = 6000; break;
+            case 6: moves = 100; minScore = 7000; break;
+            case 7: moves = 100; glass = 5; break;
+            case 8: moves = 100; glass = 6; break;
+            case 9: moves = 100; glass = 8; break;
+            case 10: moves = 100; glass = 13; break;
             case 11: moves = 100; cement = 5; break;
         }
     }
@@ -478,7 +478,7 @@ public class LevelManager {
      ****************************************************************************/
     public void addToCementCounter(){
         switch(level){
-            case 11: cementCounter++; break;
+            case 11:
             case 30: cementCounter++; break;
         }
     }
