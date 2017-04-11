@@ -751,7 +751,30 @@ public class GameMethods {
 
     //TODO: 2. Then I need to identify whether there are any new urbs that will need to have it's path manipulated
     //TODO:  - due to avoiding passing through blocked obstacles.
-    
+    /*
+        2. Get path of replacement objects
+        I should only be concerned if current element y position is < freeslot y and will move to > freeslot y. This method
+        will add points to the findLine method so that the objects do not pass through the cement/wood
+
+
+        psuedo code
+
+        function amendPath(ArrayList<Integer>elements, ArrayList<Point>positions, ArrayList<Integer>freeslots,
+        List<UrbieAnimation>objects, ArrayList<Point>tilePos){
+            for(int i = 0; i < elements.size(); i++){
+                if(objects.get(elements.get(i)).getY() < tilePos.get(freeslot.get(0)).y && position.get(i).getY() >
+                 tilePos.get(freeslot.get(0)).y){
+                 //what is the shortest x position distance, if more than one, if more than one and distance the same just
+                 //get the first one
+                 //the adjustment is:
+                 element.get(i).x -> freeslot.get(?).x,
+                 element.get(i).y -> freeslot.get(?).y,
+                 element.get(i).y -> position.get(i).get.y
+                 element.get(i).x -> position.get(i).get.x
+                 }
+            }
+        }
+     */
     /*************************************************
     to act as a replacement for listOfObjectsToMoveDown
      *************************************************/
