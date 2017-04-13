@@ -847,5 +847,92 @@ public class Unused {
         return result;
     }
 
+/*
+    public ArrayList<DataStore> getOnScreenObjectsToMoveDown(
+            List<UrbieAnimation>objects, ArrayList<Point>tilePos,
+            ArrayList<Integer>matches, ArrayList<Integer>map, ArrayList<Obstacles>obstacles, int width)
+    {
+        ArrayList<DataStore>remainingObjects = new ArrayList<>();
+        ArrayList<Integer> nearMatchObstacles;
+        ArrayList<Integer> entrance = new ArrayList<>();
+        ArrayList<Integer> obstacleIndexWhereZero = new ArrayList<>();
+
+
+        ArrayList<Integer>obstacleLocations = getInvisibleObjectPositionsInTileMap(obstacles);
+        ArrayList<Integer>glassObstacles = getGlassPositionsInTileMap(obstacles);
+
+        if(!obstacleLocations.isEmpty()){
+            nearMatchObstacles = getActualNearMatchesThatAreObstacles(matches, obstacleLocations, width, map);
+
+            if(!nearMatchObstacles.isEmpty()) {
+                for(int i = 0; i < obstacles.size(); i++){
+                    if(nearMatchObstacles.contains(obstacles.get(i).getLocation())) {
+                        obstacles.get(i).deductDestroyCounter();
+                        updateObstacle(obstacles, i, entrance, obstacleIndexWhereZero, objects, obstacleLocations, tilePos);
+                    }
+                }
+            }
+        }
+        return remainingObjects;
+    }
+
+
+
+
+
+
+    *//*******************************************************************
+     * get a list of invisible obstacle locations e.g. WOOD and CEMENT
+     *******************************************************************//*
+    private ArrayList<Integer> getInvisibleObjectPositionsInTileMap(ArrayList<Obstacles>obstacles){
+        ArrayList<Integer>obstacleLocations = new ArrayList<>();
+
+        if (!obstacles.isEmpty()) {
+            for (int i = 0; i < obstacles.size(); i++) {
+                if(!obstacles.get(i).isVisible() && obstacles.get(i).getDestroyCounter() > 0) {
+                    obstacleLocations.add(obstacles.get(i).getLocation());
+                }
+            }
+        }
+        return obstacleLocations;
+    }
+
+    *//**************************************************
+     * get a list of GLASS obstacles
+     **************************************************//*
+    private ArrayList<Integer> getGlassPositionsInTileMap(ArrayList<Obstacles>obstacles){
+        ArrayList<Integer>glassLocations = new ArrayList<>();
+
+        if (!obstacles.isEmpty()) {
+            for (int i = 0; i < obstacles.size(); i++) {
+                if(obstacles.get(i).getStatus() == GLASS){
+                    glassLocations.add(obstacles.get(i).getLocation());
+                }
+            }
+        }
+        return glassLocations;
+    }
+
+
+    *//**************************************************
+     * update Obstacles
+     **************************************************//*
+    private void updateObstacle(ArrayList<Obstacles>obstacles, int index, ArrayList<Integer>entrance,
+                                ArrayList<Integer>obstacleIndexWhereZero, List<UrbieAnimation>objects,
+                                ArrayList<Integer>obstacleLocations, ArrayList<Point>tilePos){
+        obstacles.get(index).deductDestroyCounter();
+        if(obstacles.get(index).getDestroyCounter() == 0){
+            entrance.add(obstacles.get(index).getLocation());
+            obstacleIndexWhereZero.add(index); //doesn't this get affected when you remove an obstacle?
+            int urb_num = findBitmapByMapLocation(objects, tilePos, obstacles.get(index).getLocation());
+            if(urb_num > -1){
+                objects.get(urb_num).setStatus(NONE);
+                objects.get(urb_num).setVisible(Urbies.VisibilityStatus.VISIBLE);
+                int i = obstacleLocations.indexOf(obstacles.get(index).getLocation());
+                obstacles.get(index).clearStatus();
+                obstacleLocations.remove(i);
+            }
+        }
+    }*/
 
 }

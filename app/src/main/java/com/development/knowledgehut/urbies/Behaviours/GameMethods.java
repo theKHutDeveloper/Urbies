@@ -230,7 +230,7 @@ public class GameMethods {
         //convert to urbs
         for (int i = 0; i < returnedList.size(); i++) {
             int index = returnedList.get(i);
-            if(index > -1) {
+            if (index > -1) {
                 returnedList.set(i, findBitmapByMapLocation(objects, tiles, index));
             }
         }
@@ -418,7 +418,7 @@ public class GameMethods {
 
 
         for (int i = 0; i < objects.size(); i++) {
-            if(objects.get(i).getActive()) {
+            if (objects.get(i).getActive()) {
                 int element = objects.get(i).getLocation();
 
                 if (objects.get(i).getStatus() == NONE && objects.get(i).getY() > 0) {
@@ -475,12 +475,12 @@ public class GameMethods {
 
         matchedDetails.setSpecialType();
 
-        ArrayList<Integer>matchesThatCanBeIntersectingElement = new ArrayList<>();
-        for(int i = 0; i < matchedDetails.getReturnedMatches().size(); i++) {
+        ArrayList<Integer> matchesThatCanBeIntersectingElement = new ArrayList<>();
+        for (int i = 0; i < matchedDetails.getReturnedMatches().size(); i++) {
             matchesThatCanBeIntersectingElement.add(matchedDetails.getReturnedMatches().get(i));
         }
         //get a list of matches that can be valid intersecting element, without having to remove matches
-        if(!obstacles.isEmpty()) {
+        if (!obstacles.isEmpty()) {
             for (int i = 0; i < obstacles.size(); i++) {
                 if (matchesThatCanBeIntersectingElement.contains(obstacles.get(i).getLocation())) {
                     int index = matchesThatCanBeIntersectingElement.indexOf(obstacles.get(i).getLocation());
@@ -498,7 +498,8 @@ public class GameMethods {
                 if (!matchedDetails.getReturnedMatches().isEmpty()) {
                     if (matchesThatCanBeIntersectingElement.size() > 2) {
                         matchedDetails.setIntersecting_element(matchesThatCanBeIntersectingElement.get(2));
-                    } else matchedDetails.setIntersecting_element(matchesThatCanBeIntersectingElement.get(0));
+                    } else
+                        matchedDetails.setIntersecting_element(matchesThatCanBeIntersectingElement.get(0));
                 }
             }
         } else {
@@ -529,11 +530,11 @@ public class GameMethods {
     /********************************************************************************
      * Find the location of a specific position in the list of tile positions
      ********************************************************************************/
-    private int findLocationByPosition(Point position, ArrayList<Point>tilePos){
+    private int findLocationByPosition(Point position, ArrayList<Point> tilePos) {
         int found = -1;
 
-        for(int i = 0; i < tilePos.size(); i++){
-            if(tilePos.get(i) == position){
+        for (int i = 0; i < tilePos.size(); i++) {
+            if (tilePos.get(i) == position) {
                 found = i;
                 break;
             }
@@ -721,21 +722,21 @@ public class GameMethods {
     /********************************************************************************
      * returns a list of empty tile locations, where the tile is active
      ********************************************************************************/
-    private ArrayList<Integer> getEmptyTiles(ArrayList<Integer>map, ArrayList<Point>tilePos, List<UrbieAnimation>objects){
-        ArrayList<Integer>emptyTiles = new ArrayList<>();
+    private ArrayList<Integer> getEmptyTiles(ArrayList<Integer> map, ArrayList<Point> tilePos, List<UrbieAnimation> objects) {
+        ArrayList<Integer> emptyTiles = new ArrayList<>();
 
-        for(int i = 0; i < tilePos.size(); i++){
-            if(map.get(i) == 1){
+        for (int i = 0; i < tilePos.size(); i++) {
+            if (map.get(i) == 1) {
                 boolean found = false;
 
-                for(int j = 0; j < objects.size(); j++){
-                    if(tilePos.get(i).equals(objects.get(j).getPosition())){
+                for (int j = 0; j < objects.size(); j++) {
+                    if (tilePos.get(i).equals(objects.get(j).getPosition())) {
                         found = true;
                         break;
                     }
                 }
 
-                if(!found){
+                if (!found) {
                     emptyTiles.add(i);
                 }
             }
@@ -744,10 +745,12 @@ public class GameMethods {
         return emptyTiles;
     }
 
+
     //TODO: 1. If I have urbs removed below obstacles and the row isn't blocked I need to identify if there
     //TODO:  - a clear path for the urbs e.g. 12 is the entrance matched list was 16, 17, 18. There is nothing
     //TODO:  - in the way. If there are urbs in the way then I will need to move then before any of the
     //TODO:  - remaining urbs are moved into position.
+    //I HAVE IDENTIFIED WHEN THERE IS A PATHWAY AVAILABLE WHEN THERE ARE EMPTY TILES
 
     //TODO: 2. Then I need to identify whether there are any new urbs that will need to have it's path manipulated
     //TODO:  - due to avoiding passing through blocked obstacles.
@@ -774,25 +777,28 @@ public class GameMethods {
                  }
             }
         }
+
      */
+
     /*************************************************
-    to act as a replacement for listOfObjectsToMoveDown
+     to act as a replacement for listOfObjectsToMoveDown
      *************************************************/
-    public ArrayList<DataStore> separateTheMadness(List<UrbieAnimation>objects, ArrayList<Integer>matches, ArrayList<Obstacles>obstacles, int width, ArrayList<Point>tilePos, ArrayList<Integer>map,
-                                                   ArrayList<Integer>matchesOffScreen, ArrayList<DataStore>future
-    ){
+    public ArrayList<DataStore> separateTheMadness(
+            List<UrbieAnimation> objects, ArrayList<Integer> matches, ArrayList<Obstacles> obstacles,
+            int width, ArrayList<Point> tilePos, ArrayList<Integer> map,
+            ArrayList<Integer> matchesOffScreen, ArrayList<DataStore> future,
+            ArrayList<Integer> entrance
+    ) {
         ArrayList<Integer> obstacleLocations = new ArrayList<>();
         ArrayList<Integer> glassLocations = new ArrayList<>();
         ArrayList<Integer> nearMatchObstacles;
         ArrayList<Integer> obstacleIndexWhereZero = new ArrayList<>();
-        ArrayList<DataStore>store = new ArrayList<>();
+        ArrayList<DataStore> store = new ArrayList<>();
         ArrayList<Integer> moveDownList = new ArrayList<>();
         ArrayList<Point> positions = new ArrayList<>();
         ArrayList<Point> leftOverPositions = new ArrayList<>();
         ArrayList<DataStore> belowMatchesToMoveDown = new ArrayList<>();
-        ArrayList<Integer>emptyTiles;
-        ArrayList<Integer>entrance = new ArrayList<>(); //where any urbs will enter when they are moving underneath a cement tile
-
+        ArrayList<Integer> emptyTiles;
 
 
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -800,10 +806,9 @@ public class GameMethods {
         ////////////////////////////////////////////////////////////////////////////////////////////
         if (!obstacles.isEmpty()) {
             for (int i = 0; i < obstacles.size(); i++) {
-                if(!obstacles.get(i).isVisible() && obstacles.get(i).getDestroyCounter() > 0) {
+                if (!obstacles.get(i).isVisible() && obstacles.get(i).getDestroyCounter() > 0) {
                     obstacleLocations.add(obstacles.get(i).getLocation());
-                }
-                else if(obstacles.get(i).getStatus() == GLASS){
+                } else if (obstacles.get(i).getStatus() == GLASS) {
                     glassLocations.add(obstacles.get(i).getLocation());
                 }
             }
@@ -812,19 +817,19 @@ public class GameMethods {
         ////////////////////////////////////////////////////////////////////////////////////////////
         //1. Are there any obstacles that are damaged near the matched list elements?
         ////////////////////////////////////////////////////////////////////////////////////////////
-        if(!obstacleLocations.isEmpty()) {
+        if (!obstacleLocations.isEmpty()) {
             nearMatchObstacles = getActualNearMatchesThatAreObstacles(matches, obstacleLocations, width, map);
 
             //handle damaged urbs e.g. deduct counter etc
-            if(!nearMatchObstacles.isEmpty()) {
-                for(int i = 0; i < obstacles.size(); i++){
-                    if(nearMatchObstacles.contains(obstacles.get(i).getLocation())) {
+            if (!nearMatchObstacles.isEmpty()) {
+                for (int i = 0; i < obstacles.size(); i++) {
+                    if (nearMatchObstacles.contains(obstacles.get(i).getLocation())) {
                         obstacles.get(i).deductDestroyCounter();
-                        if(obstacles.get(i).getDestroyCounter() == 0){
+                        if (obstacles.get(i).getDestroyCounter() == 0) {
                             entrance.add(obstacles.get(i).getLocation());
                             obstacleIndexWhereZero.add(i); //doesn't this get affected when you remove an obstacle?
                             int urb_num = findBitmapByMapLocation(objects, tilePos, obstacles.get(i).getLocation());
-                            if(urb_num > -1){
+                            if (urb_num > -1) {
                                 objects.get(urb_num).setStatus(NONE);
                                 objects.get(urb_num).setVisible(Urbies.VisibilityStatus.VISIBLE);
                                 int index = obstacleLocations.indexOf(obstacles.get(i).getLocation());
@@ -833,14 +838,15 @@ public class GameMethods {
                             }
                         }
                     }
-                    System.out.println("Obstacles "+i + " "+obstacles.get(i).getLocation());
+                    System.out.println("Obstacles " + i + " " + obstacles.get(i).getLocation());
                 }
 
-                System.out.println("ObstacleIndexWhereZero = "+obstacleIndexWhereZero);
-               // System.out.println("STM nearMatchObstacles = " + nearMatchObstacles);
+                System.out.println("ObstacleIndexWhereZero = " + obstacleIndexWhereZero);
+                // System.out.println("STM nearMatchObstacles = " + nearMatchObstacles);
             }
         }
 
+        System.out.println("Entrance = " + entrance);
         ////////////////////////////////////////////////////////////////////////////////////////////
         //2. Are there matches that are below obstacles, if so remove from matches array list
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -848,8 +854,8 @@ public class GameMethods {
         ArrayList<Integer> matchesBelow = new ArrayList<>();
 
         if (!obstacleLocations.isEmpty()) {
-            System.out.println("isRowBlocked = "+isRowBlocked(map, width, obstacleLocations));
-            if(isRowBlocked(map, width, obstacleLocations)) {
+            System.out.println("isRowBlocked = " + isRowBlocked(map, width, obstacleLocations));
+            if (isRowBlocked(map, width, obstacleLocations)) {
                 matchesBelow = matchesBelowObstacles(matches, obstacleLocations, width);
                 if (!matchesBelow.isEmpty()) {
                     for (int i = 0; i < matchesBelow.size(); i++) {
@@ -869,7 +875,7 @@ public class GameMethods {
         ////////////////////////////////////////////////////////////////////////////////////////////
         //3. Does the matched list contain a urb submerged in GLASS? - if so remove glass urb from match list
         ////////////////////////////////////////////////////////////////////////////////////////////
-        if(!glassLocations.isEmpty()) {
+        if (!glassLocations.isEmpty()) {
             for (int i = 0; i < matches.size(); i++) {
                 if (glassLocations.contains(matches.get(i))) {
                     for (int j = 0; j < obstacles.size(); j++) {
@@ -893,28 +899,28 @@ public class GameMethods {
         ////////////////////////////////////////////////////////////////////////////////////////////
         //4. Start looping through matches, considering any broken obstacles and empty tiles
         ////////////////////////////////////////////////////////////////////////////////////////////
-        ArrayList<Point>tempPosition = new ArrayList<>();
-        ArrayList<Point>emptyTilePositions = new ArrayList<>();
+        ArrayList<Point> tempPosition = new ArrayList<>();
+        ArrayList<Point> emptyTilePositions = new ArrayList<>();
         boolean emptyTilesReplaced = false;
         boolean tilesComplete = false;
 
         //Are there any empty tiles, only happens with invisible blocks
         emptyTiles = getEmptyTiles(map, tilePos, objects);
-        System.out.println("Empty tiles = "+ emptyTiles);
+        System.out.println("Empty tiles = " + emptyTiles);
 
-        for(int i = 0; i < matches.size(); i++){
+        for (int i = 0; i < matches.size(); i++) {
             int startingPoint = matches.get(i);
 
-            if(!obstacleIndexWhereZero.isEmpty() && !emptyTiles.isEmpty()){
+            if (!obstacleIndexWhereZero.isEmpty() && !emptyTiles.isEmpty()) {
                 //reset the startingPoint where the broken tile exists
                 for (int j = 0; j < obstacleIndexWhereZero.size(); j++) {
                     if (matches.get(i) % width == obstacles.get(obstacleIndexWhereZero.get(j)).getLocation() % width && obstacles.get(obstacleIndexWhereZero.get(j)).getLocation() > matches.get(i)) {
                         startingPoint = obstacles.get(obstacleIndexWhereZero.get(j)).getLocation();
 
                         //if empty tiles exist and there is a broken obstacle then change the starting point location
-                        if(!emptyTiles.isEmpty()) {
+                        if (!emptyTiles.isEmpty()) {
                             //get a list of the empty tiles locations, this should focus on the location of where the empty tiles are
-                            for(int b = 0; b < emptyTiles.size(); b++){
+                            for (int b = 0; b < emptyTiles.size(); b++) {
                                 emptyTilePositions.add(tilePos.get(emptyTiles.get(b)));
                             }
 
@@ -922,6 +928,23 @@ public class GameMethods {
                             tempPosition.addAll(emptyTilePositions);
                             emptyTilesReplaced = true;
                             tilesComplete = true;
+
+                            //is emptyTiles X position the same as one of the entrance points? if so then
+                            //there is a clear pathway, otherwise some urbs will have to be moved
+                            if (!entrance.isEmpty()) {
+                                boolean clearPathway = false;
+                                for (int loop = 0; loop < entrance.size(); loop++) {
+                                    for (int index = 0; index < emptyTilePositions.size(); index++) {
+                                        if (tilePos.get(entrance.get(loop)).x == emptyTilePositions.get(index).x) {
+                                            System.out.println("there is a clear pathway " + emptyTilePositions.get(index).x + " = " + tilePos.get(entrance.get(loop)).x);
+                                            clearPathway = true;
+                                            break;
+
+                                        }
+                                    }
+                                }
+                                System.out.println("clearPathway = " + clearPathway);
+                            }
                         }
                         break;
                     }
@@ -937,7 +960,7 @@ public class GameMethods {
 
                     int urb_num = findBitmapByMapLocation(objects, tilePos, num);
 
-                    if(urb_num > -1) {
+                    if (urb_num > -1) {
                         if (objects.get(urb_num).getStatus() == NONE) {
                             tempPosition.add(tilePos.get(num));
                         }
@@ -949,15 +972,15 @@ public class GameMethods {
             //Identify the objects that will be moved down
             int counter = 0;
 
-            if(!emptyTilesReplaced) {
+            if (!emptyTilesReplaced) {
                 num = startingPoint - width;
             } else {
                 num = startingPoint;
             }
 
-            while(num >=0){
+            while (num >= 0) {
                 int urb_num = findBitmapByMapLocation(objects, tilePos, num);
-                if(urb_num > -1) {
+                if (urb_num > -1) {
                     if (map.get(num) == 1 && !matches.contains(num) && !moveDownList.contains(num) && objects.get(urb_num).getStatus() == NONE) {
                         moveDownList.add(num);
                         positions.add(tempPosition.get(counter));
@@ -967,10 +990,12 @@ public class GameMethods {
                 num = num - width;
             }
 
-            if(!obstacleIndexWhereZero.isEmpty() && moveDownList.isEmpty()){
+            if (!obstacleIndexWhereZero.isEmpty() && moveDownList.isEmpty()) {
                 //remove where startingPoint coordinates are
                 boolean remove = leftOverPositions.remove(tilePos.get(startingPoint));
-                if(remove){System.out.println("false positive removed");}
+                if (remove) {
+                    System.out.println("false positive removed");
+                }
             }
 
             leftOverPositions.addAll(tempPosition);
@@ -982,53 +1007,53 @@ public class GameMethods {
         }
 
         //remove any leftOverPositions that are also in positions
-        for(int i = leftOverPositions.size() - 1; i >= 0; i--){
-            if(positions.contains(leftOverPositions.get(i))){
+        for (int i = leftOverPositions.size() - 1; i >= 0; i--) {
+            if (positions.contains(leftOverPositions.get(i))) {
                 leftOverPositions.remove(i);
             }
         }
 
-        for(int i = 0; i < moveDownList.size(); i++){
+        for (int i = 0; i < moveDownList.size(); i++) {
             DataStore d = new DataStore();
             d.setElement(moveDownList.get(i));
             d.setPosition(positions.get(i));
             store.add(d);
         }
 
-        for(int i = 0; i < leftOverPositions.size(); i++){
+        for (int i = 0; i < leftOverPositions.size(); i++) {
             DataStore d = new DataStore();
             d.setElement(findLocationByPosition(leftOverPositions.get(i), tilePos)); //need to get element based on position of leftOverPosition
             d.setPosition(leftOverPositions.get(i));
             future.add(d);
         }
 
-        System.out.println("MoveDownList = "+moveDownList);
-        System.out.println("LeftOverPositions = "+leftOverPositions);
+        System.out.println("MoveDownList = " + moveDownList);
+        System.out.println("LeftOverPositions = " + leftOverPositions);
 
         matches.addAll(matchesBelow);
 
-        if(tilesComplete){
+        if (tilesComplete) {
             int counter = -1;
-            for(int k = 0; k < objects.size(); k++){
-                if(objects.get(k).getY() < 0){
+            for (int k = 0; k < objects.size(); k++) {
+                if (objects.get(k).getY() < 0) {
                     objects.get(k).setActive(true);
                     objects.get(k).setLocation(counter);
                     counter--;
-                    System.out.println(k + ", "+objects.get(k).getPosition() + ", "+objects.get(k).getLocation());
+                    System.out.println(k + ", " + objects.get(k).getPosition() + ", " + objects.get(k).getLocation());
                     matches.add(objects.get(k).getLocation());
                 }
             }
         }
 
-        if(!belowMatchesToMoveDown.isEmpty()){
+        if (!belowMatchesToMoveDown.isEmpty()) {
             store.addAll(belowMatchesToMoveDown);
         }
 
         //plot path for how objects are placed on screen, when their are broken tiles
         //entrancePoints, future(element and locations
 
-        for(int i = 0; i < store.size(); i++){
-            System.out.println("store "+ i + " = " + " "+ store.get(i).getElement() + ", " + store.get(i).getPosition());
+        for (int i = 0; i < store.size(); i++) {
+            System.out.println("store " + i + " = " + " " + store.get(i).getElement() + ", " + store.get(i).getPosition());
         }
         return store;//belowMatchesToMoveDown;
 
@@ -1037,41 +1062,40 @@ public class GameMethods {
     }
 
 
-
     /**************************************************************************************************
      returns a list of obstacles that are damaged as a result of the match
      (this does not include obstacles that are at a zero counter
      **************************************************************************************************/
-    private ArrayList<Integer>getActualNearMatchesThatAreObstacles(ArrayList<Integer>matches, ArrayList<Integer>obstacleLocations, int width, ArrayList<Integer>map){
-        ArrayList<Integer>nearMatchObstacles = new ArrayList<>();
+    private ArrayList<Integer> getActualNearMatchesThatAreObstacles(ArrayList<Integer> matches, ArrayList<Integer> obstacleLocations, int width, ArrayList<Integer> map) {
+        ArrayList<Integer> nearMatchObstacles = new ArrayList<>();
         ArrayList<Integer> nearMatches = new ArrayList<>();
 
         //gets a list of values nearby the matches (above, below and either side)
         for (int i = 0; i < matches.size(); i++) {
             if ((matches.get(i) > 0) && (map.get(matches.get(i) - 1) == 1) && ((matches.get(i) / width) == (matches.get(i) - 1) / width)) { //on the same row
-                if(!matches.contains(matches.get(i) - 1)) {
+                if (!matches.contains(matches.get(i) - 1)) {
                     nearMatches.add(matches.get(i) - 1);
                 }
             }
             if ((matches.get(i) + 1 < map.size()) && (map.get(matches.get(i) + 1) == 1) && ((matches.get(i) / width) == (matches.get(i) + 1) / width)) { //on same row
-                if(!matches.contains(matches.get(i) + 1)){
+                if (!matches.contains(matches.get(i) + 1)) {
                     nearMatches.add(matches.get(i) + 1);
                 }
             }
             if ((matches.get(i) - width > 0) && (map.get(matches.get(i) - width) == 1) && ((matches.get(i) % width) == (matches.get(i) - width) % width)) { //on the same column
-                if(!matches.contains(matches.get(i) - width)) {
+                if (!matches.contains(matches.get(i) - width)) {
                     nearMatches.add(matches.get(i) - width);
                 }
             }
             if ((matches.get(i) + width < map.size()) && (map.get(matches.get(i) + width) == 1) && ((matches.get(i) % width) == (matches.get(i) + width) % width)) { //on the same column
-                if(!matches.contains(matches.get(i) + width)) {
+                if (!matches.contains(matches.get(i) + width)) {
                     nearMatches.add(matches.get(i) + width);
                 }
             }
         }
 
         //check against the near matches whether any of these values are obstacles, if so store them
-        for(int i =0; i < nearMatches.size(); i++) {
+        for (int i = 0; i < nearMatches.size(); i++) {
             if (obstacleLocations.contains(nearMatches.get(i))) {
                 nearMatchObstacles.add(nearMatches.get(i));
             }
@@ -1084,12 +1108,12 @@ public class GameMethods {
     /**************************************************************************************************
      returns a list of matches that are underneath obstacles
      **************************************************************************************************/
-    private ArrayList<Integer> matchesBelowObstacles(ArrayList<Integer>matches, ArrayList<Integer>obstacleLocations, int width){
+    private ArrayList<Integer> matchesBelowObstacles(ArrayList<Integer> matches, ArrayList<Integer> obstacleLocations, int width) {
         ArrayList<Integer> matchesBelow = new ArrayList<>();
 
-        for(int i = 0; i < matches.size(); i++){
-            for(int j = 0; j < obstacleLocations.size(); j++){
-                if(matches.get(i) > obstacleLocations.get(j) && matches.get(i) % width == obstacleLocations.get(j) % width){
+        for (int i = 0; i < matches.size(); i++) {
+            for (int j = 0; j < obstacleLocations.size(); j++) {
+                if (matches.get(i) > obstacleLocations.get(j) && matches.get(i) % width == obstacleLocations.get(j) % width) {
                     matchesBelow.add(matches.get(i));
                     break;
                 }
@@ -1102,21 +1126,20 @@ public class GameMethods {
     /**************************************************************************************************
      returns a list of matches that are underneath obstacles
      **************************************************************************************************/
-    private ArrayList<DataStore> manageMatchesUnderObstacles(ArrayList<Integer>belowObstacleMatches, int width, ArrayList<Integer>obstacleLocations, List<UrbieAnimation>objects, ArrayList<Point>tilePos, ArrayList<Integer>map){
+    private ArrayList<DataStore> manageMatchesUnderObstacles(ArrayList<Integer> belowObstacleMatches, int width, ArrayList<Integer> obstacleLocations, List<UrbieAnimation> objects, ArrayList<Point> tilePos, ArrayList<Integer> map) {
         ArrayList<DataStore> dataStore = new ArrayList<>();
 
-        for(int i = 0; i < belowObstacleMatches.size(); i++){
+        for (int i = 0; i < belowObstacleMatches.size(); i++) {
             int num = belowObstacleMatches.get(i) - width;
             int numStart = belowObstacleMatches.get(i);
             boolean blocked = false;
 
-            while(!blocked){
+            while (!blocked) {
 
-                if(obstacleLocations.contains(num) || num < 0){
+                if (obstacleLocations.contains(num) || num < 0) {
                     blocked = true;
-                }
-                else {
-                    if(map.get(num) == 1){
+                } else {
+                    if (map.get(num) == 1) {
                         int urb_num = findBitmapByMapLocation(objects, tilePos, num);
                         if (urb_num > -1) {
                             if (objects.get(urb_num).getStatus() == NONE) {
@@ -1298,17 +1321,17 @@ public class GameMethods {
         int pos2 = objects.get(et2).getLocation();
         Urbies.UrbieType type = objects.get(et1).getType();
 
-         //et1 and et2 are adjacent to each other
+        //et1 and et2 are adjacent to each other
         if (pos2 == (pos1 + 1)) {
 
             if (pos1 % horizontalSize > 0 && pos1 < (mapSize - horizontalSize)) {
                 if (mapLevel.get(pos1 + horizontalSize - 1) == 1) {
                     int pos3 = findObjectByPosition(pos1 + horizontalSize - 1, objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos1 - 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos1 - 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(et1);
                                         arr1.add(et2);
@@ -1324,11 +1347,11 @@ public class GameMethods {
             if (pos1 % horizontalSize > 0 && pos1 > horizontalSize) {
                 if (mapLevel.get(pos1 - (horizontalSize + 1)) == 1) {
                     int pos3 = findObjectByPosition(pos1 - (horizontalSize + 1), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos1 - 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos1 - 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(pos3);
                                         arr1.add(et1);
@@ -1348,7 +1371,7 @@ public class GameMethods {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos1 - 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos1 - 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(pos3);
                                         arr1.add(et1);
@@ -1364,11 +1387,11 @@ public class GameMethods {
             if (pos2 % horizontalSize < (horizontalSize - 1) && pos2 < (mapSize - horizontalSize)) {
                 if (mapLevel.get(pos2 + (horizontalSize + 1)) == 1) {
                     int pos3 = findObjectByPosition(pos2 + (horizontalSize + 1), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 + 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 + 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(et1);
                                         arr1.add(et2);
@@ -1384,11 +1407,11 @@ public class GameMethods {
             if (pos2 % horizontalSize < (horizontalSize - 2)) {
                 if (mapLevel.get(pos2 + 2) == 1) {
                     int pos3 = findObjectByPosition(pos2 + 2, objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 + 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 + 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(et1);
                                         arr1.add(et2);
@@ -1404,11 +1427,11 @@ public class GameMethods {
             if (pos2 % horizontalSize < (horizontalSize - 1) && pos2 >= horizontalSize) {
                 if (mapLevel.get(pos2 - (horizontalSize - 1)) == 1) {
                     int pos3 = findObjectByPosition(pos2 - (horizontalSize - 1), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 + 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 + 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(pos3);
                                         arr1.add(et1);
@@ -1427,11 +1450,11 @@ public class GameMethods {
             if (pos1 % horizontalSize > 0) {
                 if (mapLevel.get(pos1 - 1) == 1) {
                     int pos3 = findObjectByPosition(pos1 - 1, objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos1 + 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos1 + 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(pos3);
                                         arr1.add(et1);
@@ -1447,11 +1470,11 @@ public class GameMethods {
             if (pos2 % horizontalSize < horizontalSize - 1) {
                 if (mapLevel.get(pos2 + 1) == 1) {
                     int pos3 = findObjectByPosition(pos2 + 1, objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 - 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 - 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(et1);
                                         arr1.add(et2);
@@ -1467,11 +1490,11 @@ public class GameMethods {
             if (pos1 >= horizontalSize && pos1 % horizontalSize < (horizontalSize - 1)) {
                 if (mapLevel.get(pos1 - (horizontalSize - 1)) == 1) {
                     int pos3 = findObjectByPosition(pos1 - (horizontalSize - 1), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos1 + 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos1 + 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(pos3);
                                         arr1.add(et1);
@@ -1487,11 +1510,11 @@ public class GameMethods {
             if (pos2 < (mapSize - horizontalSize) && pos2 % horizontalSize > 0) {
                 if (mapLevel.get(pos2 + (horizontalSize - 1)) == 1) {
                     int pos3 = findObjectByPosition(pos2 + (horizontalSize - 1), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 - 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 - 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(et1);
                                         arr1.add(et2);
@@ -1510,11 +1533,11 @@ public class GameMethods {
             if (pos2 % horizontalSize < (horizontalSize - 1)) {
                 if (mapLevel.get(pos2 - (horizontalSize - 1)) == 1) {
                     int pos3 = findObjectByPosition(pos2 - (horizontalSize - 1), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 - horizontalSize) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 - horizontalSize, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(et1);
                                         arr1.add(pos3);
@@ -1530,11 +1553,11 @@ public class GameMethods {
             if (pos2 < (mapSize - horizontalSize)) {
                 if (mapLevel.get(pos2 + horizontalSize) == 1) {
                     int pos3 = findObjectByPosition(pos2 + horizontalSize, objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 - horizontalSize) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 - horizontalSize, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(et1);
                                         arr1.add(et2);
@@ -1550,11 +1573,11 @@ public class GameMethods {
             if (pos1 >= horizontalSize) {
                 if (mapLevel.get(pos1 - horizontalSize) == 1) {
                     int pos3 = findObjectByPosition(pos1 - horizontalSize, objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 - horizontalSize) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 - horizontalSize, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(pos3);
                                         arr1.add(et1);
@@ -1570,11 +1593,11 @@ public class GameMethods {
             if (pos1 % horizontalSize > 0) {
                 if (mapLevel.get(pos1 + (horizontalSize - 1)) == 1) {
                     int pos3 = findObjectByPosition(pos1 + (horizontalSize - 1), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 - horizontalSize) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos1 + horizontalSize, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(et1);
                                         arr1.add(pos3);
@@ -1593,11 +1616,11 @@ public class GameMethods {
             if (pos1 % horizontalSize > 1) {
                 if (mapLevel.get(pos1 - 2) == 1) {
                     int pos3 = findObjectByPosition(pos1 - 2, objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos1 - 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos1 - 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(pos3);
                                         arr1.add(et1);
@@ -1613,11 +1636,11 @@ public class GameMethods {
             if (pos1 >= horizontalSize) {
                 if (mapLevel.get(pos1 - horizontalSize) == 1) {
                     int pos3 = findObjectByPosition(pos1 - horizontalSize, objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 + 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 + 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.get(pos3);
                                         arr1.get(et1);
@@ -1633,11 +1656,11 @@ public class GameMethods {
             if (pos1 % horizontalSize > 0 && pos1 > horizontalSize) {
                 if (mapLevel.get(pos1 - (horizontalSize + 1)) == 1) {
                     int pos3 = findObjectByPosition(pos1 - (horizontalSize + 1), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos1 - 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos1 - 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.get(pos3);
                                         arr1.get(et1);
@@ -1653,11 +1676,11 @@ public class GameMethods {
             if (pos2 % horizontalSize < (horizontalSize - 2)) {
                 if (mapLevel.get(pos2 + 2) == 1) {
                     int pos3 = findObjectByPosition(pos2 + 2, objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 + 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 + 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.get(et1);
                                         arr1.get(et2);
@@ -1673,11 +1696,11 @@ public class GameMethods {
             if (pos2 < (mapSize - horizontalSize)) {
                 if (mapLevel.get(pos2 + horizontalSize) == 1) {
                     int pos3 = findObjectByPosition(pos2 + horizontalSize, objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos1 - 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos1 - 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.get(et1);
                                         arr1.get(et2);
@@ -1693,11 +1716,11 @@ public class GameMethods {
             if (pos2 < (mapSize - horizontalSize) && pos2 % horizontalSize < (horizontalSize - 1)) {
                 if (mapLevel.get(pos2 + (horizontalSize + 1)) == 1) {
                     int pos3 = findObjectByPosition(pos2 + (horizontalSize + 1), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 + 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 + 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(et1);
                                         arr1.add(et2);
@@ -1716,11 +1739,11 @@ public class GameMethods {
             if (pos1 >= horizontalSize) {
                 if (mapLevel.get(pos1 - horizontalSize) == 1) {
                     int pos3 = findObjectByPosition(pos1 - horizontalSize, objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 - 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 - 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.get(pos3);
                                         arr1.get(et1);
@@ -1736,11 +1759,11 @@ public class GameMethods {
             if (pos1 > horizontalSize && pos1 % horizontalSize < (horizontalSize - 1)) {
                 if (mapLevel.get(pos1 - (horizontalSize - 1)) == 1) {
                     int pos3 = findObjectByPosition(pos1 - (horizontalSize - 1), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos1 + 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos1 + 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(pos3);
                                         arr1.add(et1);
@@ -1756,11 +1779,11 @@ public class GameMethods {
             if (pos1 % horizontalSize < (horizontalSize - 2)) {
                 if (mapLevel.get(pos1 + 2) == 1) {
                     int pos3 = findObjectByPosition(pos1 + 2, objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos1 + 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos1 + 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(et1);
                                         arr1.add(pos3);
@@ -1776,11 +1799,11 @@ public class GameMethods {
             if (pos2 % horizontalSize > 1) {
                 if (mapLevel.get(pos2 - 2) == 1) {
                     int pos3 = findObjectByPosition(pos2 - 2, objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 - 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 - 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(et1);
                                         arr1.add(pos3);
@@ -1795,11 +1818,11 @@ public class GameMethods {
             if (pos2 < (mapSize - horizontalSize)) {
                 if (mapLevel.get(pos2 + horizontalSize) == 1) {
                     int pos3 = findObjectByPosition(pos2 + horizontalSize, objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos1 + 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos1 + 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.get(et1);
                                         arr1.get(et2);
@@ -1815,11 +1838,11 @@ public class GameMethods {
             if (pos2 < (mapSize - horizontalSize) && pos2 % horizontalSize > 0) {
                 if (mapLevel.get(pos2 + (horizontalSize - 1)) == 1) {
                     int pos3 = findObjectByPosition(et2 + (horizontalSize - 1), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 - 1) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 - 1, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(et1);
                                         arr1.add(et2);
@@ -1838,11 +1861,11 @@ public class GameMethods {
             if (pos1 % horizontalSize > 0 && pos1 > horizontalSize) {
                 if (mapLevel.get(pos1 - (horizontalSize + 1)) == 1) {
                     int pos3 = findObjectByPosition(pos1 - (horizontalSize + 1), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos1 - horizontalSize) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos1 - horizontalSize, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(pos3);
                                         arr1.add(et1);
@@ -1858,11 +1881,11 @@ public class GameMethods {
             if (pos1 % horizontalSize < (horizontalSize - 1) && pos1 >= horizontalSize) {
                 if (mapLevel.get(pos1 - (horizontalSize - 1)) == 1) {
                     int pos3 = findObjectByPosition(pos1 - (horizontalSize - 1), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos1 - horizontalSize) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos1 - horizontalSize, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(pos3);
                                         arr1.add(et1);
@@ -1878,11 +1901,11 @@ public class GameMethods {
             if (pos1 >= (horizontalSize * 2)) {
                 if (mapLevel.get(pos1 - (horizontalSize * 2)) == 1) {
                     int pos3 = findObjectByPosition(pos1 - (horizontalSize * 2), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos1 - horizontalSize) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos1 - horizontalSize, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(pos3);
                                         arr1.add(et1);
@@ -1898,11 +1921,11 @@ public class GameMethods {
             if (pos2 < (mapSize - horizontalSize) && pos2 % horizontalSize < (horizontalSize - 1)) {
                 if (mapLevel.get(pos2 + (horizontalSize + 1)) == 1) {
                     int pos3 = findObjectByPosition(pos2 + (horizontalSize + 1), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 + horizontalSize) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 + horizontalSize, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(et1);
                                         arr1.add(et2);
@@ -1918,11 +1941,11 @@ public class GameMethods {
             if (pos2 < (mapSize - horizontalSize) && pos2 % horizontalSize > 0) {
                 if (mapLevel.get(pos2 + (horizontalSize - 1)) == 1) {
                     int pos3 = findObjectByPosition(pos2 + (horizontalSize - 1), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 + horizontalSize) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 + horizontalSize, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(et1);
                                         arr1.add(et2);
@@ -1938,11 +1961,11 @@ public class GameMethods {
             if (pos2 < (mapSize - (horizontalSize * 2))) {
                 if (mapLevel.get(pos2 + (horizontalSize * 2)) == 1) {
                     int pos3 = findObjectByPosition(pos2 + (horizontalSize * 2), objects);
-                    if(pos3 > -1) {
+                    if (pos3 > -1) {
                         if (objects.get(pos3).getType() == type && mapLevel.get(pos2 + horizontalSize) == 1 && objects.get(pos3).getY() > 0) {
                             if (objects.get(pos3).getStatus() == NONE) {
                                 int pos4 = findObjectByPosition(pos2 + horizontalSize, objects);
-                                if(pos4 > -1) {
+                                if (pos4 > -1) {
                                     if (objects.get(pos4).getStatus() == NONE && objects.get(pos4).getY() > 0) {
                                         arr1.add(et1);
                                         arr1.add(et2);
@@ -2098,7 +2121,7 @@ public class GameMethods {
      **********************************************************************/
     private ArrayList<Integer> findObstaclesThatCanBeMatched(ArrayList<Obstacles> obstacles, ArrayList<Integer> mapLevel, int horizontalSize, List<UrbieAnimation> objects) {
         ArrayList<Integer> pairs;
-        ArrayList<Integer>   potentialForMatches = new ArrayList<>();
+        ArrayList<Integer> potentialForMatches = new ArrayList<>();
         ArrayList<Integer> matchOfThree = new ArrayList<>();
         ArrayList<Integer> urbMatchOfThree = new ArrayList<>();
 
@@ -2430,7 +2453,6 @@ public class GameMethods {
                         if (objects.get(pos1).getType() == objects.get(pos2).getType()) {
                             pairs.add(pos1);
                             pairs.add(pos2);
-                            //System.out.println(pairs + "4");
                         }
                     }
                 }
@@ -2488,21 +2510,21 @@ public class GameMethods {
     }
 
     //exits out of loop on first condition of true
-    private boolean isRowBlocked(ArrayList<Integer>map, int width, ArrayList<Integer>obstacleLocations){
+    private boolean isRowBlocked(ArrayList<Integer> map, int width, ArrayList<Integer> obstacleLocations) {
         boolean blocked = false;
 
-        for(int i = 0; i < map.size(); i = i + width){
+        for (int i = 0; i < map.size(); i = i + width) {
             int count;
-            if(map.get(i) == 0 || obstacleLocations.contains(i)){
+            if (map.get(i) == 0 || obstacleLocations.contains(i)) {
                 count = 1;
                 for (int j = 1; j < width; j++) {
-                    if(map.get(i + j) == 0 || (map.get(i + j) == 1 && obstacleLocations.contains(i + j))){
+                    if (map.get(i + j) == 0 || (map.get(i + j) == 1 && obstacleLocations.contains(i + j))) {
                         count++;
                     } else {
                         count = 0;
                     }
                 }
-                if(count == 5){
+                if (count == 5) {
                     blocked = true;
                     break;
                 }
@@ -2567,6 +2589,101 @@ public class GameMethods {
             start = start + horizontalSize;
         }
         return result;
+    }
+
+
+    /*******************************************************************
+     * get a list of invisible obstacle locations e.g. WOOD and CEMENT
+     *******************************************************************/
+    private ArrayList<Integer> getInvisibleObjectPositionsInTileMap(ArrayList<Obstacles> obstacles) {
+        ArrayList<Integer> obstacleLocations = new ArrayList<>();
+
+        if (!obstacles.isEmpty()) {
+            for (int i = 0; i < obstacles.size(); i++) {
+                if (!obstacles.get(i).isVisible() && obstacles.get(i).getDestroyCounter() > 0) {
+                    obstacleLocations.add(obstacles.get(i).getLocation());
+                }
+            }
+        }
+        return obstacleLocations;
+    }
+
+    /**************************************************
+     * get a list of GLASS obstacles
+     **************************************************/
+    private ArrayList<Integer> getGlassPositionsInTileMap(ArrayList<Obstacles> obstacles) {
+        ArrayList<Integer> glassLocations = new ArrayList<>();
+
+        if (!obstacles.isEmpty()) {
+            for (int i = 0; i < obstacles.size(); i++) {
+                if (obstacles.get(i).getStatus() == GLASS && obstacles.get(i).getDestroyCounter() > 0) {
+                    glassLocations.add(obstacles.get(i).getLocation());
+                }
+            }
+        }
+        return glassLocations;
+    }
+
+
+    //NEW STUFF HERE
+
+    /*******************************************************************************
+     * returns a list of remaining objects that need to be moved down the tiles
+     *******************************************************************************/
+    private ArrayList<Integer> listOfRemainingObjectsToBeMovedDown(ArrayList<Integer> matches,
+                                                                   ArrayList<Integer> map,
+                                                                   ArrayList<Obstacles> obstacles,
+                                                                   int width) {
+        ArrayList<Integer> list = new ArrayList<>();
+        ArrayList<Integer> obstacleLocations = getInvisibleObjectPositionsInTileMap(obstacles);
+        ArrayList<Integer> glassLocations = getGlassPositionsInTileMap(obstacles);
+
+        for (int i = 0; i < matches.size(); i++) {
+            int num = matches.get(i) - width;
+
+            while (num >= 0) {
+                if (map.get(num) == 1 && !obstacleLocations.contains(num) && !glassLocations.contains(num)
+                        && !matches.contains(num) && !list.contains(num)) {
+                    list.add(num);
+                } else if (map.get(num) == 1 && obstacleLocations.contains(num)) {
+                    break;
+                }
+
+                num = num - width;
+            }
+        }
+
+        return list;
+    }
+
+    /***********************************************************************************
+     * returns a list of points of where the remaining objects that need to be moved to
+     ***********************************************************************************/
+    private ArrayList<Point> positionsThatRemainingObjectsNeedToMoveTo(ArrayList<Integer>matches,
+                                                                       ArrayList<Integer>map,
+                                                                       ArrayList<Obstacles>obstacles,
+                                                                       ArrayList<Point>tilePos,
+                                                                       int width){
+        ArrayList<Point>positions = new ArrayList<>();
+        ArrayList<Integer> obstacleLocations = getInvisibleObjectPositionsInTileMap(obstacles);
+        ArrayList<Integer> glassLocations = getGlassPositionsInTileMap(obstacles);
+
+        for(int i = 0; i < matches.size(); i++){
+            int num = matches.get(i);
+
+            while(num >= width){
+                if(map.get(num)==1 && !obstacleLocations.contains(num) && !glassLocations.contains(num)){
+                    positions.add(tilePos.get(num));
+                }
+                else if(map.get(num)== 1 && obstacleLocations.contains(num)){
+                    positions.remove(positions.size()- 1);
+                    break;
+                }
+                num = num - width;
+            }
+        }
+
+        return positions;
     }
 
 

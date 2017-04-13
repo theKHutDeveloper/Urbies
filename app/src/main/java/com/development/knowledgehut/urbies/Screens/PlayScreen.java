@@ -80,6 +80,7 @@ class PlayScreen extends Screen {
     private ArrayList<Integer> notInPlay = new ArrayList<>();
     private ArrayList<Integer> updateMoveDownElements = new ArrayList<>();
     private ArrayList<Images> urbGUI = new ArrayList<>();
+    private ArrayList<Integer>entrance = new ArrayList<>();
     private Images pause, help, board, playOn, menu;
     private BitmapAnimation colourBombExplosion, wizard_idle;
     private MatchState matchState;
@@ -3230,8 +3231,9 @@ class PlayScreen extends Screen {
 
         ArrayList<DataStore>futureValues = new ArrayList<>();
         //for testing purposes only
+
         ArrayList<DataStore> store = gameMethods.separateTheMadness(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen,
-                futureValues);
+                futureValues, entrance);
 
         for(int i = 0; i < store.size(); i++){
             objectsToMoveDown.add(store.get(i).getElement());
