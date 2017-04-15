@@ -17,9 +17,9 @@ public class GameMethods {
     private ArrayList<Integer> obstacleLocations = new ArrayList<>();
     private ArrayList<Integer> glassLocations = new ArrayList<>();
 
-    {glassLocations.add(25);
-        Collections.addAll(obstacleLocations, 15, 17, 19);
-        Collections.addAll(matches, 20, 21, 22, 23, 24);
+    {//glassLocations.add(25);
+        //Collections.addAll(obstacleLocations, 15, 17, 19);
+        Collections.addAll(matches, 12, 13, 14);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class GameMethods {
         }
 
         ArrayList<Integer> list = listOfRemainingObjectsToBeMovedDown(matches, map, width);
-        Collections.addAll(expected, 18, 16, 13, 11, 8, 6, 3, 1);
+        Collections.addAll(expected, 9, 8, 7, 4, 3, 2);//18, 16, 13, 11, 8, 6, 3, 1);
         assertEquals("Result =  ", expected, list);
 
         ArrayList<Integer>positions = positionsOfRemainingObjectsToBeMovedDown(matches, map,tilePos, width, list.size());
@@ -104,7 +104,7 @@ public class GameMethods {
 
             int num = matches.get(i);
 
-            while(num >= width){
+            while(num >= 0){//width){ //more than width? not more than = > ?
                 if(map.get(num) == 1 && !obstacleLocations.contains(num) && !glassLocations.contains(num)) {
                     temp.add(tilePos.get(num));
                 }
@@ -232,9 +232,9 @@ public class GameMethods {
     }
 
 
-    /***************************
+    /*********************************************************************************
      * Return a list of elements positions relative to the cleared column
-     ***************************/
+     *********************************************************************************/
     private ArrayList<Integer> getPositionOfElementsRelatingToClearedColumn(ArrayList<Integer>map,
                                                                             ArrayList<Integer>matches,
                                                                             int width,

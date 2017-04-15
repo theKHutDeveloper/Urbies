@@ -15,12 +15,19 @@ public class ObjectPathCreator {
         elements.add(element);
     }
 
+    public void addAllElements(ArrayList<Integer>values){
+        elements.addAll(values);
+    }
     public ArrayList<Integer> getElements(){
         return elements;
     }
 
     public void addToPositions(Point point){
         positions.add(point);
+    }
+
+    public void addAllPositions(ArrayList<Point>pos){
+        positions.addAll(pos);
     }
 
     public ArrayList<Point> getPositions(){

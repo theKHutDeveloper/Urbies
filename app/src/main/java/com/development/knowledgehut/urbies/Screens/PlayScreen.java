@@ -25,6 +25,7 @@ import com.development.knowledgehut.urbies.Objects.BaseTiles;
 import com.development.knowledgehut.urbies.Objects.DataStore;
 import com.development.knowledgehut.urbies.Objects.LevelManager;
 import com.development.knowledgehut.urbies.Objects.MatchedDetails;
+import com.development.knowledgehut.urbies.Objects.ObjectPathCreator;
 import com.development.knowledgehut.urbies.Objects.Obstacles;
 
 import java.util.ArrayList;
@@ -599,6 +600,9 @@ class PlayScreen extends Screen {
                                 for (int i = 0; i < urbsToMoveDown.size(); i++) {
                                     Urbs.get(urbsToMoveDown.get(i)).findLine(Urbs.get(urbsToMoveDown.get(i)).getX(),
                                             Urbs.get(urbsToMoveDown.get(i)).getY(), coordinatesToMoveTo.get(i).x, coordinatesToMoveTo.get(i).y);
+                                    System.out.println("urbsToMoveDown "+urbsToMoveDown.get(i));
+                                    System.out.println(Urbs.get(urbsToMoveDown.get(i)).getPosition());
+                                    System.out.println(coordinatesToMoveTo.get(i));
                                 }
                             }
 
@@ -1013,6 +1017,10 @@ class PlayScreen extends Screen {
                                 for (int i = 0; i < urbsToMoveDown.size(); i++) {
                                     Urbs.get(urbsToMoveDown.get(i)).findLine(Urbs.get(urbsToMoveDown.get(i)).getX(),
                                             Urbs.get(urbsToMoveDown.get(i)).getY(), coordinatesToMoveTo.get(i).x, coordinatesToMoveTo.get(i).y);
+                                    System.out.println("urbsToMoveDown "+urbsToMoveDown.get(i));
+                                    System.out.println(Urbs.get(urbsToMoveDown.get(i)).getPosition());
+                                    System.out.println(coordinatesToMoveTo.get(i));
+
                                 }
                             }
 
@@ -2138,14 +2146,6 @@ class PlayScreen extends Screen {
      ***************************************************************/
     private void sortFuturePositionsInDescendingOrderOfY() {
         int yLoc = 0;
-        gameMethods.associateCoordinatesWithPosition(futureCoordinates, tileLocations, futurePositions);
-
-        ArrayList<Integer> sorted = gameMethods.sortPointArrayInDescendingOrderByY(futureCoordinates);
-
-        /*System.out.println("BEFORE ANY REMOVALS" );
-        System.out.println("urbMatchOne = "+urbMatchOne);
-        System.out.println("userMatchOne = "+userMatchOne);
-        System.out.println("matchesOffScreen = "+matchesOffScreen);*/
 
         if (!matchesOffScreen.isEmpty()) {
             for(int a = urbMatchOne.size() -1; a >= 0; a--){
@@ -2171,16 +2171,16 @@ class PlayScreen extends Screen {
         System.out.println("userMatchOne = "+userMatchOne);
 
 
-        if (!sorted.isEmpty()) {
-            System.out.println("sorted = "+ sorted);
+        //if (!sorted.isEmpty()) {
+        if(!urbMatchOne.isEmpty()){
             for (int i = 0; i < urbMatchOne.size(); i++) {
 
-                    changeToRandomBitmap(urbMatchOne.get(sorted.get(i)), Urbs);
-                    Urbs.get(urbMatchOne.get(sorted.get(i))).setY((int) ((0 - Urbs.get(urbMatchOne.get(sorted.get(i))).getHeight() + yLoc) * AndroidGame.GAME_SCALE_X));
-                    Urbs.get(urbMatchOne.get(sorted.get(i))).setX(futureCoordinates.get(sorted.get(i)).x);
-                    Urbs.get(urbMatchOne.get(sorted.get(i))).setLocation(futurePositions.get(sorted.get(i)));
-                    Urbs.get(urbMatchOne.get(sorted.get(i))).findLine(Urbs.get(urbMatchOne.get(sorted.get(i))).getX(), Urbs.get(urbMatchOne.get(sorted.get(i))).getY(),
-                            futureCoordinates.get(sorted.get(i)).x, futureCoordinates.get(sorted.get(i)).y);
+                changeToRandomBitmap(urbMatchOne.get(i), Urbs);
+                Urbs.get(urbMatchOne.get(i)).setY((int) ((0 - Urbs.get(urbMatchOne.get(i)).getHeight() + yLoc) * AndroidGame.GAME_SCALE_X));
+                Urbs.get(urbMatchOne.get(i)).setX(futureCoordinates.get(i).x);
+                Urbs.get(urbMatchOne.get(i)).setLocation(futurePositions.get(i));
+                Urbs.get(urbMatchOne.get(i)).findLine(Urbs.get(urbMatchOne.get(i)).getX(),
+                        Urbs.get(urbMatchOne.get(i)).getY(), futureCoordinates.get(i).x, futureCoordinates.get(i).y);
                     yLoc = yLoc - 50;
 
             }
@@ -2662,34 +2662,37 @@ class PlayScreen extends Screen {
         userMatchTwo.clear();
     }
 
-    private void sortUrbs(List<UrbieAnimation> values) {
+    private void sortUrbs(List<UrbieAnimation> urbieAnimations) {
         int i, j;
         UrbieAnimation temp;
 
-        for (i = 0; i < Urbs.size() - 1; i++) {
-            for (j = i + 1; j < Urbs.size(); j++) {
-                if (values.get(i).getLocation() > values.get(j).getLocation()) {
-                    temp = values.get(i);
-                    values.set(i, values.get(j));
-                    values.set(j, temp);
+
+        for(i = 0; i < urbieAnimations.size(); i++) {
+            for (j = 0; j < tileLocations.size(); j++) {
+                if (urbieAnimations.get(i).getPosition().x == tileLocations.get(j).x &&
+                        urbieAnimations.get(i).getPosition().y == tileLocations.get(j).y) {
+                    urbieAnimations.get(i).setLocation(j);
+                    break;
                 }
             }
         }
 
-        /*for(i = 0; i < values.size(); i++) {
-            for (j = 0; j < tileLocations.size(); j++) {
-                if (values.get(i).getPosition() == tileLocations.get(j)) {
-                    values.get(i).setLocation(j);
-                    break;
+        for (i = 0; i < Urbs.size() - 1; i++) {
+            for (j = i + 1; j < Urbs.size(); j++) {
+                if (urbieAnimations.get(i).getLocation() > urbieAnimations.get(j).getLocation()) {
+                    temp = urbieAnimations.get(i);
+                    urbieAnimations.set(i, urbieAnimations.get(j));
+                    urbieAnimations.set(j, temp);
                 }
             }
-        }*/
+        }
 
-        /*System.out.println("Sort Urbs Method");
-        for(i = 0; i < values.size(); i++){
-            System.out.print(i + " = " + values.get(i).getLocation());
+        System.out.println("Sort Urbs Method");
+        for(i = 0; i < urbieAnimations.size(); i++){
+            System.out.print(i + " = " + urbieAnimations.get(i).getLocation());
             System.out.println(" ");
-        }*/
+        }
+
     }
 
 
@@ -3232,18 +3235,31 @@ class PlayScreen extends Screen {
         ArrayList<DataStore>futureValues = new ArrayList<>();
         //for testing purposes only
 
-        ArrayList<DataStore> store = gameMethods.separateTheMadness(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen,
-                futureValues, entrance);
+        ArrayList<ObjectPathCreator> current = gameMethods.handleTileMovements(obstacleTiles, Urbs,
+                userMatchOne, levelManager.getLevelTileMap().getMapLevel(),tileLocations,notInPlay,
+                tileWidth);
 
-        for(int i = 0; i < store.size(); i++){
+        objectsToMoveDown.addAll(current.get(0).getElements());
+        System.out.println("objectsToMoveDown = " + objectsToMoveDown);
+        coordinatesToMoveTo.addAll(current.get(0).getPositions());
+        System.out.println("coordinatesToMoveTo = "+coordinatesToMoveTo);
+        futurePositions.addAll(current.get(1).getElements());
+        System.out.println("futurePositions = "+futurePositions);
+        futureCoordinates.addAll(current.get(1).getPositions());
+        System.out.println("futureCoordinates = "+futureCoordinates);
+
+        /*ArrayList<DataStore> store = gameMethods.separateTheMadness(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen,
+                futureValues, entrance);
+*/
+  /*      for(int i = 0; i < store.size(); i++){
             objectsToMoveDown.add(store.get(i).getElement());
             coordinatesToMoveTo.add(store.get(i).getPosition());
         }
-
-        for(int i = 0; i < futureValues.size(); i++){
+*/
+        /*for(int i = 0; i < futureValues.size(); i++){
             futurePositions.add(futureValues.get(i).getElement());
             futureCoordinates.add(futureValues.get(i).getPosition());
-        }
+        }*/
 
         //objectsToMoveDown = gameMethods.moveDownTest(Urbs, userMatchOne, levelManager.getLevelTileMap().getMapLevel(), obstacleTiles, coordinatesToMoveTo, futureCoordinates, futurePositions, matchesOffScreen, tileLocations, tileWidth);
         /*objectsToMoveDown = gameMethods.listOfObjectToMoveDown(
@@ -3255,7 +3271,10 @@ class PlayScreen extends Screen {
                 futureCoordinates, obstacleTiles, matchesOffScreen, tileHeight, notInPlay
         );*/
 
-        System.out.println("objectsToMoveDown" + objectsToMoveDown);
+
+
+
+
         /*for(int i = 0; i < Urbs.size(); i++){
             System.out.println(Urbs.get(i).getLocation());
         }*/
