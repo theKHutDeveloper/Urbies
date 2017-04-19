@@ -2,6 +2,7 @@ package com.development.knowledgehut.urbies.Behaviours;
 
 
 import android.graphics.Bitmap;
+import android.graphics.Path;
 import android.graphics.Point;
 
 import com.development.knowledgehut.urbies.DrawableObjects.UrbieAnimation;
@@ -743,6 +744,10 @@ public class GameMethods {
             }
         }
 
+        if(!emptyTiles.isEmpty()){
+            Collections.sort(emptyTiles, Collections.<Integer>reverseOrder());
+        }
+
         return emptyTiles;
     }
 
@@ -779,6 +784,10 @@ public class GameMethods {
             }
         }
 
+
+    NEED TO CREATE A NEW PATH IF THERE IS A CEMENT/WOOD ON THE JOURNEY TO END POSITION
+    STEP 1: Identify urb should be going in a different direction - DONE
+    STEP 2: Identify the nearest cleared block from urb to allow movement down
      */
 
     /*************************************************
@@ -793,7 +802,7 @@ public class GameMethods {
         ArrayList<Integer> obstacleLocations = new ArrayList<>();
         ArrayList<Integer> glassLocations = new ArrayList<>();
         ArrayList<Integer> nearMatchObstacles;
-        ArrayList<Integer> obstacleIndexWhereZero = new ArrayList<>();
+        ArrayList<Integer> brokenObstacleLocations = new ArrayList<>();
         ArrayList<DataStore> store = new ArrayList<>();
         ArrayList<Integer> moveDownList = new ArrayList<>();
         ArrayList<Point> positions = new ArrayList<>();
@@ -828,7 +837,7 @@ public class GameMethods {
                         obstacles.get(i).deductDestroyCounter();
                         if (obstacles.get(i).getDestroyCounter() == 0) {
                             entrance.add(obstacles.get(i).getLocation());
-                            obstacleIndexWhereZero.add(i); //doesn't this get affected when you remove an obstacle?
+                            brokenObstacleLocations.add(i); //doesn't this get affected when you remove an obstacle?
                             int urb_num = findBitmapByMapLocation(objects, tilePos, obstacles.get(i).getLocation());
                             if (urb_num > -1) {
                                 objects.get(urb_num).setStatus(NONE);
@@ -842,7 +851,7 @@ public class GameMethods {
                     System.out.println("Obstacles " + i + " " + obstacles.get(i).getLocation());
                 }
 
-                System.out.println("ObstacleIndexWhereZero = " + obstacleIndexWhereZero);
+                System.out.println("ObstacleIndexWhereZero = " + brokenObstacleLocations);
                 // System.out.println("STM nearMatchObstacles = " + nearMatchObstacles);
             }
         }
@@ -897,6 +906,146 @@ public class GameMethods {
                 }
             }
         }
+
+        /////////////////////////////////////////////////////////////////
+        //Are there any empty tiles, only happens with invisible blocks
+        emptyTiles = getEmptyTiles(map, tilePos, objects);
+        System.out.println("Empty tiles = " + emptyTiles);
+        /////////////////////////////////////////////////////////////////
+        if(!entrance.isEmpty() && !emptyTiles.isEmpty()){
+            ArrayList<Integer>journey = new ArrayList<>();
+
+            journey.add(entrance.get(0));
+            System.out.println("journey begins = "+journey);
+
+            ArrayList<Point>wasteLand = irrelevantPositions(entrance.get(0), width, tilePos, obstacleLocations, glassLocations);
+            int[][] arrayWasteLand = convertArrayListTo2DArray(wasteLand);
+            PathFinding path = new PathFinding();
+            String pathway = path.getPath(1, map.size()/width, width, tilePos.get(entrance.get(0)).x, tilePos.get(entrance.get(0)).y,
+                    tilePos.get(emptyTiles.get(0)).x, tilePos.get(emptyTiles.get(0)).y, arrayWasteLand);
+
+            System.out.println("pathway = "+pathway);
+            /*
+            pathFinding.getPath(5, 5, 5, 3, 1, 4, 4, new int [][]{{3,0}, {2,0}, {2,2}, {2,3}, {2,4}});
+            any_number,                                 = 1
+            map.size()/width,                           = map.size()/width
+            width,                                      = width
+            start tile position x,                      = tilePos.get(entrance.get(0)).x
+            start tile position y,                      = tilePos.get(entrance.get(0)).y
+            destination tile position x,                = tilePos.get(emptyTiles.get(0)).x
+            destination tile position y,                = tilePos.get(emptyTiles.get(0)).y
+            array of blocked positions                  = convertArrayListTo2DArray(create a temp arraylist)
+
+
+
+
+
+            while(!journey.isEmpty()){
+                int current = journey.get(0);
+                journey.remove(0);
+
+                // Explore East
+                int newLocation = exploreInDirection(1, current, width, map, obstacleLocations, glassLocations);
+                if (newLocation == emptyTiles.get(0)) {
+                    journey.add(newLocation);
+                    System.out.println("path finished = " + journey);
+                    break;
+                } else if (newLocation > -1 ){//&& newLocation < emptyTiles.get(0)) {
+                    journey.add(newLocation);
+                    System.out.println("journey east = "+journey);
+                }
+
+                //Explore West
+                newLocation = exploreInDirection(-1, current, width, map, obstacleLocations, glassLocations);
+                if(newLocation == emptyTiles.get(0)){
+                    journey.add(newLocation);
+                    System.out.println("path finished = "  + journey);
+                    break;
+                } else if(newLocation > -1){// && (current / width != emptyTiles.get(0 / width))){
+                    journey.add(newLocation);
+                    System.out.println("journey west = "+journey);
+                }
+
+                //Explore South
+                newLocation = exploreInDirection(2, current, width, map, obstacleLocations, glassLocations);
+                if(newLocation == emptyTiles.get(0)){
+                    journey.add(newLocation);
+                    System.out.println("path finished = " + journey);
+                    break;
+                } else if(newLocation > -1 && newLocation < emptyTiles.get(0)){
+                    journey.add(newLocation);
+                    System.out.println("journey south = "+journey);
+                }
+            }*/
+        }
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        //3b. Identify objects that needs to be adjusted due to broken obstacles and empty tiles
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        /*if(!entrance.isEmpty() && !emptyTiles.isEmpty()){
+           //get btw empty tile to broken obstacle 0
+            int i = 0;
+            ArrayList<Integer>journey = new ArrayList<>();
+
+            int begin = emptyTiles.get(i);
+            int broken = entrance.get(0);
+            journey.add(begin);
+
+            if(emptyTiles.contains(entrance.get(0) + width)){
+                broken = entrance.get(0) + width;
+                journey.add(entrance.get(0));
+            }
+
+            while(begin > broken) {
+                if((begin / width) > (broken / width)){
+                    if (!obstacleLocations.contains(begin) && !glassLocations.contains(begin)) {
+                        begin = begin - width;
+                        journey.add(begin);
+                    }
+                    else if(begin / width > broken / width){
+                        begin = begin - 1;
+                        journey.add(begin);
+                    }
+                    else if(begin / width < broken / width){
+                        begin = begin + 1;
+                        journey.add(begin);
+                    }
+
+                }
+                else if((begin / width) == (broken / width)){
+                    if(begin > broken){
+                        begin = begin - 1;
+                        journey.add(begin);
+                    }
+                    else if(begin < broken){
+                        begin  = begin + 1;
+                        journey.add(begin);
+                    }
+                }
+
+            }
+
+            Collections.sort(journey, Collections.<Integer>reverseOrder());
+            System.out.println("Journey of "+emptyTiles.get(0) + " = "+journey);
+        }*/
+
+        /*calcDistance = (begin / width) - (brokenObstacleLocations.get(0) / width);
+
+                if(calcDistance >= width){
+                    journey.add(begin - width);
+                    begin = begin - width;
+                }
+                else {
+                    if(calcDistance > 0){
+                        journey.add(begin - 1);
+                        begin = begin - 1;
+                    } else {
+                        journey.add(begin + 1);
+                        begin = begin + 1;
+                    }
+                }*/
         ////////////////////////////////////////////////////////////////////////////////////////////
         //4. Start looping through matches, considering any broken obstacles and empty tiles
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -905,18 +1054,15 @@ public class GameMethods {
         boolean emptyTilesReplaced = false;
         boolean tilesComplete = false;
 
-        //Are there any empty tiles, only happens with invisible blocks
-        emptyTiles = getEmptyTiles(map, tilePos, objects);
-        System.out.println("Empty tiles = " + emptyTiles);
 
         for (int i = 0; i < matches.size(); i++) {
             int startingPoint = matches.get(i);
 
-            if (!obstacleIndexWhereZero.isEmpty() && !emptyTiles.isEmpty()) {
+            if (!brokenObstacleLocations.isEmpty() && !emptyTiles.isEmpty()) {
                 //reset the startingPoint where the broken tile exists
-                for (int j = 0; j < obstacleIndexWhereZero.size(); j++) {
-                    if (matches.get(i) % width == obstacles.get(obstacleIndexWhereZero.get(j)).getLocation() % width && obstacles.get(obstacleIndexWhereZero.get(j)).getLocation() > matches.get(i)) {
-                        startingPoint = obstacles.get(obstacleIndexWhereZero.get(j)).getLocation();
+                for (int j = 0; j < brokenObstacleLocations.size(); j++) {
+                    if (matches.get(i) % width == obstacles.get(brokenObstacleLocations.get(j)).getLocation() % width && obstacles.get(brokenObstacleLocations.get(j)).getLocation() > matches.get(i)) {
+                        startingPoint = obstacles.get(brokenObstacleLocations.get(j)).getLocation();
 
                         //if empty tiles exist and there is a broken obstacle then change the starting point location
                         if (!emptyTiles.isEmpty()) {
@@ -991,7 +1137,7 @@ public class GameMethods {
                 num = num - width;
             }
 
-            if (!obstacleIndexWhereZero.isEmpty() && moveDownList.isEmpty()) {
+            if (!brokenObstacleLocations.isEmpty() && moveDownList.isEmpty()) {
                 //remove where startingPoint coordinates are
                 boolean remove = leftOverPositions.remove(tilePos.get(startingPoint));
                 if (remove) {
@@ -1004,8 +1150,9 @@ public class GameMethods {
             tempPosition.clear();
             emptyTiles.clear();
             emptyTilesReplaced = false;
-            obstacleIndexWhereZero.clear();
+            brokenObstacleLocations.clear();
         }
+
 
         //remove any leftOverPositions that are also in positions
         for (int i = leftOverPositions.size() - 1; i >= 0; i--) {
@@ -1063,6 +1210,33 @@ public class GameMethods {
     }
 
 
+    private int exploreInDirection(int direction, int current, int width, ArrayList<Integer>map, ArrayList<Integer>obstacleLocations, ArrayList<Integer>glassLocations){
+        int result = -1;
+
+        switch(direction) {
+            case 1:
+                if (current + 1 < map.size() && ((current + 1) / width == current / width) && map.get(current + 1) == 1 && !obstacleLocations.contains(current + 1) && !glassLocations.contains(current + 1)) {
+                    result = current + 1;
+                }
+                else result =  -1;
+            break;
+            case -1:
+                if(current - 1 > 0 && ((current - 1) / width != current / width) && map.get(current -1) == 1 && !obstacleLocations.contains(current - 1) && !glassLocations.contains(current - 1)) {
+                    result = current - 1;
+                }
+                else result =  -1;
+            break;
+            case 2:
+                if(current + width < map.size() && (current + width) % width <= (width - 1) && map.get(current + width) == 1 && !obstacleLocations.contains(current + width) && !glassLocations.contains(current + width)){
+                    result = current + width;
+                }
+                else result =  -1;
+            break;
+        }
+        return result;
+    }
+
+
     /**************************************************************************************************
      returns a list of obstacles that are damaged as a result of the match
      (this does not include obstacles that are at a zero counter
@@ -1105,6 +1279,35 @@ public class GameMethods {
         return nearMatchObstacles;
     }
 
+
+    public ArrayList<Point> findPath( int x0, int y0, int x1, int y1) {
+        ArrayList<Point>spritePath = new ArrayList<>();
+        int dx = Math.abs(x1 - x0);
+        int dy = Math.abs(y1 - y0);
+        int sx = (x0 < x1) ? 1 : -1;
+        int sy = (y0 < y1) ? 1 : -1;
+        int err = dx-dy;
+        int e2;
+
+        while (true){
+            spritePath.add(new Point(x0,y0));
+            if (x0 == x1 && y0 == y1)
+                break;
+
+            e2 = 2 * err;
+            if (e2 > -dy){
+                err = err - dy;
+                x0 = x0 + sx;
+            }
+
+            if (e2 < dx){
+                err = err + dx;
+                y0 = y0 + sy;
+            }
+        }
+
+        return spritePath;
+    }
 
     /**************************************************************************************************
      returns a list of matches that are underneath obstacles
@@ -3175,5 +3378,34 @@ public class GameMethods {
         return elementPos;
     }
 
+    private int[][] convertArrayListTo2DArray(ArrayList<Point>positions){
+        int[][] convertArray = new int[positions.size()][2];
 
+        for(int i = 0; i < positions.size(); i++){
+            convertArray[i][0] = positions.get(i).x;
+            convertArray[i][1] = positions.get(i).y;
+        }
+
+        return convertArray;
+    }
+
+    private ArrayList<Point>irrelevantPositions(int entrance, int width, ArrayList<Point>tilePos,
+                                                ArrayList<Integer>obstacleLocations,
+                                                ArrayList<Integer>glassLocations){
+
+        ArrayList<Point>notRelevantTiles = new ArrayList<>();
+        int arraySize = (entrance / width) * width;
+        for(int i = 0; i < arraySize; i++){
+            notRelevantTiles.add(tilePos.get(i));
+        }
+        //add the rest of the obstacle locations also
+        for(int i = 0; i < obstacleLocations.size(); i++){
+            notRelevantTiles.add(tilePos.get(obstacleLocations.get(i)));
+        }
+        for(int i = 0; i < glassLocations.size(); i++){
+            notRelevantTiles.add(tilePos.get(glassLocations.get(i)));
+        }
+
+        return notRelevantTiles;
+    }
 }

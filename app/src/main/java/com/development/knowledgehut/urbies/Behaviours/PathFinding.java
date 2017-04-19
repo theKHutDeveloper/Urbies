@@ -94,7 +94,7 @@ public class PathFinding {
         }
     }
 
-    public String test(int tCase, int x, int y, int si, int sj, int ei, int ej, int[][] blocked){
+    public String getPath(int tCase, int x, int y, int si, int sj, int ei, int ej, int[][] blocked){
         System.out.println("Test Case # "+tCase);
 
         String example = " ";

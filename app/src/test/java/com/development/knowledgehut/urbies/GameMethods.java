@@ -29,7 +29,7 @@ public class GameMethods {
         PathFinding pathFinding = new PathFinding();
 
         String expected = "[4 , 4] -> [4 , 3] -> [4 , 2] -> [3 , 2] -> [3 , 1]";
-        String result = pathFinding.test(5, 5, 5, 3, 1, 4, 4, new int [][]{{3,0}, {2,0}, {2,2}, {2,3}, {2,4}});
+        String result = pathFinding.getPath(5, 5, 5, 3, 1, 4, 4, new int [][]{{3,0}, {2,0}, {2,2}, {2,3}, {2,4}});
         assertEquals("result = ", expected, result);
     }
 

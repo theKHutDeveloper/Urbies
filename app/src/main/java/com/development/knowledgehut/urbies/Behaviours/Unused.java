@@ -560,7 +560,7 @@ public class Unused {
                             Collections.sort(test, Collections.<Integer>reverseOrder());
                         }
                         System.out.println("empty tiles = " + emptyTiles);
-                        System.out.println("test = "+test);
+                        System.out.println("getPath = "+test);
                         System.out.println("==================================== ");
                         duplicateOfNotInPlay.addAll(notInPlay);
                         notInPlay.clear();
@@ -624,7 +624,7 @@ public class Unused {
                             temp2.add(tilePos.get(test.get(j)));
                         }
                     }
-                    System.out.println("temp2 after test = "+temp2);
+                    System.out.println("temp2 after getPath = "+temp2);
                 }
 
                 temp2.add(tilePos.get(matchedList.get(i)));
@@ -643,7 +643,7 @@ public class Unused {
                                     if (obstacles.get(o).getObstacle().getLocation() == num) {
                                         if (obstacles.get(o).getDestroyCounter() == 0) {
 
-                                            System.out.println("test 1");
+                                            System.out.println("getPath 1");
                                             temp2.add(tilePos.get(num));
                                             objects.get(urb_num).setStatus(NONE); //not sure if this works or if it does it will not work on the next section as I have set the broken obstacle to NONE
                                             testValue = urb_num;
@@ -698,7 +698,7 @@ public class Unused {
                             if (obstacles.get(o).getObstacle().getLocation() == num) {
                                 //if the obstacle is cleared then add position and item
                                 if (obstacles.get(o).getDestroyCounter() == 0) {
-                                    System.out.println("test 2");
+                                    System.out.println("getPath 2");
                                     list.add(num);
                                     position.add(temp2.get(counter));
                                     objects.get(urb_num).setStatus(NONE);
@@ -935,4 +935,244 @@ public class Unused {
         }
     }*/
 
+    //Identify move down objects that will need to have the path defined as they can not move over obstacles
+  /*  int pos1 = -1, pos2 = -1;
+    ArrayList<ArrayList<Point>> p = new ArrayList<>();
+
+        if(!obstacleLocations.isEmpty()){
+        for(int i = 0; i < moveDownList.size(); i++){
+            for(int j = 0; j < obstacleLocations.size(); j++){
+                if(moveDownList.get(i) % width == obstacleLocations.get(j)% width && moveDownList.get(i) > obstacleLocations.get(j)){
+                    System.out.println("Urb with location of "+moveDownList.get(i) + " should not move over an obstacle!!");
+                    int num = obstacleLocations.get(j);
+                    while(num % width <= (width -1)){
+                        if(!obstacleLocations.contains(num)){
+                            pos1 = num;
+                            System.out.println("pos1 = "+pos1);
+                            break;
+                        }
+                        num = num + 1;
+                    }
+                    num = obstacleLocations.get(j);
+                    while(num % width >= 0){
+                        if(!obstacleLocations.contains(num)){
+                            pos2 = num;
+                            System.out.println("pos2 = "+pos2);
+                            break;
+                        }
+                        num = num - 1;
+                    }
+
+                    if(pos1 > -1 && pos2 > -1){
+                        if(Math.abs(moveDownList.get(i) - pos1) >= Math.abs(moveDownList.get(i) - pos2)){
+                            int urb = findBitmapByMapLocation(objects, tilePos, moveDownList.get(i));
+                            int block = findBitmapByMapLocation(objects, tilePos, pos1);
+                            ArrayList<Point>tempPoint = new ArrayList<>();
+                            p.add(findPath(objects.get(urb).getX(), objects.get(urb).getY(), objects.get(block).getX(), objects.get(block).getY()));
+
+                        }
+                        else if(Math.abs(moveDownList.get(i) - pos1) < Math.abs(moveDownList.get(i) - pos2)){
+                            int urb = findBitmapByMapLocation(objects, tilePos, moveDownList.get(i));
+                            int block = findBitmapByMapLocation(objects, tilePos, pos2);
+                            p.add(findPath(objects.get(urb).getX(), objects.get(urb).getY(), objects.get(block).getX(), objects.get(block).getY()));
+                        }
+                    }
+                    else if(pos1 > -1 && pos2 == -1){
+                        int urb = findBitmapByMapLocation(objects, tilePos, moveDownList.get(i));
+                        int block = findBitmapByMapLocation(objects, tilePos, pos1);
+                        p.add(findPath(objects.get(urb).getX(), objects.get(urb).getY(), objects.get(block).getX(), objects.get(block).getY()));
+                    }
+                    else if(pos1 == -1 && pos2 > -1){
+                        int urb = findBitmapByMapLocation(objects, tilePos, moveDownList.get(i));
+                        int block = findBitmapByMapLocation(objects, tilePos, pos2);
+                        p.add(findPath(objects.get(urb).getX(), objects.get(urb).getY(), objects.get(block).getX(), objects.get(block).getY()));
+                    }
+
+                    for(int l = 0; l <p.size(); l++){
+                        for(int k = 0; k < p.get(l).size(); k++) {
+                            System.out.print("Path = " + p.get(l).get(k));
+                        }
+                    }
+
+                }
+            }
+        }
+    }*/
+
+/*
+http://gregtrowbridge.com/a-basic-pathfinding-algorithm/
+// Create a 4x4 grid
+// Represent the grid as a 2-dimensional array
+var gridSize = 4;
+var grid = [];
+for (var i=0; i<gridSize; i++) {
+  grid[i] = [];
+  for (var j=0; j<gridSize; j++) {
+    grid[i][j] = 'Empty';
+  }
+}
+
+// Think of the first index as "distance from the top row"
+// Think of the second index as "distance from the left-most column"
+
+// This is how we would represent the grid with obstacles above
+grid[0][0] = "Start";
+grid[2][2] = "Goal";
+
+grid[1][1] = "Obstacle";
+grid[1][2] = "Obstacle";
+grid[1][3] = "Obstacle";
+grid[2][1] = "Obstacle";
+
+// Start location will be in the following format:
+// [distanceFromTop, distanceFromLeft]
+var findShortestPath = function(startCoordinates, grid) {
+  var distanceFromTop = startCoordinates[0];
+  var distanceFromLeft = startCoordinates[1];
+
+  // Each "location" will store its coordinates
+  // and the shortest path required to arrive there
+  var location = {
+    distanceFromTop: distanceFromTop,
+    distanceFromLeft: distanceFromLeft,
+    path: [],
+    status: 'Start'
+  };
+
+  // Initialize the queue with the start location already inside
+  var queue = [location];
+
+  // Loop through the grid searching for the goal
+  while (queue.length > 0) {
+    // Take the first location off the queue
+    var currentLocation = queue.shift();
+
+    // Explore North
+    var newLocation = exploreInDirection(currentLocation, 'North', grid);
+    if (newLocation.status === 'Goal') {
+      return newLocation.path;
+    } else if (newLocation.status === 'Valid') {
+      queue.push(newLocation);
+    }
+
+    // Explore East
+    var newLocation = exploreInDirection(currentLocation, 'East', grid);
+    if (newLocation.status === 'Goal') {
+      return newLocation.path;
+    } else if (newLocation.status === 'Valid') {
+      queue.push(newLocation);
+    }
+
+    // Explore South
+    var newLocation = exploreInDirection(currentLocation, 'South', grid);
+    if (newLocation.status === 'Goal') {
+      return newLocation.path;
+    } else if (newLocation.status === 'Valid') {
+      queue.push(newLocation);
+    }
+
+    // Explore West
+    var newLocation = exploreInDirection(currentLocation, 'West', grid);
+    if (newLocation.status === 'Goal') {
+      return newLocation.path;
+    } else if (newLocation.status === 'Valid') {
+      queue.push(newLocation);
+    }
+  }
+
+  // No valid path found
+  return false;
+
+};
+
+// This function will check a location's status
+// (a location is "valid" if it is on the grid, is not an "obstacle",
+// and has not yet been visited by our algorithm)
+// Returns "Valid", "Invalid", "Blocked", or "Goal"
+var locationStatus = function(location, grid) {
+  var gridSize = grid.length;
+  var dft = location.distanceFromTop;
+  var dfl = location.distanceFromLeft;
+
+  if (location.distanceFromLeft < 0 ||
+      location.distanceFromLeft >= gridSize ||
+      location.distanceFromTop < 0 ||
+      location.distanceFromTop >= gridSize) {
+
+    // location is not on the grid--return false
+    return 'Invalid';
+  } else if (grid[dft][dfl] === 'Goal') {
+    return 'Goal';
+  } else if (grid[dft][dfl] !== 'Empty') {
+    // location is either an obstacle or has been visited
+    return 'Blocked';
+  } else {
+    return 'Valid';
+  }
+};
+
+
+// Explores the grid from the given location in the given
+// direction
+var exploreInDirection = function(currentLocation, direction, grid) {
+  var newPath = currentLocation.path.slice();
+  newPath.push(direction);
+
+  var dft = currentLocation.distanceFromTop;
+  var dfl = currentLocation.distanceFromLeft;
+
+  if (direction === 'North') {
+    dft -= 1;
+  } else if (direction === 'East') {
+    dfl += 1;
+  } else if (direction === 'South') {
+    dft += 1;
+  } else if (direction === 'West') {
+    dfl -= 1;
+  }
+
+  var newLocation = {
+    distanceFromTop: dft,
+    distanceFromLeft: dfl,
+    path: newPath,
+    status: 'Unknown'
+  };
+  newLocation.status = locationStatus(newLocation, grid);
+
+  // If this new location is valid, mark it as 'Visited'
+  if (newLocation.status === 'Valid') {
+    grid[newLocation.distanceFromTop][newLocation.distanceFromLeft] = 'Visited';
+  }
+
+  return newLocation;
+};
+
+
+// OK. We have the functions we need--let's run them to get our shortest path!
+
+// Create a 4x4 grid
+// Represent the grid as a 2-dimensional array
+var gridSize = 4;
+var grid = [];
+for (var i=0; i<gridSize; i++) {
+  grid[i] = [];
+  for (var j=0; j<gridSize; j++) {
+    grid[i][j] = 'Empty';
+  }
+}
+
+// Think of the first index as "distance from the top row"
+// Think of the second index as "distance from the left-most column"
+
+// This is how we would represent the grid with obstacles above
+grid[0][0] = "Start";
+grid[2][2] = "Goal";
+
+grid[1][1] = "Obstacle";
+grid[1][2] = "Obstacle";
+grid[1][3] = "Obstacle";
+grid[2][1] = "Obstacle";
+
+console.log(findShortestPath([0,0], grid));
+ */
 }
