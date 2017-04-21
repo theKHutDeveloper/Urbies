@@ -4,6 +4,7 @@ import android.graphics.Point;
 
 import com.development.knowledgehut.urbies.DrawableObjects.UrbieAnimation;
 import com.development.knowledgehut.urbies.Objects.Obstacles;
+import com.development.knowledgehut.urbies.Screens.Urbies;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -997,6 +998,661 @@ public class Unused {
                 }
             }
         }
+    }
+
+    */
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    //3b. Identify objects that needs to be adjusted due to broken obstacles and empty tiles
+    ////////////////////////////////////////////////////////////////////////////////////////////
+        /*if(!entrance.isEmpty() && !emptyTiles.isEmpty()){
+           //get btw empty tile to broken obstacle 0
+            int i = 0;
+            ArrayList<Integer>journey = new ArrayList<>();
+
+            int begin = emptyTiles.get(i);
+            int broken = entrance.get(0);
+            journey.add(begin);
+
+            if(emptyTiles.contains(entrance.get(0) + width)){
+                broken = entrance.get(0) + width;
+                journey.add(entrance.get(0));
+            }
+
+            while(begin > broken) {
+                if((begin / width) > (broken / width)){
+                    if (!obstacleLocations.contains(begin) && !glassLocations.contains(begin)) {
+                        begin = begin - width;
+                        journey.add(begin);
+                    }
+                    else if(begin / width > broken / width){
+                        begin = begin - 1;
+                        journey.add(begin);
+                    }
+                    else if(begin / width < broken / width){
+                        begin = begin + 1;
+                        journey.add(begin);
+                    }
+
+                }
+                else if((begin / width) == (broken / width)){
+                    if(begin > broken){
+                        begin = begin - 1;
+                        journey.add(begin);
+                    }
+                    else if(begin < broken){
+                        begin  = begin + 1;
+                        journey.add(begin);
+                    }
+                }
+
+            }
+
+            Collections.sort(journey, Collections.<Integer>reverseOrder());
+            System.out.println("Journey of "+emptyTiles.get(0) + " = "+journey);
+        }*/
+
+        /*calcDistance = (begin / width) - (brokenObstacleLocations.get(0) / width);
+
+                if(calcDistance >= width){
+                    journey.add(begin - width);
+                    begin = begin - width;
+                }
+                else {
+                    if(calcDistance > 0){
+                        journey.add(begin - 1);
+                        begin = begin - 1;
+                    } else {
+                        journey.add(begin + 1);
+                        begin = begin + 1;
+                    }
+                }*/
+
+
+    /*********************************************************************************
+     * Return a list of elements positions relative to the cleared column
+     *********************************************************************************/
+    /*private ArrayList<Point> getPositionOfElementsRelatingToClearedColumn(List<UrbieAnimation>objects,
+                                                                            ArrayList<Integer>map,
+                                                                            ArrayList<Integer>matches,
+                                                                            ArrayList<Point>tilePos,
+                                                                            int width,
+                                                                            ArrayList<Integer>obstacleLocations,
+                                                                            ArrayList<Integer>glassLocations,
+                                                                            ArrayList<Point>points,
+                                                                            int element){
+        ArrayList<Point>elementPos = new ArrayList<>();
+
+        int end = (element + width);
+        while(end % width < (width - 1)){
+            int urb_num = findBitmapByMapLocation(objects, tilePos, end);
+            if(map.get(end) == 1 && !matches.contains(end) && !obstacleLocations.contains(end)
+                    && !glassLocations.contains(end) && !points.contains(tilePos.get(end))
+                    && objects.get(urb_num).getStatus() == NONE){
+                elementPos.add(tilePos.get(end));
+            }
+            end = end + 1;
+        }
+
+        int num = element;
+        while(num >=0){
+            int urb_num = findBitmapByMapLocation(objects, tilePos, num);
+            if(map.get(num) == 1 && !matches.contains(num) && !obstacleLocations.contains(num)
+                    && !glassLocations.contains(num) && !points.contains(tilePos.get(num))
+                    && objects.get(urb_num).getStatus() == NONE){
+                elementPos.add(tilePos.get(num));
+            }
+            num = num - width;
+        }
+
+        return elementPos;
+    }
+*/
+
+    /******************************************************
+     * get positions that additional objects will be moved to
+     ******************************************************/
+    /*private ArrayList<Point> getAdditionalPointsToBeMoved(List<UrbieAnimation>objects,
+                                                          ArrayList<Integer>group,
+                                                          ArrayList<Integer>matches,
+                                                           ArrayList<Integer>map,
+                                                          ArrayList<Point>tilePos,
+                                                            ArrayList<Integer>obstacleLocations,
+                                                            ArrayList<Integer>glassLocations,
+                                                            ArrayList<Integer>cleared,
+                                                            ArrayList<Point>positions, int width){
+        ArrayList<Point>additionalPos = new ArrayList<>();
+
+        for(int i = 0; i < group.size(); i++){
+            int num = group.get(i) - width;
+            while (num >= 0) {
+                if(map.get(num) == 1 && obstacleLocations.contains(num)){
+                    if(!isThisRowBlocked(map, width, obstacleLocations, num)){
+                        cleared = getClearedObstacles(map, width, obstacleLocations, num);
+                        if(!cleared.isEmpty()){
+                            for(int j = 0; j < cleared.size(); j++) {
+                                additionalPos.addAll(getPositionOfElementsRelatingToClearedColumn(objects,map, matches, tilePos,width,
+                                        obstacleLocations, glassLocations, positions, cleared.get(j)));
+                            }
+                        }
+                    }
+                }
+                num = num - width;
+            }
+        }
+        return additionalPos;
+    }*/
+
+
+    //NEW STUFF HERE
+    //Handle the next to cement etc outside of method? or just group together in method e.g.
+    //public void handle(...){
+    //  isMatchNextToObstacle();
+    //  listOfRemainingObjectsToMoveDown(...);
+    //  ...
+    // }
+
+    //THINGS WERE GOING FINE...BUT I NEED TO AMEND THE LIST AND POSITIONS TO BE DONE WITHIN THE MATCHES E.G.
+    //for(int i = 0; i < matches.size(); i++){
+    //  listOfRemainingObjects.addAll(listOfRemainingObjectsToBeMovedDown(objects, matches.get(i), map, tilePos, obstacles, width));
+    //  positionsOfRemainingObjects = positionsThatRemainingObjectsNeedToMoveTo(objects, matches.get(i), map, obstacles, tilePos, width, listOfRemainingObjects.size())
+    // }
+    /*public ArrayList<ObjectPathCreator> handleTileMovements(ArrayList<Obstacles> obstacles, List<UrbieAnimation>objects,
+                                                            ArrayList<Integer> matches,
+                                                            ArrayList<Integer> map, ArrayList<Point>tilePos,
+                                                            ArrayList<Integer> offScreenMatches, int width){
+
+        ArrayList<Integer>nearMatchObstacles;
+        ArrayList<Integer>listOfRemainingObjects = new ArrayList<>();
+        ArrayList<Point>positionsOfRemainingObjects = new ArrayList<>();
+        ArrayList<Point>futurePositions = new ArrayList<>();
+        ArrayList<Integer>futureObjects = new ArrayList<>();
+        ArrayList<ObjectPathCreator>objectPathCreators = new ArrayList<>();
+        ArrayList<ArrayList<Point>>allPositions = new ArrayList<>();
+
+
+        //1. store a list of any obstacles
+        ArrayList<Integer> obstacleLocations = getInvisibleObjectPositionsInTileMap(obstacles);
+        ArrayList<Integer> glassLocations = getGlassPositionsInTileMap(obstacles);
+
+        //2. Are there any obstacles that are damaged near the matched list elements?
+        if (!obstacleLocations.isEmpty()) {
+            nearMatchObstacles = getActualNearMatchesThatAreObstacles(matches, obstacleLocations, width, map);
+
+            if(!nearMatchObstacles.isEmpty()){
+                handleDamagedObstacles(objects, obstacles, obstacleLocations, nearMatchObstacles, tilePos);
+            }
+        }
+
+        //3. Does the matched list contain a urb submerged in GLASS? - if so remove glass urb from match list
+        if(!glassLocations.isEmpty()){
+            for (int i = 0; i < matches.size(); i++) {
+                if (glassLocations.contains(matches.get(i))) {
+                    handleDamagedGlass(objects, obstacles, glassLocations, matches,tilePos);
+                }
+            }
+        }
+
+        //4. Get the list of remaining objects to fall
+        listOfRemainingObjects = listOfRemainingObjectsToBeMovedDown(objects, matches, map, tilePos, obstacles, width);
+
+        //5. Get the positions that the remaining objects fall to
+        allPositions = positionsThatRemainingObjectsNeedToMoveTo(objects, matches, map,
+                obstacles, tilePos, width, listOfRemainingObjects.size());
+
+
+        //Add to object path creator
+        ObjectPathCreator creator = new ObjectPathCreator();
+
+        System.out.println("List of remaining objects = "+listOfRemainingObjects);
+        System.out.println("Size diff = "+listOfRemainingObjects.size() + ", "+allPositions.get(0).size());
+
+        if(listOfRemainingObjects.size() < allPositions.get(0).size()){
+            creator.addAllElements(listOfRemainingObjects);
+
+            int size = allPositions.get(0).size() - listOfRemainingObjects.size();
+
+            ArrayList<Point>sample = new ArrayList<>();
+            sample.addAll(allPositions.get(0).subList(0, allPositions.get(0).size() - size));
+            creator.addAllPositions(sample);
+            ArrayList<Point>copy = new ArrayList<>();
+            copy.addAll(allPositions.get(0).subList(allPositions.get(0).size() - size, allPositions.get(0).size()));
+            allPositions.get(1).addAll(copy);
+            System.out.println("Copy = "+copy);
+            objectPathCreators.add(creator);
+
+        }
+        else {
+            creator.addAllElements(listOfRemainingObjects);
+            creator.addAllPositions(allPositions.get(0));
+
+
+            objectPathCreators.add(creator);
+        }
+
+        System.out.println("List of remaining objects = "+listOfRemainingObjects);
+        System.out.println("MoveDown Positions = "+allPositions.get(0));
+
+        //6. Get a list of future objects taken from offScreenMatches
+        if(!allPositions.get(1).isEmpty()){
+            int counter =-1;
+            for(int i = 0; i < matches.size(); i++){
+                futureObjects.add(matches.get(i));
+                //counter--;
+            }
+            if(futurePositions.size() > matches.size()){
+                if(!offScreenMatches.isEmpty()) {
+                    int size = futurePositions.size() - matches.size();
+                    for (int i = 0; i < size; i++) {
+                        for (int k = 0; k < objects.size(); k++) {
+                            if (objects.get(k).getY() < 0) {
+                                objects.get(k).setActive(true);
+                                objects.get(k).setLocation(counter);
+                                counter--;
+                                System.out.println(k + ", " + objects.get(k).getPosition() + ", " + objects.get(k).getLocation());
+                                //matches.add(objects.get(k).getLocation());
+                                futureObjects.add(counter);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        ObjectPathCreator futureCreator = new ObjectPathCreator();
+        futureCreator.addAllElements(futureObjects);
+        futureCreator.addAllPositions(allPositions.get(1)); //also allPositions.get(2) if glass or cement
+        objectPathCreators.add(futureCreator);
+
+        System.out.println("Future Objects = "+futureObjects);
+        //System.out.println("Future Positions = "+futurePositions);
+        return objectPathCreators;
+    }
+*/
+    /*******************************************************************************
+     * returns a list of remaining objects that need to be moved down the tiles
+     *******************************************************************************/
+    /*private ArrayList<Integer> listOfRemainingObjectsToBeMovedDown(List<UrbieAnimation>objects,
+                                                                   ArrayList<Integer> matches,
+                                                                   ArrayList<Integer> map,
+                                                                   ArrayList<Point>tilePos,
+                                                                   ArrayList<Obstacles> obstacles,
+                                                                   int width) {
+        ArrayList<Integer> list = new ArrayList<>();
+        ArrayList<Integer> cleared = new ArrayList<>();
+        ArrayList<Integer> obstacleLocations = getInvisibleObjectPositionsInTileMap(obstacles);
+        ArrayList<Integer> glassLocations = getGlassPositionsInTileMap(obstacles);
+
+        if(!matches.isEmpty()) {
+            for (int i = 0; i < matches.size(); i++) {
+                int num = matches.get(i) - width;
+
+                while (num >= 0) {
+                    int urb_num = findBitmapByMapLocation(objects, tilePos, num);
+                    if (map.get(num) == 1 && !obstacleLocations.contains(num)
+                            && !glassLocations.contains(num) && !matches.contains(num)
+                            && !list.contains(num) && objects.get(urb_num).getStatus() == NONE) {
+                        list.add(num);
+                    } else if (map.get(num) == 1 && obstacleLocations.contains(num)) {
+                        break;
+                    }
+                    num = num - width;
+                }
+            }
+
+            ArrayList<Integer> group = groupMatchesByRow(matches, width);
+            ArrayList<Integer> additionals = getAdditionalObjectsToBeMoved(objects, map, matches, tilePos, group,
+                    obstacleLocations, glassLocations, width, cleared, list);
+
+            if (!additionals.isEmpty()) {
+                list.addAll(additionals);
+            }
+
+        }
+        return list;
+    }
+
+    *//***********************************************************************************
+     * returns a list of points of where the remaining objects that need to be moved to
+     ***********************************************************************************//*
+    private ArrayList<ArrayList<Point>> positionsThatRemainingObjectsNeedToMoveTo(List<UrbieAnimation>objects,
+                                                                       ArrayList<Integer>matches,
+                                                                       ArrayList<Integer>map,
+                                                                       ArrayList<Obstacles>obstacles,
+                                                                       ArrayList<Point>tilePos,
+                                                                       int width, int listSize){
+        ArrayList<ArrayList<Point>>positions = new ArrayList<>();
+        ArrayList<Integer> obstacleLocations = getInvisibleObjectPositionsInTileMap(obstacles);
+        ArrayList<Integer> glassLocations = getGlassPositionsInTileMap(obstacles);
+        ArrayList<Integer> cleared = new ArrayList<>();
+        ArrayList<Point>topPosition = new ArrayList<>();
+        ArrayList<Point>moveDown = new ArrayList<>();
+
+
+        for(int i = 0; i < matches.size(); i++){
+            ArrayList<Point>temp = new ArrayList<>();
+            int num = matches.get(i);
+
+            while(num >= width){
+                int urb_num = findBitmapByMapLocation(objects, tilePos, num);
+                if(map.get(num)==1 && !obstacleLocations.contains(num) && !glassLocations.contains(num)
+                        && !moveDown.contains(tilePos.get(num)) && (objects.get(urb_num).getStatus() == NONE)){
+                    moveDown.add(tilePos.get(num));
+                }
+                else if(map.get(num)== 1 && obstacleLocations.contains(num) && !moveDown.contains(tilePos.get(num))){
+                    if(!isThisRowBlocked(map, width, obstacleLocations, num)){
+                        temp.add(tilePos.get(num));
+                    }
+                    temp.remove(temp.size()- 1);
+                    break;
+                }
+                num = num - width;
+            }
+            moveDown.addAll(temp);
+
+
+            //get the last num element which should be < width
+            if(num >= 0 && num < width){
+                int urb_num = findBitmapByMapLocation(objects, tilePos, num);
+                if(map.get(num)==1 && !obstacleLocations.contains(num) && !glassLocations.contains(num)
+                        && !topPosition.contains(tilePos.get(num)) && (objects.get(urb_num).getStatus() == NONE)){
+                    topPosition.add(tilePos.get(num));
+                }
+            }
+        }
+
+        positions.add(moveDown);
+        positions.add(topPosition);
+        System.out.println("Original positions = "+positions);
+
+        ArrayList<Integer>group = groupMatchesByRow(matches,width);
+
+        //additionals will be matches off screen (not in play) that are to be replaced
+        ArrayList<Point> additionals = getAdditionalPointsToBeMoved(objects, group, matches, map,
+                tilePos, obstacleLocations, glassLocations, cleared, positions.get(0), width);
+
+        //indicates that the remaining will be future positions, so move the lowest Y values
+        //to the end?
+        *//*if(positions.size() > listSize){
+            ArrayList<Integer>help;
+            ArrayList<Point>copy2 = new ArrayList<>();
+
+            help = sortPointArrayInDescendingOrderByY(positions);
+            int size = positions.size() - listSize;
+            for ( int i = positions.size() - size; i < positions.size(); i++){
+                copy2.add(positions.get(help.get(i)));
+            }
+
+            for(int i = 0; i < copy2.size(); i++){
+                if(positions.contains(copy2.get(i))){
+                    int find = positions.indexOf(copy2.get(i));
+                    positions.remove(find);
+                }
+            }
+            positions.addAll(copy2);
+            System.out.println("Points for Future = "+copy2);
+        }*//*
+
+       // System.out.println("Additionals = "+additionals);
+        if(!additionals.isEmpty()){
+            positions.add(additionals);
+        }
+
+        return positions;
+    }
+*/
+
+          /*private int exploreInDirection(int direction, int current, int width, ArrayList<Integer>map, ArrayList<Integer>obstacleLocations, ArrayList<Integer>glassLocations){
+        int result = -1;
+
+        switch(direction) {
+            case 1:
+                if (current + 1 < map.size() && ((current + 1) / width == current / width) && map.get(current + 1) == 1 && !obstacleLocations.contains(current + 1) && !glassLocations.contains(current + 1)) {
+                    result = current + 1;
+                }
+                else result =  -1;
+            break;
+            case -1:
+                if(current - 1 > 0 && ((current - 1) / width != current / width) && map.get(current -1) == 1 && !obstacleLocations.contains(current - 1) && !glassLocations.contains(current - 1)) {
+                    result = current - 1;
+                }
+                else result =  -1;
+            break;
+            case 2:
+                if(current + width < map.size() && (current + width) % width <= (width - 1) && map.get(current + width) == 1 && !obstacleLocations.contains(current + width) && !glassLocations.contains(current + width)){
+                    result = current + width;
+                }
+                else result =  -1;
+            break;
+        }
+        return result;
+    }
+*/
+
+
+    /*******************************************************************
+     * get a list of invisible obstacle locations e.g. WOOD and CEMENT
+     *******************************************************************/
+    private ArrayList<Integer> getInvisibleObjectPositionsInTileMap(ArrayList<Obstacles> obstacles) {
+        ArrayList<Integer> obstacleLocations = new ArrayList<>();
+
+        if (!obstacles.isEmpty()) {
+            for (int i = 0; i < obstacles.size(); i++) {
+                if (!obstacles.get(i).isVisible() && obstacles.get(i).getDestroyCounter() > 0) {
+                    obstacleLocations.add(obstacles.get(i).getLocation());
+                }
+            }
+        }
+        return obstacleLocations;
+    }
+
+    /**************************************************
+     * get a list of GLASS obstacles
+     **************************************************/
+    private ArrayList<Integer> getGlassPositionsInTileMap(ArrayList<Obstacles> obstacles) {
+        ArrayList<Integer> glassLocations = new ArrayList<>();
+
+        if (!obstacles.isEmpty()) {
+            for (int i = 0; i < obstacles.size(); i++) {
+                if (obstacles.get(i).getStatus() == GLASS && obstacles.get(i).getDestroyCounter() > 0) {
+                    glassLocations.add(obstacles.get(i).getLocation());
+                }
+            }
+        }
+        return glassLocations;
+    }
+
+    /*private void handleDamagedObstacles(List<UrbieAnimation>objects, ArrayList<Obstacles>obstacles,
+                                        ArrayList<Integer>obstacleLocations,
+                                        ArrayList<Integer>nearMatchObstacles,
+                                        ArrayList<Point>tilePos){
+
+        for (int i = 0; i < obstacles.size(); i++) {
+            if (nearMatchObstacles.contains(obstacles.get(i).getLocation())) {
+                obstacles.get(i).deductDestroyCounter();
+                if (obstacles.get(i).getDestroyCounter() == 0) {
+                    int urb_num = findBitmapByMapLocation(objects, tilePos, obstacles.get(i).getLocation());
+                    if (urb_num > -1) {
+                        objects.get(urb_num).setStatus(NONE);
+                        objects.get(urb_num).setVisible(Urbies.VisibilityStatus.VISIBLE);
+                        int index = obstacleLocations.indexOf(obstacles.get(i).getLocation());
+                        obstacles.get(i).clearStatus();
+                        obstacleLocations.remove(index);
+                    }
+                }
+            }
+        }
+    }
+
+    private void handleDamagedGlass(List<UrbieAnimation>objects, ArrayList<Obstacles>obstacles,
+                                    ArrayList<Integer>glassLocations, ArrayList<Integer>matches,
+                                    ArrayList<Point>tilePos){
+
+        for (int i = 0; i < matches.size(); i++) {
+            if (glassLocations.contains(matches.get(i))) {
+                for (int j = 0; j < obstacles.size(); j++) {
+                    if (obstacles.get(j).getLocation() == matches.get(i)) {
+                        int urb_num = findBitmapByMapLocation(objects, tilePos, obstacles.get(j).getLocation());
+                        if (urb_num > -1) {
+                            objects.get(urb_num).setStatus(NONE);
+                            obstacles.get(j).deductDestroyCounter();
+                            obstacles.get(j).clearStatus();
+                            int index = glassLocations.indexOf(obstacles.get(j).getLocation());
+                            glassLocations.remove(index);
+                        }
+                        break;
+                    }
+                }
+                matches.remove(i);
+                i--;
+            }
+        }
+
+    }*/
+
+
+    /* *//***********************************************************
+     * Return a list of cleared locations that are not blocked
+     ***********************************************************//*
+    private ArrayList<Integer> getClearedObstacles(ArrayList<Integer>map, int width,
+                                                   ArrayList<Integer>obstacleLocations, int element){
+        ArrayList<Integer>free = new ArrayList<>();
+        int start = element;
+
+        if(start % width > 0){
+            while(start % width > 0){
+                start--;
+            }
+        }
+
+        for(int i = start; i < start + width; i++){
+            if(map.get(i) == 1 && !obstacleLocations.contains(i)){
+                free.add(i);
+            }
+        }
+        return free;
+    }
+
+    *//***********************************************************
+     * Return a list of elements relative to the cleared column
+     ***********************************************************//*
+    private ArrayList<Integer> getColumnElementsRelatingToClearedColumn(List<UrbieAnimation>objects,
+                                                                        ArrayList<Integer>map,
+                                                                        ArrayList<Integer>matches,
+                                                                        ArrayList<Point>tilePos,
+                                                                        int width,
+                                                                        ArrayList<Integer>obstacleLocations,
+                                                                        ArrayList<Integer>glassLocations,
+                                                                        ArrayList<Integer>list,
+                                                                        int element){
+
+        ArrayList<Integer>columnValues = new ArrayList<>();
+
+        int end = (element + width);
+        while(end % width < width-1){
+            int urb_num = findBitmapByMapLocation(objects, tilePos, end);
+            if(map.get(end) == 1 && !matches.contains(end) && !obstacleLocations.contains(end)
+                    && !glassLocations.contains(end) && !list.contains(end) && objects.get(urb_num).getStatus() == NONE){
+                columnValues.add(end);
+            }
+            end = end + 1;
+        }
+
+        int num = element;
+        while(num >= 0){
+            int urb_num = findBitmapByMapLocation(objects, tilePos, num);
+            if(map.get(num) == 1 && !matches.contains(num) && !obstacleLocations.contains(num)
+                    && !glassLocations.contains(num) && !list.contains(num) && objects.get(urb_num).getStatus() == NONE){
+                columnValues.add(num);
+            }
+            num = num - width;
+        }
+        return columnValues;
+    }*/
+
+     /* *//*********************************************************************************
+     * Return whether the selected row is blocked by invisible obstacles
+     *********************************************************************************//*
+    private boolean isThisRowBlocked(ArrayList<Integer>map, int width, ArrayList<Integer>obstacleLocations, int element){
+        boolean blocked = false;
+        int start = element;
+
+        if(start % width > 0){
+            while(start % width > 0){
+                start--;
+            }
+        }
+
+        int count = 0;
+        for(int i = start; i < start + width; i++){
+
+            if(map.get(i) == 0 || (map.get(i) == 1) && obstacleLocations.contains(i)){
+                count++;
+            } else {
+                count = 0;
+            }
+            if(count == width){
+                blocked = true;
+            }
+        }
+        return blocked;
+    }*/
+
+    /*****************************
+     * group matches by row
+     *****************************/
+    private ArrayList<Integer> groupMatchesByRow(ArrayList<Integer>matches, int width){
+        ArrayList<Integer>group = new ArrayList<>();
+
+        group.add(matches.get(0));
+        int counter = 0;
+
+        for(int i = 1; i < matches.size(); i++){
+            if(matches.get(i) / width != group.get(counter) / width){
+                group.add(matches.get(i));
+                counter++;
+            }
+        }
+        return group;
+    }
+
+    /******************************************************
+     * get additional objects to be moved down also
+     ******************************************************/
+    //this only handles the situation where there is only one cleared obstacle
+    /*private ArrayList<Integer> getAdditionalObjectsToBeMoved(List<UrbieAnimation>objects,
+                                                             ArrayList<Integer>map,
+                                                             ArrayList<Integer> matches,
+                                                             ArrayList<Point>tilePos,
+                                                             ArrayList<Integer>group,
+                                                             ArrayList<Integer>obstacleLocations,
+                                                             ArrayList<Integer>glassLocations,
+                                                             int width,
+                                                             ArrayList<Integer>cleared,
+                                                             ArrayList<Integer>list){
+        ArrayList<Integer> additionalList = new ArrayList<>();
+
+        for (int i = 0; i < group.size(); i++) {
+            int num = group.get(i) - width;
+            while (num >= 0) {
+                if(map.get(num) == 1 && obstacleLocations.contains(num)) {
+                    if(!isThisRowBlocked(map,width, obstacleLocations, num)) {
+                        cleared = getClearedObstacles(map, width, obstacleLocations, num);
+                        if(!cleared.isEmpty()){
+                            for(int j = 0; j < cleared.size(); j++) {
+                                additionalList.addAll(getColumnElementsRelatingToClearedColumn(objects, map, matches, tilePos, width, obstacleLocations, glassLocations,
+                                        list, cleared.get(j)));
+                            }
+                        }
+                    }
+                }
+                num = num - width;
+            }
+        }
+        return additionalList;
     }*/
 
 /*
@@ -1175,4 +1831,30 @@ grid[2][1] = "Obstacle";
 
 console.log(findShortestPath([0,0], grid));
  */
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+    //2. Are there matches that are below obstacles, if so remove from matches array list
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    //Is any row blocked completely? if so, this section matters if not then not relevant
+        /*ArrayList<Integer> matchesBelow = new ArrayList<>();
+
+        if (!obstacleLocations.isEmpty()) {
+            System.out.println("isRowBlocked = " + isRowBlocked(map, width, obstacleLocations));
+            if (isRowBlocked(map, width, obstacleLocations)) {
+                matchesBelow = matchesBelowObstacles(matches, obstacleLocations, width);
+                if (!matchesBelow.isEmpty()) {
+                    for (int i = 0; i < matchesBelow.size(); i++) {
+                        int index = matches.indexOf(matchesBelow.get(i));
+                        if (index > -1) matches.remove(index);
+                    }
+                    //  System.out.println("STM matchesBelow = " + matchesBelow);
+                    matchesOffScreen.addAll(matchesBelow);
+                }
+
+                //stores a list of objects to move down that are below blocked obstacles
+                belowMatchesToMoveDown = manageMatchesUnderObstacles(matchesBelow, width, obstacleLocations, objects, tilePos, map);
+                // System.out.println("STM belowMatchesToMoveDown = " + belowMatchesToMoveDown);
+            }
+        }*/
 }

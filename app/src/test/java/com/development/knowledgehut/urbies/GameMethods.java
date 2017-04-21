@@ -28,8 +28,9 @@ public class GameMethods {
     public void pathFindingTest() throws Exception{
         PathFinding pathFinding = new PathFinding();
 
-        String expected = "[4 , 4] -> [4 , 3] -> [4 , 2] -> [3 , 2] -> [3 , 1]";
-        String result = pathFinding.getPath(5, 5, 5, 3, 1, 4, 4, new int [][]{{3,0}, {2,0}, {2,2}, {2,3}, {2,4}});
+        String expected = "[3 , 4] -> [3 , 3] -> [2 , 3]";
+        String result = pathFinding.getPath("Example 1", 5, 5, 2, 3, 3, 4, new int [][]{{2,0}, {2,1}, {2,2}});
+        System.out.println(result);
         assertEquals("result = ", expected, result);
     }
 

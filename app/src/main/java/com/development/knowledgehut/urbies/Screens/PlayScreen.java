@@ -149,7 +149,6 @@ class PlayScreen extends Screen {
                     matchState = MatchState.AUTO;
                     pState = Procedure.CHECK;
                     levelManager.startTimer();
-                    System.out.println("cement urb = " + pos);
                 }
             } else {
 
@@ -301,11 +300,6 @@ class PlayScreen extends Screen {
                     break;
             }
         }
-        System.out.println("urbs in this level" + urbTypesInLevel);
-        System.out.println("Urbs Location at start");
-        for(int i = 0; i < objects.size(); i++){
-            System.out.println(objects.get(i).getLocation());
-        }
         return objects;
     }
 
@@ -436,6 +430,13 @@ class PlayScreen extends Screen {
 
     @Override
     public void update(float deltaTime) {
+
+        /*
+        RETAINS THE LAST VALID MAP POSITION, NEED TO CHANGE THEM TO UNUSED MAP POSITION WHEN THE GET INCLUDED BACK INTO THE GAME!
+        if(!notInPlay.isEmpty()){
+            System.out.println("not in play = "+notInPlay);
+        }
+*/
         switch (matchState) {
             case TUTORIAL:
                 if (Urbies.level == -1 || Urbies.level == -2 || Urbies.level == -3 || Urbies.level == -4) {
@@ -775,7 +776,6 @@ class PlayScreen extends Screen {
                                 tileWidth, obstacleTiles
                         );
 
-                        //System.out.println("possibleMatches = " + possibleMatches);
                         for (int i = 0; i < Urbs.size(); i++) {
                             if (Urbs.get(i).getType() == Urbies.UrbieType.MAGICIAN ||
                                     Urbs.get(i).getType() == Urbies.UrbieType.STRIPE_HORIZONTAL ||
@@ -1512,8 +1512,6 @@ class PlayScreen extends Screen {
                                 notInPlay.addAll(matchesOffScreen);
                                 matchesOffScreen.clear();
                             }
-
-                            System.out.println("END OF SPECIAL URB");
                             matchState = MatchState.AUTO;
                             pState = Procedure.CHECK;
                         }
@@ -1633,10 +1631,20 @@ class PlayScreen extends Screen {
 
                 int counter = 0;
                 if (!urbsToMoveDown.isEmpty()) {
-                    if (System.currentTimeMillis() > startBounceOutTime + 500) {
-                        for (int i = 0; i < urbsToMoveDown.size(); i++) {
-                            if (Urbs.get(urbsToMoveDown.get(i)).updatePath(deltaTime)) {
-                                counter++;
+                    if(!urbMatchOne.isEmpty()) {
+                        if (System.currentTimeMillis() > startBounceOutTime + 500) {
+                            for (int i = 0; i < urbsToMoveDown.size(); i++) {
+                                if (Urbs.get(urbsToMoveDown.get(i)).updatePath(deltaTime)) {
+                                    counter++;
+                                }
+                            }
+                        }
+                    } else {
+                        if (System.currentTimeMillis() > startBounceOutTime + 1200){
+                            for (int i = 0; i < urbsToMoveDown.size(); i++) {
+                                if (Urbs.get(urbsToMoveDown.get(i)).updatePath(deltaTime)) {
+                                    counter++;
+                                }
                             }
                         }
                     }
@@ -1725,10 +1733,20 @@ class PlayScreen extends Screen {
 
                 int counter = 0;
                 if (!urbsToMoveDown.isEmpty()) {
-                    if (System.currentTimeMillis() > startBounceOutTime + 500) {
-                        for (int i = 0; i < urbsToMoveDown.size(); i++) {
-                            if (Urbs.get(urbsToMoveDown.get(i)).updatePath(deltaTime)) {
-                                counter++;
+                    if(!urbMatchOne.isEmpty()) {
+                        if (System.currentTimeMillis() > startBounceOutTime + 500) {
+                            for (int i = 0; i < urbsToMoveDown.size(); i++) {
+                                if (Urbs.get(urbsToMoveDown.get(i)).updatePath(deltaTime)) {
+                                    counter++;
+                                }
+                            }
+                        }
+                    } else {
+                        if (System.currentTimeMillis() > startBounceOutTime + 1200){
+                            for (int i = 0; i < urbsToMoveDown.size(); i++) {
+                                if (Urbs.get(urbsToMoveDown.get(i)).updatePath(deltaTime)) {
+                                    counter++;
+                                }
                             }
                         }
                     }
@@ -1783,10 +1801,20 @@ class PlayScreen extends Screen {
                 if (pState == Procedure.MATCH && initialise == 1) {
                     int counter = 0;
                     if (!urbsToMoveDown.isEmpty()) {
-                        if (System.currentTimeMillis() > startBounceOutTime + 500) {
-                            for (int i = 0; i < urbsToMoveDown.size(); i++) {
-                                if (Urbs.get(urbsToMoveDown.get(i)).updatePath(deltaTime)) {
-                                    counter++;
+                        if(!urbMatchOne.isEmpty()) {
+                            if (System.currentTimeMillis() > startBounceOutTime + 500) {
+                                for (int i = 0; i < urbsToMoveDown.size(); i++) {
+                                    if (Urbs.get(urbsToMoveDown.get(i)).updatePath(deltaTime)) {
+                                        counter++;
+                                    }
+                                }
+                            }
+                        } else {
+                            if (System.currentTimeMillis() > startBounceOutTime + 1200){
+                                for (int i = 0; i < urbsToMoveDown.size(); i++) {
+                                    if (Urbs.get(urbsToMoveDown.get(i)).updatePath(deltaTime)) {
+                                        counter++;
+                                    }
                                 }
                             }
                         }
@@ -1914,9 +1942,6 @@ class PlayScreen extends Screen {
 
         int moveValue = 0;
 
-        //System.out.println(Urbs.get(0).getX() + "," + Urbs.get(0).getY() + " offset = "+OFFSET_Y);
-        //System.out.println(e1.getX() + ","+e1.getY());
-
         switch (getSlope(e1.getX(), e1.getY(), e2.getX(), e2.getY())) {
             case 1: moveValue = -tileWidth;
 
@@ -1938,7 +1963,6 @@ class PlayScreen extends Screen {
                 if (one + moveValue > 0 && one + moveValue < levelManager.getLevelTileMap().getMapLevel().size()
                         && levelManager.getLevelTileMap().getMapLevel().get(one + moveValue) == 1
                         && ((((one + moveValue) / tileWidth == one / tileWidth) || ((one + moveValue) % tileWidth == one % tileWidth)))) {
-                    //System.out.println("move " + one + " and " + (one + moveValue));
                     two = one + moveValue;
                     urbTwo = getIndex(two);
 
@@ -2155,11 +2179,6 @@ class PlayScreen extends Screen {
 
         ArrayList<Integer> sorted = gameMethods.sortPointArrayInDescendingOrderByY(futureCoordinates);
 
-        System.out.println("BEFORE ANY REMOVALS" );
-        System.out.println("urbMatchOne = "+urbMatchOne);
-        System.out.println("userMatchOne = "+userMatchOne);
-        System.out.println("matchesOffScreen = "+matchesOffScreen);
-
         if (!matchesOffScreen.isEmpty()) {
             for(int a = urbMatchOne.size() -1; a >= 0; a--){
                 if(matchesOffScreen.contains(Urbs.get(urbMatchOne.get(a)).getLocation())){
@@ -2206,10 +2225,6 @@ class PlayScreen extends Screen {
      ***********************************************************************************************/
     private void addEmptyTilesAfterBrokenObstacleRemoved(ArrayList<Integer> elementsToAdd) {
 
-        /*System.out.println("futurePositions = " + futurePositions);
-        System.out.println("futureCoordinates = " + futureCoordinates);
-        System.out.println("elementsToAdd = " + elementsToAdd);*/
-
         if (elementsToAdd.size() > 1) {
             //make sure empty tile array starts at the highest element
             Collections.sort(elementsToAdd, Collections.<Integer>reverseOrder());
@@ -2231,10 +2246,6 @@ class PlayScreen extends Screen {
                 }
                 futurePositions.set(j + 1, key);
             }
-
-            /*System.out.println("futurePositions = " + futurePositions);
-            System.out.println("futureCoordinates = " + futureCoordinates);
-            System.out.println("elementsToAdd = " + elementsToAdd);*/
         }
 
         if (!futureCoordinates.isEmpty()) {
@@ -2243,10 +2254,6 @@ class PlayScreen extends Screen {
                 futureCoordinates.add(index, tileLocations.get(elementsToAdd.get(i)));
             }
         }
-
-      /*  System.out.println("futurePositions = " + futurePositions);
-        System.out.println("futureCoordinates = " + futureCoordinates);
-        System.out.println("elementsToAdd = " + elementsToAdd);*/
     }
 
     /********************************************************
@@ -2689,11 +2696,11 @@ class PlayScreen extends Screen {
             }
         }
 
-        System.out.println("Sort Urbs Method");
+        /*System.out.println("Sort Urbs Method");
         for(i = 0; i < urbieAnimations.size(); i++){
             System.out.print(i + " = " + urbieAnimations.get(i).getLocation());
             System.out.println(" ");
-        }
+        }*/
 
     }
 
@@ -2701,9 +2708,20 @@ class PlayScreen extends Screen {
     private void freedomSounds() {
         ArrayList<Urbies.UrbieType> type = new ArrayList<>();
         float volume = 0.1f;
-        for (int i = 0; i < urbMatchOne.size(); i++) {
-            if (!type.contains(Urbs.get(urbMatchOne.get(i)).getType())) {
-                type.add(Urbs.get(urbMatchOne.get(i)).getType());
+        if(!urbMatchOne.isEmpty()){
+            for (int i = 0; i < urbMatchOne.size(); i++) {
+                if (!type.contains(Urbs.get(urbMatchOne.get(i)).getType())) {
+                    type.add(Urbs.get(urbMatchOne.get(i)).getType());
+                }
+            }
+        }
+        else {
+            if(!matchesOffScreen.isEmpty()){
+                for (int i = 0; i < matchesOffScreen.size(); i++) {
+                    if (!type.contains(Urbs.get(matchesOffScreen.get(i)).getType())) {
+                        type.add(Urbs.get(matchesOffScreen.get(i)).getType());
+                    }
+                }
             }
         }
 
@@ -2762,7 +2780,6 @@ class PlayScreen extends Screen {
         //remove locations where urb is held by an obstacle
         for (int i = shuffledLocations.size() - 1; i >= 0; i--) {
             int urbLoc = gameMethods.findObjectByPosition(shuffledLocations.get(i), Urbs);
-            //System.out.println("urbLoc = " + urbLoc);
             if (urbLoc > -1) {
                 if (Urbs.get(urbLoc).getStatus() != NONE || Urbs.get(urbLoc).getY() < 0) {
                     shuffledLocations.remove(i);
@@ -2785,7 +2802,6 @@ class PlayScreen extends Screen {
         }
 
         if (!shuffledLocations.isEmpty()) Collections.shuffle(shuffledLocations);
-        //System.out.println("shuffledLocations = " + shuffledLocations);
         return shuffledLocations;
     }
 
@@ -2826,25 +2842,8 @@ class PlayScreen extends Screen {
                     counter++;
                 }
             }
-
         }
-
         sortUrbs(objects);
-        //System.out.println("shuffled locations");
-        for (int i = 0; i < objects.size(); i++) {
-            //System.out.println(objects.get(i).getLocation());
-        }
-       /* for (int i = 0; i < newLocations.size(); i++) {
-            if(objects.get(i).getStatus() == NONE) {
-                objects.get(i).findLine(
-                        objects.get(i).getX(),
-                        objects.get(i).getY(),
-                        positions.get(newLocations.get(i)).x,
-                        positions.get(newLocations.get(i)).y
-                );
-                objects.get(i).setLocation(newLocations.get(i));
-            }
-        }*/
     }
 
     private void loadGui() {
@@ -3228,27 +3227,8 @@ class PlayScreen extends Screen {
     }
 
     private void objectsToMoveDown() {
-        if (!urbMatchOne.isEmpty()) {
-            for (int i = 0; i < urbMatchOne.size(); i++) {
-             //   System.out.println("urb positions" + Urbs.get(urbMatchOne.get(i)).getY());
-            }
-        }
 
         ArrayList<DataStore>futureValues = new ArrayList<>();
-        //for testing purposes only
-
-        /*ArrayList<ObjectPathCreator> current = gameMethods.handleTileMovements(obstacleTiles, Urbs,
-                userMatchOne, levelManager.getLevelTileMap().getMapLevel(),tileLocations,notInPlay,
-                tileWidth);
-
-        objectsToMoveDown.addAll(current.get(0).getElements());
-        System.out.println("objectsToMoveDown = " + objectsToMoveDown);
-        coordinatesToMoveTo.addAll(current.get(0).getPositions());
-        System.out.println("coordinatesToMoveTo = "+coordinatesToMoveTo);
-        futurePositions.addAll(current.get(1).getElements());
-        System.out.println("futurePositions = "+futurePositions);
-        futureCoordinates.addAll(current.get(1).getPositions());
-        System.out.println("futureCoordinates = "+futureCoordinates);*/
 
         ArrayList<DataStore> store = gameMethods.separateTheMadness(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen,
                 futureValues, entrance);
@@ -3261,24 +3241,6 @@ class PlayScreen extends Screen {
             futurePositions.add(futureValues.get(i).getElement());
             futureCoordinates.add(futureValues.get(i).getPosition());
         }
-
-        //objectsToMoveDown = gameMethods.moveDownTest(Urbs, userMatchOne, levelManager.getLevelTileMap().getMapLevel(), obstacleTiles, coordinatesToMoveTo, futureCoordinates, futurePositions, matchesOffScreen, tileLocations, tileWidth);
-        /*objectsToMoveDown = gameMethods.listOfObjectToMoveDown(
-                Urbs,
-                userMatchOne,
-                levelManager.getLevelTileMap().getMapLevel(),
-                tileWidth,
-                tileLocations, coordinatesToMoveTo,
-                futureCoordinates, obstacleTiles, matchesOffScreen, tileHeight, notInPlay
-        );*/
-
-
-
-
-
-        /*for(int i = 0; i < Urbs.size(); i++){
-            System.out.println(Urbs.get(i).getLocation());
-        }*/
     }
 
     private void setChameleonAndVStripe(int urbSp, int urbTemp, int pos, int posSp) {
