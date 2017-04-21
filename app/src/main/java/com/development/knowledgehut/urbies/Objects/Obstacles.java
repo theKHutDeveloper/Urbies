@@ -28,7 +28,7 @@ public class Obstacles {
             case SINGLE_TILE: numberUntilDestroyed = 1; break;
             case WOODEN:
             case DOUBLE_TILE: numberUntilDestroyed = 2; break;
-            case CEMENT: numberUntilDestroyed = 4; break;
+            case CEMENT: numberUntilDestroyed = 2; break; //4 changed for testing
         }
         destroyCounter = numberUntilDestroyed;
     }

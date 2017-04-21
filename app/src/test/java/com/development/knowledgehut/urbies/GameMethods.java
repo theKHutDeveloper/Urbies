@@ -36,6 +36,23 @@ public class GameMethods {
 
 
     @Test
+    public void twoConditions() throws Exception{
+        ArrayList<Integer>brokenObstacleLocations = new ArrayList<>();
+        ArrayList<Integer>emptyTiles = new ArrayList<>();
+
+        Collections.addAll(brokenObstacleLocations, 1, 2, 3);
+        Collections.addAll(emptyTiles, 22,23,24);
+
+        for(int i = 0; i < matches.size(); i++) {
+            if (!brokenObstacleLocations.isEmpty() && !emptyTiles.isEmpty() && brokenObstacleLocations.contains(matches.get(i) % width)) {
+                System.out.println("true");
+            }
+        }
+
+        assert true;
+    }
+
+    @Test
     public void testing() throws Exception {
         ArrayList<Integer> expected = new ArrayList<>();
         ArrayList<Integer> expectedPositions = new ArrayList<>();

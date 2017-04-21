@@ -606,9 +606,9 @@ class PlayScreen extends Screen {
                                 for (int i = 0; i < urbsToMoveDown.size(); i++) {
                                     Urbs.get(urbsToMoveDown.get(i)).findLine(Urbs.get(urbsToMoveDown.get(i)).getX(),
                                             Urbs.get(urbsToMoveDown.get(i)).getY(), coordinatesToMoveTo.get(i).x, coordinatesToMoveTo.get(i).y);
-                                    System.out.println("urbsToMoveDown "+urbsToMoveDown.get(i));
+                                   /* System.out.println("urbsToMoveDown "+urbsToMoveDown.get(i));
                                     System.out.println(Urbs.get(urbsToMoveDown.get(i)).getPosition());
-                                    System.out.println(coordinatesToMoveTo.get(i));
+                                    System.out.println(coordinatesToMoveTo.get(i));*/
                                 }
                             }
 
@@ -1022,9 +1022,9 @@ class PlayScreen extends Screen {
                                 for (int i = 0; i < urbsToMoveDown.size(); i++) {
                                     Urbs.get(urbsToMoveDown.get(i)).findLine(Urbs.get(urbsToMoveDown.get(i)).getX(),
                                             Urbs.get(urbsToMoveDown.get(i)).getY(), coordinatesToMoveTo.get(i).x, coordinatesToMoveTo.get(i).y);
-                                    System.out.println("urbsToMoveDown "+urbsToMoveDown.get(i));
+                                    /*System.out.println("urbsToMoveDown "+urbsToMoveDown.get(i));
                                     System.out.println(Urbs.get(urbsToMoveDown.get(i)).getPosition());
-                                    System.out.println(coordinatesToMoveTo.get(i));
+                                    System.out.println(coordinatesToMoveTo.get(i));*/
 
                                 }
                             }
@@ -2196,15 +2196,15 @@ class PlayScreen extends Screen {
             }
         }
 
-        System.out.println("AFTER ANY REMOVALS" );
+       /* System.out.println("AFTER ANY REMOVALS" );
         System.out.println("urbMatchOne = "+urbMatchOne);
         System.out.println("futureCoordinates = "+futureCoordinates);
         System.out.println("futurePositions = "+futurePositions);
-        System.out.println("userMatchOne = "+userMatchOne);
+        System.out.println("userMatchOne = "+userMatchOne);*/
 
 
         if (!sorted.isEmpty()) {
-            System.out.println("sorted = "+ sorted);
+            //System.out.println("sorted = "+ sorted);
             for (int i = 0; i < urbMatchOne.size(); i++) {
 
                     changeToRandomBitmap(urbMatchOne.get(sorted.get(i)), Urbs);

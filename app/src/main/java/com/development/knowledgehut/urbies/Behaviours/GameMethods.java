@@ -813,6 +813,8 @@ public class GameMethods {
         ArrayList<Integer>reference;
 
 
+        System.out.println("==========================================================");
+        System.out.println("Matches = "+matches);
         ////////////////////////////////////////////////////////////////////////////////////////////
         //!!get a list of invisible obstacle locations e.g. WOOD, CEMENT and also GLASS obstacles
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -897,39 +899,10 @@ public class GameMethods {
                     i--;
                 }
             }
+            System.out.println("Matches = "+matches);
         }
         reference = tileStatus(matches, map, obstacleLocations, glassLocations, emptyTiles);
 
-        /////////////////////////////////////////////////////////////////
-        //If there are any empty tiles and an entrance point then
-        //use A-star path finding to evaluate the shortest distance
-        /////////////////////////////////////////////////////////////////
-        //may need to do similar as below for matches under cement with an entry point!
-
-        if(!entrance.isEmpty() && !emptyTiles.isEmpty()){
-            PathFinding path = new PathFinding();
-
-            //get a list of blocked cells that can not be used for path finding
-            ArrayList<Integer>blockedPositions = irrelevantPositions(entrance.get(0), width, obstacleLocations, glassLocations);
-            int[][] arrayWasteLand = convertArrayListTo2DArray(blockedPositions);
-            ArrayList<ArrayList<int[]>> pathway = new ArrayList<>();
-
-            for(int i = 0; i < emptyTiles.size(); i++) {
-                //return shortest path in cell format
-                pathway.add(path.getPath(emptyTiles.get(i), map.size() / width, width, (entrance.get(0) / width), (entrance.get(0) % width),
-                        emptyTiles.get(i) / width, emptyTiles.get(i) % width, arrayWasteLand));
-            }
-
-            //print out pathway
-            for (int j = 0; j < pathway.size(); j++) {
-                System.out.println("Empty Tile: "+emptyTiles.get(j));
-                for(int k = 0; k < pathway.get(j).size(); k++) {
-                    System.out.println("pathway = [" + pathway.get(j).get(k)[0] + "][ " + pathway.get(j).get(k)[1] + "]");
-                }
-            }
-
-            //experiment with moving the reference array list based on pathway
-        }
 
 
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -939,115 +912,137 @@ public class GameMethods {
         ArrayList<Point> emptyTilePositions = new ArrayList<>();
         boolean emptyTilesReplaced = false;
         boolean tilesComplete = false;
-
+        ArrayList<ArrayList<int[]>> pathway = new ArrayList<>();
 
         for (int i = 0; i < matches.size(); i++) {
             int startingPoint = matches.get(i);
 
-            if (!brokenObstacleLocations.isEmpty() && !emptyTiles.isEmpty()) {
-                //reset the startingPoint where the broken tile exists
-                for (int j = 0; j < brokenObstacleLocations.size(); j++) {
-                    if (matches.get(i) % width == obstacles.get(brokenObstacleLocations.get(j)).getLocation() % width && obstacles.get(brokenObstacleLocations.get(j)).getLocation() > matches.get(i)) {
-                        startingPoint = obstacles.get(brokenObstacleLocations.get(j)).getLocation();
+            System.out.println("Matches: "+matches.get(i) + " % 5 = "+ matches.get(i)%width);
+            if(!brokenObstacleLocations.isEmpty() && !emptyTiles.isEmpty() && brokenObstacleLocations.contains(matches.get(i) % width)){
 
-                        //if empty tiles exist and there is a broken obstacle then change the starting point location
-                        if (!emptyTiles.isEmpty()) {
-                            //get a list of the empty tiles locations, this should focus on the location of where the empty tiles are
-                            for (int b = 0; b < emptyTiles.size(); b++) {
-                                emptyTilePositions.add(tilePos.get(emptyTiles.get(b)));
-                            }
-
-                            //add the contents of emptyTilePositions to tempPosition
-                            tempPosition.addAll(emptyTilePositions);
-                            emptyTilesReplaced = true;
-                            tilesComplete = true;
-
-                            //is emptyTiles X position the same as one of the entrance points? if so then
-                            //there is a clear pathway, otherwise some urbs will have to be moved
-                            if (!entrance.isEmpty()) {
-                                boolean clearPathway = false;
-                                for (int loop = 0; loop < entrance.size(); loop++) {
-                                    for (int index = 0; index < emptyTilePositions.size(); index++) {
-                                        if (tilePos.get(entrance.get(loop)).x == emptyTilePositions.get(index).x) {
-                                            System.out.println("there is a clear pathway " + emptyTilePositions.get(index).x + " = " + tilePos.get(entrance.get(loop)).x);
-                                            clearPathway = true;
-                                            break;
-
-                                        }
-                                    }
-                                }
-                                System.out.println("clearPathway = " + clearPathway);
+                System.out.println("THERE ARE CURRENTLY BROKEN TILES DUE TO MATCH AND THIS MATCH "+matches.get(i) + " IS ON THE SAME COLUMN");
+                //GET THE RELEVANT ENTRANCE
+                int myEntryPoint = -1;
+                if(!entrance.isEmpty()){
+                    if(entrance.size() == 1){
+                        myEntryPoint = entrance.get(0);
+                    }
+                    else {
+                        for(int t = 0; t < entrance.size(); t++){
+                            if(entrance.get(t) % width == matches.get(i) % width){
+                                myEntryPoint = entrance.get(t);
+                                break;
                             }
                         }
+                    }
+                }
+                System.out.println("My Entry Point = "+myEntryPoint);
+
+                int num = myEntryPoint;
+                int entranceEnd = num;
+                while(num >= 0){
+                    if(map.get(num) == 1 && !obstacleLocations.contains(num) && !glassLocations.contains(num) && !emptyTiles.contains(num) && !matches.contains(num)){
+                        entranceEnd = num;
+                    }
+                    if(obstacleLocations.contains(num)){
                         break;
                     }
+                    num = num - width;
                 }
-            }
+                System.out.println("Entrance End = "+entranceEnd);
 
-            //Identify the valid positions that objects will be able to drop down to
-            int num = startingPoint - width;
-            tempPosition.add(tilePos.get(startingPoint));
+                //==========================================================
 
-            while (num >= 0) {
-                if (map.get(num) == 1) {
+                PathFinding path = new PathFinding();
+                //get a list of blocked cells that can not be used for path finding
+                ArrayList<Integer>blockedPositions = irrelevantPositions(myEntryPoint, width, obstacleLocations, glassLocations);
+                int[][] arrayWasteLand = convertArrayListTo2DArray(blockedPositions);
 
-                    int urb_num = findBitmapByMapLocation(objects, tilePos, num);
 
-                    if (urb_num > -1) {
-                        if (objects.get(urb_num).getStatus() == NONE) {
-                            tempPosition.add(tilePos.get(num));
-                        }
-                        else {
-                            tempPosition.remove(tempPosition.size() - 1);
-                            break;
-                        }
+                //get the first element in the column of entrance.get(0)
+                int number = myEntryPoint;
+                int lineClosed = number;
+                while(number >= 0){
+                    if(map.get(number) == 1 && !obstacleLocations.contains(number) && !glassLocations.contains(number) && !emptyTiles.contains(number)){
+                        lineClosed = number;
+                    }
+                    if(obstacleLocations.contains(number)){
+                        break;
+                    }
+                    number = number - width;
+                }
+                System.out.println("Line Closed At = "+lineClosed);
+
+
+                for(int p = 0; p < emptyTiles.size(); p++) {
+                    //return shortest path in cell format
+                    pathway.add(path.getPath(emptyTiles.get(p), map.size() / width, width, (myEntryPoint / width), (myEntryPoint % width),
+                            emptyTiles.get(p) / width, emptyTiles.get(p) % width, arrayWasteLand));
+                }
+
+                //print out pathway
+                for (int j = 0; j < pathway.size(); j++) {
+                    System.out.println("Empty Tile: "+emptyTiles.get(j));
+                    for(int k = 0; k < pathway.get(j).size(); k++) {
+                        System.out.println("pathway = [" + pathway.get(j).get(k)[0] + "][ " + pathway.get(j).get(k)[1] + "]");
                     }
                 }
-                num = num - width;
             }
 
-            //System.out.println("temp positions = "+tempPosition);
-            //Identify the objects that will be moved down
-            int counter = 0;
+            else {
 
-            if (!emptyTilesReplaced) {
+                //Identify the valid positions that objects will be able to drop down to
+                int num = startingPoint - width;
+                tempPosition.add(tilePos.get(startingPoint));
+
+                while (num >= 0) {
+                    if (map.get(num) == 1) {
+
+                        int urb_num = findBitmapByMapLocation(objects, tilePos, num);
+
+                        if (urb_num > -1) {
+                            if (objects.get(urb_num).getStatus() == NONE) {
+                                tempPosition.add(tilePos.get(num));
+                            } else if (objects.get(urb_num).getStatus() == CEMENT || objects.get(urb_num).getStatus() == WOODEN) {
+                                tempPosition.remove(tempPosition.size() - 1);
+                                break;
+                            }
+                        }
+                    }
+                    num = num - width;
+                }
+
+                //Identify the objects that will be moved down
+                int counter = 0;
+
                 num = startingPoint - width;
-            } else {
-                num = startingPoint;
-            }
 
-            while (num >= 0) {
-                int urb_num = findBitmapByMapLocation(objects, tilePos, num);
-                if (urb_num > -1) {
-                    if (map.get(num) == 1 && !matches.contains(num) && !moveDownList.contains(num) && objects.get(urb_num).getStatus() == NONE) {
-                        moveDownList.add(num);
-                        positions.add(tempPosition.get(counter));
-                        tempPosition.remove(counter);
+
+                while (num >= 0) {
+                    int urb_num = findBitmapByMapLocation(objects, tilePos, num);
+                    if (urb_num > -1) {
+                        if (map.get(num) == 1 && !matches.contains(num) && !moveDownList.contains(num) && objects.get(urb_num).getStatus() == NONE) {
+                            moveDownList.add(num);
+                            positions.add(tempPosition.get(counter));
+                            tempPosition.remove(counter);
+                        } else {
+                            //there is a blockage so add matches element to off-screen,
+                            //it will not drop back down
+                            if (obstacleLocations.contains(num)) {
+                                matchesOffScreen.add(matches.get(i));
+                                break;
+                            }
+                        }
                     }
-                    else{
-                        //there is a blockage so add matches element to off-screen,
-                        //it will not drop back down
-                        matchesOffScreen.add(matches.get(i));
-                        break;
-                    }
+                    num = num - width;
                 }
-                num = num - width;
-            }
 
-            if (!brokenObstacleLocations.isEmpty() && moveDownList.isEmpty()) {
-                //remove where startingPoint coordinates are
-                boolean remove = leftOverPositions.remove(tilePos.get(startingPoint));
-                if (remove) {
-                    System.out.println("false positive removed");
-                }
+                leftOverPositions.addAll(tempPosition);
+                uniqueArrayPointList(leftOverPositions);
+                tempPosition.clear();
+                emptyTiles.clear();
+                brokenObstacleLocations.clear();
             }
-
-            leftOverPositions.addAll(tempPosition);
-            uniqueArrayPointList(leftOverPositions);
-            tempPosition.clear();
-            emptyTiles.clear();
-            emptyTilesReplaced = false;
-            brokenObstacleLocations.clear();
         }
 
 
@@ -1072,8 +1067,8 @@ public class GameMethods {
             future.add(d);
         }
 
-        System.out.println("MoveDownList = " + moveDownList);
-        System.out.println("LeftOverPositions = " + leftOverPositions);
+        //System.out.println("MoveDownList = " + moveDownList);
+        //System.out.println("LeftOverPositions = " + leftOverPositions);
 
         //matches.addAll(matchesBelow);
 
@@ -1097,9 +1092,9 @@ public class GameMethods {
         //plot path for how objects are placed on screen, when their are broken tiles
         //entrancePoints, future(element and locations
 
-        for (int i = 0; i < store.size(); i++) {
+        /*for (int i = 0; i < store.size(); i++) {
             System.out.println("store " + i + " = " + " " + store.get(i).getElement() + ", " + store.get(i).getPosition());
-        }
+        }*/
         return store;//belowMatchesToMoveDown;
 
         //urbs not moving down due to matches below cement, once the blocked row has been opened then all urbs should
@@ -3251,17 +3246,21 @@ public class GameMethods {
 
         //add the glass/wood/cement obstacle locations also
         for(int i = 0; i < obstacleLocations.size(); i++){
-            y = obstacleLocations.get(i) / width;
-            x = obstacleLocations.get(i) % width;
-            values.add(y);
-            values.add(x);
+            if(obstacleLocations.get(i) >= entrance) {
+                y = obstacleLocations.get(i) / width;
+                x = obstacleLocations.get(i) % width;
+                values.add(y);
+                values.add(x);
+            }
         }
 
         for(int i = 0; i < glassLocations.size(); i++){
-            y = obstacleLocations.get(i) / width;
-            x = obstacleLocations.get(i) % width;
-            values.add(y);
-            values.add(x);
+            if(glassLocations.get(i) >= entrance) {
+                y = glassLocations.get(i) / width;
+                x = glassLocations.get(i) % width;
+                values.add(y);
+                values.add(x);
+            }
         }
 
         System.out.println("not Relevant = "+values);
