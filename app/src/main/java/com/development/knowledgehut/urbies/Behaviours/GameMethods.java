@@ -959,7 +959,7 @@ public class GameMethods {
                 int[][] arrayWasteLand = convertArrayListTo2DArray(blockedPositions);
 
 
-                //get the first element in the column of entrance.get(0)
+                //get the first element in the column of myEntryPoint
                 int number = myEntryPoint;
                 int lineClosed = number;
                 while(number >= 0){

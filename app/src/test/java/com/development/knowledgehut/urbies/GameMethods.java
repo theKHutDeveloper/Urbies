@@ -1,6 +1,5 @@
 package com.development.knowledgehut.urbies;
 
-
 import com.development.knowledgehut.urbies.Behaviours.PathFinding;
 
 import org.junit.Test;
@@ -78,6 +77,168 @@ public class GameMethods {
         Collections.addAll(expectedPositions, 404, 403, 402, 401, 400, 303, 301, 203);//, 201, 103, 101, 3, 1);
         assertEquals("Result = ", expectedPositions, positions);
     }
+
+    @Test
+    public void moveObjectsWhenMatchHasBrokenObstacle() throws Exception {
+        ArrayList<Integer>reference = new ArrayList<>();
+        ArrayList<Integer>tilePos = new ArrayList<>();
+        ArrayList<Integer>snake = new ArrayList<>();
+        int lineClosed = 2;
+        int entryPoint = 17;
+        int[][]pathway = new int[4][2];
+
+        Collections.addAll(reference,
+                 0,   1,   2,   3,   4,
+                 5,   6,   7,   8,   9,
+                -5,  -5,  -5,  13,  14,
+                -2,  16,  17,  -2,  -2,
+                20,  21,  -3,  23,  -3,
+                25,  26,  22,  28,  24
+        );
+
+        Collections.addAll(tilePos,
+                0,  1,  2,  3,  4,
+                100,101,102,103,104,
+                200,201,202,203,204,
+                300,301,302,303,304,
+                400,401,402,403,404,
+                500,501,502,503,504
+        );
+
+        /*
+            0, 1, -5, 3, 4,
+            5, 6, -3, 8, 9,
+            -5, -5, -3, 13, 14,
+            -2, 16, 7, -2, -2,
+            20, 21, 2, 17, 23,
+            25, 26, 22, 28, 24
+         */
+        //path from entry point to destination
+        pathway[0][0] = 4;
+        pathway[0][1] = 4;
+        pathway[1][0] = 4;
+        pathway[1][1] = 3;
+        pathway[2][0] = 4;
+        pathway[2][1] = 2;
+        pathway[3][0] = 3;
+        pathway[3][1] = 2;
+
+        //get all the objects that follow entryPoint
+        int num = entryPoint - width;
+        while(num >= 0){
+            if(reference.get(num) == num){
+                snake.add(num);
+            }
+            num = num - width;
+        }
+
+
+        ArrayList<Integer>storeUnusedPositions = new ArrayList<>();
+
+        for(int i = 1; i < pathway.length; i++){
+
+
+            int previousPosition = ((pathway[i-1][0] * width) + pathway[i-1][1]);
+            int currentPosition = ((pathway[i][0] * width) + pathway[i][1]);
+
+            PathList pathList = new PathList(currentPosition);
+            PathList pathList7 = new PathList(7);
+            PathList pathList2 = new PathList(2);
+
+            if(reference.get(currentPosition) == -3 || reference.get(currentPosition) == -5){
+                storeUnusedPositions.add(previousPosition);
+                pathList.setPosition(tilePos.get(previousPosition));
+            }
+            else if(reference.get(currentPosition) >= 0){
+                Collections.swap(reference, currentPosition, previousPosition);
+                pathList.setPosition(tilePos.get(previousPosition));
+
+                if(!storeUnusedPositions.isEmpty()){
+                    for(int k = storeUnusedPositions.size()-1; k >=0; k--){
+                        Collections.swap(reference, reference.indexOf(currentPosition), storeUnusedPositions.get(k));
+                        pathList.setPosition(tilePos.get(storeUnusedPositions.get(k)));
+                    }
+                    storeUnusedPositions.clear();
+                }
+
+                if(currentPosition == entryPoint) {
+
+                    //move down the others in the column
+                    if (!snake.isEmpty()) {
+                        int head = currentPosition;
+                        for(int t = 0; t < snake.size(); t++) {
+                            //is 17 on the same row or the same column
+                            int distance = reference.indexOf(head) - reference.indexOf(snake.get(t));
+
+                            while(distance > 1){
+                                if(distance >= width){
+                                    if(snake.get(t) == 7){
+                                        if(!snake.contains(reference.get(reference.indexOf(snake.get(t))+ width))) {
+                                            Collections.swap(reference, reference.indexOf(snake.get(t)), reference.indexOf(snake.get(t)) + width);
+                                            pathList7.setPosition(tilePos.get(reference.indexOf(snake.get(t))));
+                                        }
+                                    }
+                                    if(snake.get(t) == 2){
+                                        if(!snake.contains(reference.get(reference.indexOf(snake.get(t))+ width))) {
+                                            Collections.swap(reference, reference.indexOf(snake.get(t)), reference.indexOf(snake.get(t)) + width);
+                                            pathList2.setPosition(tilePos.get(reference.indexOf(snake.get(t))));
+                                        }
+                                    }
+                                    distance = distance - width;
+                                }
+
+                                if(distance < width  && distance > 1){
+                                    if(snake.get(t) == 7){
+                                        if(!snake.contains(reference.get(reference.indexOf(snake.get(t))+ 1))) {
+                                            Collections.swap(reference, reference.indexOf(snake.get(t)), reference.indexOf(snake.get(t)) + 1);
+                                            pathList7.setPosition(tilePos.get(reference.indexOf(snake.get(t))));
+                                        }
+                                    }
+                                    if(snake.get(t) == 2) {
+                                        if(!snake.contains(reference.get(reference.indexOf(snake.get(t))+ 1))) {
+                                            Collections.swap(reference, reference.indexOf(snake.get(t)), reference.indexOf(snake.get(t)) + 1);
+                                            pathList2.setPosition(tilePos.get(reference.indexOf(snake.get(t))));
+                                        }
+                                    }
+                                    distance = distance - 1;
+                                }
+                            }
+                            head = snake.get(t);
+                        }
+                    }
+                }
+            }
+
+            System.out.println("reference = "+reference);
+            System.out.println("Element 17 = "+pathList.getPosition());
+            System.out.println("Element 7 = "+pathList7.getPosition());
+            System.out.println("Element 2 = "+pathList2.getPosition());
+
+        }
+        assert true;
+    }
+
+
+
+    private class PathList {
+        private int location_id;
+        private ArrayList<Integer> position;
+
+        private PathList(int location_id) {
+            this.location_id = location_id;
+            position = new ArrayList<>();
+        }
+
+        private void setPosition(Integer p) {
+            position.add(p);
+        }
+
+        private ArrayList<Integer> getPosition() {
+            return position;
+        }
+    }
+
+
 
     /************************************************************************************************************
      * Return a list of remaining objects in tile map that needs to be moved down following
