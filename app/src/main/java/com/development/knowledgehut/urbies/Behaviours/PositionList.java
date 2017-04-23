@@ -5,11 +5,11 @@ import android.graphics.Point;
 
 import java.util.ArrayList;
 
-public class PathList {
+public class PositionList {
     private int location_id;
     private ArrayList<Point>position;
 
-    public PathList(int location_id){
+    public PositionList(int location_id){
         this.location_id = location_id;
         position = new ArrayList<>();
     }

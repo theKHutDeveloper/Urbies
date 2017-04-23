@@ -83,19 +83,22 @@ public class GameMethods {
         ArrayList<Integer>reference = new ArrayList<>();
         ArrayList<Integer>tilePos = new ArrayList<>();
         ArrayList<Integer>snake = new ArrayList<>();
-        int lineClosed = 2;
+
         int entryPoint = 17;
         int[][]pathway = new int[4][2];
 
+        //copy of status of objects in tile map
+        //at start
         Collections.addAll(reference,
                  0,   1,   2,   3,   4,
                  5,   6,   7,   8,   9,
                 -5,  -5,  -5,  13,  14,
                 -2,  16,  17,  -2,  -2,
-                20,  21,  -3,  23,  -3,
+                20,  21,  -3,  -3,  -3,
                 25,  26,  22,  28,  24
         );
 
+        //physical position of tiles
         Collections.addAll(tilePos,
                 0,  1,  2,  3,  4,
                 100,101,102,103,104,
@@ -105,15 +108,8 @@ public class GameMethods {
                 500,501,502,503,504
         );
 
-        /*
-            0, 1, -5, 3, 4,
-            5, 6, -3, 8, 9,
-            -5, -5, -3, 13, 14,
-            -2, 16, 7, -2, -2,
-            20, 21, 2, 17, 23,
-            25, 26, 22, 28, 24
-         */
-        //path from entry point to destination
+
+        //the shortest path from entry point to destination
         pathway[0][0] = 4;
         pathway[0][1] = 4;
         pathway[1][0] = 4;
@@ -123,7 +119,7 @@ public class GameMethods {
         pathway[3][0] = 3;
         pathway[3][1] = 2;
 
-        //get all the objects that follow entryPoint
+        //get all the valid objects in the same column above entryPoint
         int num = entryPoint - width;
         while(num >= 0){
             if(reference.get(num) == num){
@@ -132,27 +128,33 @@ public class GameMethods {
             num = num - width;
         }
 
-
+        //stores positions that are not currently used as value
+        //in reference is empty or matched item
         ArrayList<Integer>storeUnusedPositions = new ArrayList<>();
 
         for(int i = 1; i < pathway.length; i++){
 
-
             int previousPosition = ((pathway[i-1][0] * width) + pathway[i-1][1]);
             int currentPosition = ((pathway[i][0] * width) + pathway[i][1]);
+            System.out.println("current position = "+currentPosition);
 
+            //path lists to store positions of elements
             PathList pathList = new PathList(currentPosition);
             PathList pathList7 = new PathList(7);
             PathList pathList2 = new PathList(2);
 
+            //add to storeUnused if empty tile or matched tile
             if(reference.get(currentPosition) == -3 || reference.get(currentPosition) == -5){
                 storeUnusedPositions.add(previousPosition);
-                pathList.setPosition(tilePos.get(previousPosition));
+                //pathList.setPosition(tilePos.get(previousPosition));
+                //System.out.println("pathlist 17 for unused = "+pathList.getPosition());
             }
+            //add to path list if swapping with an occupied tile
             else if(reference.get(currentPosition) >= 0){
                 Collections.swap(reference, currentPosition, previousPosition);
                 pathList.setPosition(tilePos.get(previousPosition));
 
+                //add storeUnused to path list
                 if(!storeUnusedPositions.isEmpty()){
                     for(int k = storeUnusedPositions.size()-1; k >=0; k--){
                         Collections.swap(reference, reference.indexOf(currentPosition), storeUnusedPositions.get(k));
@@ -161,6 +163,8 @@ public class GameMethods {
                     storeUnusedPositions.clear();
                 }
 
+                //if entryPoint move the other elements in the same column (original column)
+                //following the path of entryPoint
                 if(currentPosition == entryPoint) {
 
                     //move down the others in the column
@@ -215,7 +219,11 @@ public class GameMethods {
             System.out.println("Element 2 = "+pathList2.getPosition());
 
         }
-        assert true;
+
+        if(reference.get(22) > 0 && reference.get(24) > 0){
+            assert true;
+        }
+        else assert false;
     }
 
 
