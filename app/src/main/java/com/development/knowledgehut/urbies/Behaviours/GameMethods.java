@@ -7,6 +7,7 @@ import android.graphics.Point;
 import com.development.knowledgehut.urbies.DrawableObjects.UrbieAnimation;
 import com.development.knowledgehut.urbies.Objects.DataStore;
 import com.development.knowledgehut.urbies.Objects.MatchedDetails;
+import com.development.knowledgehut.urbies.Objects.ObjectPathCreator;
 import com.development.knowledgehut.urbies.Objects.Obstacles;
 import com.development.knowledgehut.urbies.Screens.Assets;
 import com.development.knowledgehut.urbies.Screens.Urbies;
@@ -764,6 +765,8 @@ public class GameMethods {
         ArrayList<Integer> glassLocations = new ArrayList<>();
         ArrayList<Integer> nearMatchObstacles;
         ArrayList<Integer> brokenObstacleLocations = new ArrayList<>();
+        ArrayList<ObjectPathCreator>objectPathCreators =  new ArrayList<>();
+        ArrayList<ObjectPathCreator>downPathCreators =  new ArrayList<>();
         ArrayList<DataStore> store = new ArrayList<>();
         ArrayList<Integer> moveDownList = new ArrayList<>();
         ArrayList<Point> positions = new ArrayList<>();
@@ -874,8 +877,36 @@ public class GameMethods {
             if (!brokenObstacleLocations.isEmpty() && !emptyTiles.isEmpty() && brokenObstacleLocations.contains(matches.get(i) % width)) {
                 reference = tileStatus(matches, map, obstacleLocations, glassLocations, emptyTiles); //update tileStatus
                 positionLists = fillEmptyTiles(matches, width, map, reference, entrance, tilePos, emptyTiles, pathway, i);
-                emptyTiles.clear(); //this should be placed somewhere else
+                if(!positionLists.isEmpty()) {
+                    for (int h = 0; h < positionLists.size(); h++) {
+                        ObjectPathCreator opc = new ObjectPathCreator();
+                        opc.setElement(positionLists.get(h).getLocation_id());
+                        opc.setPosition(positionLists.get(h).getPosition().get(positionLists.get(h).getPosition().size() - 1));
+                        int sNum = findBitmapByMapLocation(objects, tilePos, opc.getElement());
+                        int sx = objects.get(sNum).getX();
+                        int sy = objects.get(sNum).getY();
 
+                        for (int q = 0; q < positionLists.get(h).getPosition().size(); q++) {
+                            ArrayList<Point> getPath = findLine(sx, sy, positionLists.get(h).getPosition().get(q).x, positionLists.get(h).getPosition().get(q).y);
+                            opc.addToPath(getPath);
+                            System.out.println("get path = " + getPath);
+                            sx = positionLists.get(h).getPosition().get(q).x;
+                            sy = positionLists.get(h).getPosition().get(q).y;
+                        }
+                        objectPathCreators.add(opc);
+                    }
+                }
+                if(!positionLists.isEmpty()) {
+                    emptyTiles.clear(); //this should be placed somewhere else
+                }
+
+                for(int h = 0; h < objectPathCreators.size(); h++){
+                    System.out.println("" + objectPathCreators.get(h).getElement());
+                    System.out.println("" + objectPathCreators.get(h).getPosition());
+                    System.out.println("" + objectPathCreators.get(h).getPath());
+                }
+
+                System.out.println("reference = " + reference);
             } else {
 
                 //Identify the valid positions that objects will be able to drop down to
@@ -914,6 +945,15 @@ public class GameMethods {
                             if (map.get(num) == 1 && !matches.contains(num) && !moveDownList.contains(num) && objects.get(urb_num).getStatus() == NONE) {
                                 moveDownList.add(num);
                                 positions.add(tempPosition.get(counter));
+                                ObjectPathCreator o = new ObjectPathCreator();
+                                o.setElement(num);
+                                o.setPosition(objects.get(urb_num).getPosition());
+                                o.addToPath(findLine(o.getPosition().x, o.getPosition().y, tempPosition.get(counter).x, tempPosition.get(counter).y));
+                                downPathCreators.add(o);
+                                //update the changes made here in reference
+                                int pos = findLocationByPosition(tempPosition.get(counter), tilePos);
+                                Collections.swap(reference, num, pos);
+                                System.out.println("reference = "+reference);
                                 tempPosition.remove(counter);
                             } else {
                                 //there is a blockage so add matches element to off-screen,
@@ -937,6 +977,12 @@ public class GameMethods {
         }
 
 
+        for(int h = 0; h < downPathCreators.size(); h++){
+            System.out.println("down path ref =" + downPathCreators.get(h).getElement());
+            System.out.println("down path start pos = " + downPathCreators.get(h).getPosition());
+            //System.out.println("down path = " + downPathCreators.get(h).getPath());
+        }
+
         //remove any leftOverPositions that are also in positions
         for (int i = leftOverPositions.size() - 1; i >= 0; i--) {
             if (positions.contains(leftOverPositions.get(i))) {
@@ -959,6 +1005,67 @@ public class GameMethods {
         }
 
         return store;
+    }
+
+
+    private ArrayList<Point> findLine(int x0, int y0, int x1, int y1){
+        ArrayList<Point>spritePath = new ArrayList<>();
+
+        int sy = (y0 < y1) ? 1 : -1;
+        int sx = (x0 < x1) ? 1 : -1;
+
+
+        while(true) {
+            Point p = new Point(x0, y0);
+
+            spritePath.add(p);
+
+            if (x0 == x1 && y0 == y1) {
+                break;
+            }
+
+            if(y0 != y1 && x0 != x1){
+                break;
+            }
+
+            if (x0 == x1) {
+                if(y0 != y1) y0 = y0 + sy;
+
+            }
+            if (y0 == y1) {
+                if(x0 != x1) x0 = x0 + sx;
+            }
+        }
+        return spritePath;
+    }
+
+    public ArrayList<Point> findPath( int x0, int y0, int x1, int y1) {
+        ArrayList<Point>spritePath = new ArrayList<>();
+        int dx = Math.abs(x1 - x0);
+        int dy = Math.abs(y1 - y0);
+        int sx = (x0 < x1) ? 1 : -1;
+        int sy = (y0 < y1) ? 1 : -1;
+        int err = dx-dy;
+        int e2;
+
+        while (true){
+            spritePath.add(new Point(x0,y0));
+            if (x0 == x1 && y0 == y1)
+                break;
+
+            e2 = 2 * err;
+            if (e2 > -dy){
+                err = err - dy;
+                x0 = x0 + sx;
+            }
+
+            if (e2 < dx){
+                err = err + dx;
+                y0 = y0 + sy;
+            }
+        }
+
+        return spritePath;
     }
 
     private ArrayList<PositionList> fillEmptyTiles(ArrayList<Integer> matches, int width, ArrayList<Integer> map,
@@ -1054,8 +1161,10 @@ public class GameMethods {
                     //add storeUnused to path list
                     if (!storeUnusedPositions.isEmpty()) {
                         for (int m = storeUnusedPositions.size() - 1; m >= 0; m--) {
-                            Collections.swap(reference, reference.indexOf(currentPosition), storeUnusedPositions.get(m));
-                            positionList.get(p).setPosition(tilePos.get(storeUnusedPositions.get(m))); //the position list for current position not currentPosListNum
+                            if(p > -1) {
+                                Collections.swap(reference, reference.indexOf(currentPosition), storeUnusedPositions.get(m));
+                                positionList.get(p).setPosition(tilePos.get(storeUnusedPositions.get(m))); //the position list for current position not currentPosListNum
+                            }
                         }
                         storeUnusedPositions.clear();
                     }
@@ -2723,4 +2832,7 @@ public class GameMethods {
         System.out.println("not Relevant = " + values);
         return values;
     }*/
+
+
+
 }

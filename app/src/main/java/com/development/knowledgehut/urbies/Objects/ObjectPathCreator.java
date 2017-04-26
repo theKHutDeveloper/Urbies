@@ -7,38 +7,30 @@ import java.util.ArrayList;
 
 
 public class ObjectPathCreator {
-    private ArrayList<Integer> elements = new ArrayList<>();
-    private ArrayList<Point> positions = new ArrayList<>();
-    private ArrayList<ArrayList<Path>> paths = new ArrayList<>();
+    private int element;
+    private Point position;
+    private ArrayList<Point> paths = new ArrayList<>();
 
-    public void addToElements(int element){
-        elements.add(element);
+    public void setElement(int element){
+        this.element = element;
     }
 
-    public void addAllElements(ArrayList<Integer>values){
-        elements.addAll(values);
-    }
-    public ArrayList<Integer> getElements(){
-        return elements;
+    public int getElement(){
+        return this.element;
     }
 
-    public void addToPositions(Point point){
-        positions.add(point);
+    public void setPosition(Point point){
+        this.position = point;
     }
 
-    public void addAllPositions(ArrayList<Point>pos){
-        positions.addAll(pos);
+    public Point getPosition(){return this.position;}
+
+
+    public void addToPath(ArrayList<Point>path){
+        paths.addAll(path);
     }
 
-    public ArrayList<Point> getPositions(){
-        return positions;
-    }
-
-    public void addToPath(ArrayList<Path>path){
-        paths.add(path);
-    }
-
-    public ArrayList<ArrayList<Path>> getPaths(){
+    public ArrayList<Point> getPath(){
         return paths;
     }
 

@@ -2179,6 +2179,9 @@ class PlayScreen extends Screen {
 
         ArrayList<Integer> sorted = gameMethods.sortPointArrayInDescendingOrderByY(futureCoordinates);
 
+        System.out.println("matchesOffScreen = "+matchesOffScreen);
+        System.out.println("urbMatchOne = "+urbMatchOne);
+
         if (!matchesOffScreen.isEmpty()) {
             for(int a = urbMatchOne.size() -1; a >= 0; a--){
                 if(matchesOffScreen.contains(Urbs.get(urbMatchOne.get(a)).getLocation())){
@@ -2204,7 +2207,8 @@ class PlayScreen extends Screen {
 
 
         if (!sorted.isEmpty()) {
-            //System.out.println("sorted = "+ sorted);
+            System.out.println("urbMatchOne = "+urbMatchOne);
+            System.out.println("sorted = "+ sorted);
             for (int i = 0; i < urbMatchOne.size(); i++) {
 
                     changeToRandomBitmap(urbMatchOne.get(sorted.get(i)), Urbs);

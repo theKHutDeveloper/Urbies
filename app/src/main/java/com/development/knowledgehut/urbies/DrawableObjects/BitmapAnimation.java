@@ -466,6 +466,10 @@ public class BitmapAnimation implements Comparable<BitmapAnimation> {
         return spritePath;
     }
 
+    public void setSpritePath(ArrayList<Point>path){
+        this.spritePath = path;
+    }
+
     @Override
     public int compareTo(@NonNull BitmapAnimation o) {
         return this.location - o.location;
