@@ -761,7 +761,6 @@ public class GameMethods {
     ) {
 
         ArrayList<Integer> obstacleLocations = new ArrayList<>();
-        //ArrayList<Integer> obstacleColumns = new ArrayList<>();
         ArrayList<Integer> glassLocations = new ArrayList<>();
         ArrayList<Integer> nearMatchObstacles;
         ArrayList<Integer> brokenObstacleLocations = new ArrayList<>();
@@ -771,6 +770,7 @@ public class GameMethods {
         ArrayList<Point> leftOverPositions = new ArrayList<>();
         ArrayList<Integer> emptyTiles;
         ArrayList<Integer> reference;
+        ArrayList<PositionList>positionLists = new ArrayList<>();
 
 
         System.out.println("==========================================================");
@@ -818,13 +818,9 @@ public class GameMethods {
                                 int index = obstacleLocations.indexOf(obstacles.get(i).getLocation());
                                 obstacles.get(i).clearStatus();
                                 obstacleLocations.remove(index);
-                                //obstacleColumns.remove(index);
-                                //update tileStatus
-                                reference = tileStatus(matches, map, obstacleLocations, glassLocations, emptyTiles);
                             }
                         }
                     }
-                    System.out.println("Obstacles " + i + " " + obstacles.get(i).getLocation());
                 }
                 System.out.println("brokenObstacleLocations = " + brokenObstacleLocations);
             }
@@ -876,8 +872,10 @@ public class GameMethods {
             System.out.println("Matches: " + matches.get(i) + " % 5 = " + matches.get(i) % width);
 
             if (!brokenObstacleLocations.isEmpty() && !emptyTiles.isEmpty() && brokenObstacleLocations.contains(matches.get(i) % width)) {
-                fillEmptyTiles(matches, width, map, reference, entrance, tilePos, emptyTiles, pathway, i);
+                reference = tileStatus(matches, map, obstacleLocations, glassLocations, emptyTiles); //update tileStatus
+                positionLists = fillEmptyTiles(matches, width, map, reference, entrance, tilePos, emptyTiles, pathway, i);
                 emptyTiles.clear(); //this should be placed somewhere else
+
             } else {
 
                 //Identify the valid positions that objects will be able to drop down to
@@ -885,16 +883,18 @@ public class GameMethods {
                 tempPosition.add(tilePos.get(startingPoint));
 
                 while (num >= 0) {
-                    if (map.get(num) == 1) {
+                    if(getPositionListById(num, positionLists) == -1) {
+                        if (map.get(num) == 1) {
 
-                        int urb_num = findBitmapByMapLocation(objects, tilePos, num);
+                            int urb_num = findBitmapByMapLocation(objects, tilePos, num);
 
-                        if (urb_num > -1) {
-                            if (objects.get(urb_num).getStatus() == NONE) {
-                                tempPosition.add(tilePos.get(num));
-                            } else if (objects.get(urb_num).getStatus() == CEMENT || objects.get(urb_num).getStatus() == WOODEN) {
-                                tempPosition.remove(tempPosition.size() - 1);
-                                break;
+                            if (urb_num > -1) {
+                                if (objects.get(urb_num).getStatus() == NONE) {
+                                    tempPosition.add(tilePos.get(num));
+                                } else if (objects.get(urb_num).getStatus() == CEMENT || objects.get(urb_num).getStatus() == WOODEN) {
+                                    tempPosition.remove(tempPosition.size() - 1);
+                                    break;
+                                }
                             }
                         }
                     }
@@ -908,18 +908,20 @@ public class GameMethods {
 
 
                 while (num >= 0) {
-                    int urb_num = findBitmapByMapLocation(objects, tilePos, num);
-                    if (urb_num > -1) {
-                        if (map.get(num) == 1 && !matches.contains(num) && !moveDownList.contains(num) && objects.get(urb_num).getStatus() == NONE) {
-                            moveDownList.add(num);
-                            positions.add(tempPosition.get(counter));
-                            tempPosition.remove(counter);
-                        } else {
-                            //there is a blockage so add matches element to off-screen,
-                            //it will not drop back down
-                            if (obstacleLocations.contains(num)) {
-                                matchesOffScreen.add(matches.get(i));
-                                break;
+                    if(getPositionListById(num, positionLists) == -1) {
+                        int urb_num = findBitmapByMapLocation(objects, tilePos, num);
+                        if (urb_num > -1) {
+                            if (map.get(num) == 1 && !matches.contains(num) && !moveDownList.contains(num) && objects.get(urb_num).getStatus() == NONE) {
+                                moveDownList.add(num);
+                                positions.add(tempPosition.get(counter));
+                                tempPosition.remove(counter);
+                            } else {
+                                //there is a blockage so add matches element to off-screen,
+                                //it will not drop back down
+                                if (obstacleLocations.contains(num)) {
+                                    matchesOffScreen.add(matches.get(i));
+                                    break;
+                                }
                             }
                         }
                     }
@@ -956,38 +958,10 @@ public class GameMethods {
             future.add(d);
         }
 
-        //System.out.println("MoveDownList = " + moveDownList);
-        //System.out.println("LeftOverPositions = " + leftOverPositions);
-
-        //matches.addAll(matchesBelow);
-
-       /* if (tilesComplete) {
-            int counter = -1;
-            for (int k = 0; k < objects.size(); k++) {
-                if (objects.get(k).getY() < 0) {
-                    objects.get(k).setActive(true);
-                    objects.get(k).setLocation(counter);
-                    counter--;
-                    System.out.println(k + ", " + objects.get(k).getPosition() + ", " + objects.get(k).getLocation());
-                    matches.add(objects.get(k).getLocation());
-                }
-            }
-        }*/
-
-
-        //plot path for how objects are placed on screen, when their are broken tiles
-        //entrancePoints, future(element and locations
-
-        /*for (int i = 0; i < store.size(); i++) {
-            System.out.println("store " + i + " = " + " " + store.get(i).getElement() + ", " + store.get(i).getPosition());
-        }*/
         return store;
-
-        //urbs not moving down due to matches below cement, once the blocked row has been opened then all urbs should
-        //be able to be positioned under cement
     }
 
-    private void fillEmptyTiles(ArrayList<Integer> matches, int width, ArrayList<Integer> map,
+    private ArrayList<PositionList> fillEmptyTiles(ArrayList<Integer> matches, int width, ArrayList<Integer> map,
                                 ArrayList<Integer> reference, ArrayList<Integer> entrance,
                                 ArrayList<Point> tilePos, ArrayList<Integer> emptyTiles,
                                 ArrayList<ArrayList<int[]>> pathway, int i) {
@@ -1030,10 +1004,10 @@ public class GameMethods {
         ArrayList<Integer> blockedPositions = irrelevantPositions(reference, entryPoint, width);
         int[][] arrayWasteLand = convertArrayListTo2DArray(blockedPositions);
 
-       // for (int p = 0; p < emptyTiles.size(); p++) {
-            pathway.add(path.getPath(emptyTiles.get(0), map.size() / width, width, (entryPoint / width), (entryPoint % width),
-                    emptyTiles.get(0) / width, emptyTiles.get(0) % width, arrayWasteLand));
-        //}
+        pathway.add(path.getPath(emptyTiles.get(0), map.size() / width, width, (entryPoint / width),
+                (entryPoint % width), emptyTiles.get(0) / width, emptyTiles.get(0) % width,
+                arrayWasteLand));
+
 
         //print out pathway
         for (int j = 0; j < pathway.size(); j++) {
@@ -1063,6 +1037,7 @@ public class GameMethods {
                         storeUnusedPositions.add(previousPosition);
                     }
                 }
+
                 //add to path list if swapping with an occupied tile
                 else if (reference.get(currentPosition) >= 0) {
                     Collections.swap(reference, currentPosition, previousPosition);
@@ -1113,7 +1088,6 @@ public class GameMethods {
                                             Collections.swap(reference, reference.indexOf(tail.get(t)), reference.indexOf(tail.get(t)) + 1);
                                             positionList.get(t + 1).setPosition(tilePos.get(reference.indexOf(tail.get(t))));
                                         }
-
                                         distance = distance - 1;
                                     }
                                 }
@@ -1127,10 +1101,13 @@ public class GameMethods {
                     System.out.println("Element " + positionList.get(g).getLocation_id() + "= " + positionList.get(g).getPosition());
                 }
             }
-
         }
+        return positionList;
     }
 
+    /**************************************************************************************************
+     returns the position int the array of the location id searched for
+     **************************************************************************************************/
     private int getPositionListById(int current, ArrayList<PositionList>positionListArrayList){
         for(int i = 0; i < positionListArrayList.size(); i++){
             if(positionListArrayList.get(i).getLocation_id() == current){
@@ -1140,7 +1117,10 @@ public class GameMethods {
         return -1;
     }
 
-    //gets the current status of the tile map when passed to main method
+
+    /**************************************************************************************************
+     gets the current status of the tile map when passed to main method
+     **************************************************************************************************/
     private ArrayList<Integer> tileStatus(ArrayList<Integer> matches, ArrayList<Integer> map, ArrayList<Integer> obstacleLocations, ArrayList<Integer> glassLocations, ArrayList<Integer> emptyTiles) {
         ArrayList<Integer> reference = new ArrayList<>();
 
