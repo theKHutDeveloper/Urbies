@@ -1016,6 +1016,7 @@ class PlayScreen extends Screen {
                         break;
 
                     case MATCH:
+
                         if (initialise == 0) {
                             //define the move down path for remaining Urbs
                             if (!urbsToMoveDown.isEmpty()) {
@@ -1053,8 +1054,8 @@ class PlayScreen extends Screen {
                             canBounce = true;
                             freedomSounds();
                             startBounceOutTime = System.currentTimeMillis();
-
                             initialise = 1;
+
                         } else if (initialise == 1) {
                             if (!specialUrbs.isEmpty()) {
 
@@ -1063,6 +1064,7 @@ class PlayScreen extends Screen {
                                 }
                             }
                             initialise = 2;
+
                         } else if (initialise == 2) {
                             if (!specialUrbs.isEmpty()) {
                                 for (int k = 0; k < specialUrbs.size(); k++) {
@@ -1078,12 +1080,34 @@ class PlayScreen extends Screen {
                                     Urbs.get(urbsToMoveDown.get(i)).clearPath();
                                 }
                             }
+                            initialise = 4;
 
+                        } else if (initialise == 4){
+                            //this is where I want to define the matches that need to be moved down
+                            ArrayList<ObjectPathCreator> creators = gameMethods.replaceObjects(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen);
+
+                            if(userMatchOne.isEmpty()){
+                                urbMatchOne.clear();
+                                initialise = 0;
+                                pState = Procedure.REPLACE_OBJECTS;
+                            } else {
+                                for(int i = 0; i < creators.size(); i++){
+                                    futurePositions.add(creators.get(i).getElement());
+                                    futureCoordinates.add(creators.get(i).getPosition());
+                                    Urbs.get(creators.get(i).getElement()).setSpritePath(creators.get(i).getPath());
+                                    Urbs.get(creators.get(i).getElement()).setLocation(userMatchOne.get(i));
+                                }
+                                initialise = 5;
+                            }
+                        }
+                        else if(initialise == 6){
+
+                            //NEED TO DO THE SAME THING THAT I'VE DONE HERE WITH AUTOMATIC MATCHES
                             for (int i = 0; i < urbMatchOne.size(); i++) {
                                 Urbs.get(urbMatchOne.get(i)).clearPath();
                             }
 
-                            //clearDamagedObstacle(obstacleTiles);
+                            clearDamagedObstacle(obstacleTiles);
 
                             initialise = 0;
                             pState = Procedure.REPLACE_OBJECTS;
@@ -1752,6 +1776,24 @@ class PlayScreen extends Screen {
                     }
                 }
 
+
+
+                //if there are no urbs to move down and replacements are equal to the size of the urb matches (this could be zero)
+                //if there are no matchedUrbs OR if there are matchedUrbs and more than 2 seconds have passed increase variable.
+                if (urbsToMoveDown.isEmpty()){ //&& replacements == urbMatchOne.size()) {
+                    if (!matchesOffScreen.isEmpty()) {
+                        if (System.currentTimeMillis() > startBounceOutTime + 2000) {
+                            initialise = 3;
+                        }
+                    } else {
+                        initialise = 3;
+                    }
+                }
+                //There are urbs to move down and replacements are equal to the size of the urb matches
+                else if (counter == urbsToMoveDown.size()){// && replacements == urbMatchOne.size()) {
+                    initialise = 3;
+                }
+            } if(pState == Procedure.MATCH && initialise == 5){
                 int replacements = 0;
                 if (!urbMatchOne.isEmpty()) {
                     if (System.currentTimeMillis() > startBounceOutTime + 600) {
@@ -1763,20 +1805,8 @@ class PlayScreen extends Screen {
                     }
                 }
 
-                //if there are no urbs to move down and replacements are equal to the size of the urb matches (this could be zero)
-                //if there are no matchedUrbs OR if there are matchedUrbs and more than 2 seconds have passed increase variable.
-                if (urbsToMoveDown.isEmpty() && replacements == urbMatchOne.size()) {
-                    if (!matchesOffScreen.isEmpty()) {
-                        if (System.currentTimeMillis() > startBounceOutTime + 2000) {
-                            initialise = 3;
-                        }
-                    } else {
-                        initialise = 3;
-                    }
-                }
-                //There are urbs to move down and replacements are equal to the size of the urb matches
-                else if (counter == urbsToMoveDown.size() && replacements == urbMatchOne.size()) {
-                    initialise = 3;
+                if(replacements == urbMatchOne.size()){
+                    initialise = 6;
                 }
             }
         }
@@ -2177,7 +2207,7 @@ class PlayScreen extends Screen {
         int yLoc = 0;
         gameMethods.associateCoordinatesWithPosition(futureCoordinates, tileLocations, futurePositions);
 
-        ArrayList<Integer> sorted = gameMethods.sortPointArrayInDescendingOrderByY(futureCoordinates);
+        //ArrayList<Integer> sorted = gameMethods.sortPointArrayInDescendingOrderByY(futureCoordinates);
 
         System.out.println("matchesOffScreen = "+matchesOffScreen);
         System.out.println("urbMatchOne = "+urbMatchOne);
@@ -2199,6 +2229,17 @@ class PlayScreen extends Screen {
             }
         }
 
+        for (int i = 0; i < urbMatchOne.size(); i++) {
+
+            changeToRandomBitmap(urbMatchOne.get(i), Urbs);
+            Urbs.get(urbMatchOne.get(i)).setY((int) ((0 - Urbs.get(urbMatchOne.get(i)).getHeight() + yLoc) * AndroidGame.GAME_SCALE_X));
+            Urbs.get(urbMatchOne.get(i)).setX(-200);
+            Urbs.get(urbMatchOne.get(i)).setLocation(-200);
+            /*Urbs.get(urbMatchOne.get(i)).findLine(Urbs.get(urbMatchOne.get(i)).getX(), Urbs.get(urbMatchOne.get(i)).getY(),
+                    futureCoordinates.get(i).x, futureCoordinates.get(i).y);*/
+            yLoc = yLoc - 50;
+
+        }
        /* System.out.println("AFTER ANY REMOVALS" );
         System.out.println("urbMatchOne = "+urbMatchOne);
         System.out.println("futureCoordinates = "+futureCoordinates);
@@ -2206,7 +2247,7 @@ class PlayScreen extends Screen {
         System.out.println("userMatchOne = "+userMatchOne);*/
 
 
-        if (!sorted.isEmpty()) {
+        /*if (!sorted.isEmpty()) {
             System.out.println("urbMatchOne = "+urbMatchOne);
             System.out.println("sorted = "+ sorted);
             for (int i = 0; i < urbMatchOne.size(); i++) {
@@ -2220,7 +2261,7 @@ class PlayScreen extends Screen {
                     yLoc = yLoc - 50;
 
             }
-        }
+        }*/
     }
 
     /***********************************************************************************************
@@ -3232,19 +3273,26 @@ class PlayScreen extends Screen {
 
     private void objectsToMoveDown() {
 
-        ArrayList<DataStore>futureValues = new ArrayList<>();
+        ArrayList<ObjectPathCreator>creators = gameMethods.separateTheMadness(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations,levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen, entrance);
+
+        for(int i = 0; i < creators.size(); i++){
+            objectsToMoveDown.add(creators.get(i).getElement());
+            coordinatesToMoveTo.add(creators.get(i).getPath().get(creators.get(i).getPath().size() - 1));
+
+        }
+        /*ArrayList<DataStore>futureValues = new ArrayList<>();
 
         ArrayList<DataStore> store = gameMethods.separateTheMadness(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen,
                 futureValues, entrance);
-
-        for(int i = 0; i < store.size(); i++){
+*/
+       /* for(int i = 0; i < store.size(); i++){
             objectsToMoveDown.add(store.get(i).getElement());
             coordinatesToMoveTo.add(store.get(i).getPosition());
         }
         for(int i = 0; i < futureValues.size(); i++){
             futurePositions.add(futureValues.get(i).getElement());
             futureCoordinates.add(futureValues.get(i).getPosition());
-        }
+        }*/
     }
 
     private void setChameleonAndVStripe(int urbSp, int urbTemp, int pos, int posSp) {

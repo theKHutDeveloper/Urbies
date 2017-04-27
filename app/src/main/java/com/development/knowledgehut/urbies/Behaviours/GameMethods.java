@@ -831,6 +831,12 @@ public class GameMethods {
                 objectPathCreators.add(o);
             }
         }
+        else if(availableTiles.size() < matches.size()){
+            System.out.println("The available tiles are < matches size");
+        }
+        else if(availableTiles.size() > matches.size()){
+            System.out.println("The available tiles are > matches size");
+        }
         //1. how many matches do I have? A: userMatchOne.size()
         //2. how many empty tiles do I have? emptyTiles.size()
         //is there a blocked row?
