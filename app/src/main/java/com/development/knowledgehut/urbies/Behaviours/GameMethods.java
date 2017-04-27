@@ -751,13 +751,104 @@ public class GameMethods {
     }
 
 
+    private int isRowBlocked(ArrayList<Integer> map, int width) {
+        //boolean blocked = false;
+        int found = -1;
+
+        for (int i = 0; i < map.size(); i = i + width) {
+            int count;
+            if (map.get(i) == -2) {
+                count = 1;
+                for (int j = 1; j < width; j++) {
+                    if (map.get(i + j) == -2) {
+                        count++;
+                    } else {
+                        count = 0;
+                    }
+                }
+                if (count == width) {
+                    //blocked = true;
+                    found = i;
+                    break;
+                }
+            }
+        }
+
+        return found;
+    }
+
+    public ArrayList<ObjectPathCreator>replaceObjects(List<UrbieAnimation> objects,
+                                                      ArrayList<Integer> matches,
+                                                      ArrayList<Obstacles> obstacles, int width,
+                                                      ArrayList<Point> tilePos,
+                                                      ArrayList<Integer> map,
+                                                      ArrayList<Integer> matchesOffScreen){
+
+        ArrayList<ObjectPathCreator>objectPathCreators =  new ArrayList<>();
+        ArrayList<Integer> obstacleLocations = new ArrayList<>();
+        ArrayList<Integer> glassLocations = new ArrayList<>();
+        ArrayList<Integer> reference;
+        ArrayList<Integer> emptyTiles;
+        ArrayList<Integer> availableTiles = new ArrayList<>();
+
+        if (!obstacles.isEmpty()) {
+            for (int i = 0; i < obstacles.size(); i++) {
+                if (!obstacles.get(i).isVisible() && obstacles.get(i).getDestroyCounter() > 0) {
+                    obstacleLocations.add(obstacles.get(i).getLocation());
+                } else if (obstacles.get(i).getStatus() == GLASS) {
+                    glassLocations.add(obstacles.get(i).getLocation());
+                }
+            }
+        }
+
+        emptyTiles = getEmptyTiles(map, tilePos, objects);
+
+        reference = tilesWithoutMatches(objects, tilePos, map, obstacleLocations, glassLocations, emptyTiles);
+
+
+        if(!emptyTiles.isEmpty()) {
+            for (int i = 0; i < emptyTiles.size(); i++) {
+                int blockage = isRowBlocked(reference, width);
+                if(blockage == -1 || (blockage > -1 && emptyTiles.get(i) < blockage)){
+                    availableTiles.add(emptyTiles.get(i));
+                }
+            }
+        }
+
+        System.out.println("Available Tiles = "+availableTiles);
+
+        if(availableTiles.isEmpty()){
+            matchesOffScreen.addAll(matches);
+            matches.clear();
+        }
+        else if(availableTiles.size() == matches.size()){
+            for(int i = 0; i < matches.size(); i++) {
+                ObjectPathCreator o = new ObjectPathCreator();
+                o.setElement(matches.get(i));
+                Point pos = tilePos.get(availableTiles.get(i));
+                o.setPosition(new Point(pos.x, -200));
+                o.addToPath(findLine(o.getPosition().x, o.getPosition().y, pos.x, pos.y));
+                objectPathCreators.add(o);
+            }
+        }
+        //1. how many matches do I have? A: userMatchOne.size()
+        //2. how many empty tiles do I have? emptyTiles.size()
+        //is there a blocked row?
+        //if so, are the empty tiles underneath them?
+        //3. how many of these empty tiles are completely blocked?
+        //This will determine how many if any matches can be replaced and / or held off screen
+
+        return objectPathCreators;
+    }
+
+
     /*************************************************
      to act as a replacement for listOfObjectsToMoveDown
      *************************************************/
-    public ArrayList<DataStore> separateTheMadness(
+    public ArrayList<ObjectPathCreator> separateTheMadness(
             List<UrbieAnimation> objects, ArrayList<Integer> matches, ArrayList<Obstacles> obstacles,
             int width, ArrayList<Point> tilePos, ArrayList<Integer> map,
-            ArrayList<Integer> matchesOffScreen, ArrayList<DataStore> future,
+            ArrayList<Integer> matchesOffScreen, //ArrayList<DataStore> future,
             ArrayList<Integer> entrance
     ) {
 
@@ -785,7 +876,6 @@ public class GameMethods {
             for (int i = 0; i < obstacles.size(); i++) {
                 if (!obstacles.get(i).isVisible() && obstacles.get(i).getDestroyCounter() > 0) {
                     obstacleLocations.add(obstacles.get(i).getLocation());
-                    //obstacleColumns.add(obstacles.get(i).getLocation() % width);
                 } else if (obstacles.get(i).getStatus() == GLASS) {
                     glassLocations.add(obstacles.get(i).getLocation());
                 }
@@ -976,6 +1066,9 @@ public class GameMethods {
             }
         }
 
+        if(!downPathCreators.isEmpty()){
+            objectPathCreators.addAll(downPathCreators);
+        }
 
         for(int h = 0; h < downPathCreators.size(); h++){
             System.out.println("down path ref =" + downPathCreators.get(h).getElement());
@@ -983,7 +1076,7 @@ public class GameMethods {
             //System.out.println("down path = " + downPathCreators.get(h).getPath());
         }
 
-        //remove any leftOverPositions that are also in positions
+        /*//remove any leftOverPositions that are also in positions
         for (int i = leftOverPositions.size() - 1; i >= 0; i--) {
             if (positions.contains(leftOverPositions.get(i))) {
                 leftOverPositions.remove(i);
@@ -1003,8 +1096,8 @@ public class GameMethods {
             d.setPosition(leftOverPositions.get(i));
             future.add(d);
         }
-
-        return store;
+*/
+        return objectPathCreators;
     }
 
 
@@ -1252,6 +1345,29 @@ public class GameMethods {
     }
 
 
+    private ArrayList<Integer>tilesWithoutMatches(List<UrbieAnimation>objects, ArrayList<Point>tileLoc,
+                                                  ArrayList<Integer>map, ArrayList<Integer>obstacleLocations,
+                                                  ArrayList<Integer>glassLocations, ArrayList<Integer>emptyTiles){
+
+        ArrayList<Integer> reference = new ArrayList<>();
+
+        for(int i = 0; i < map.size(); i++){
+            if (map.get(i) == 0) {
+                reference.add(-1);
+            } else if (map.get(i) == 1 && obstacleLocations.contains(i)) {
+                reference.add(-2);
+            } else if (map.get(i) == 1 && emptyTiles.contains(i)) {
+                reference.add(-3);
+            } else if (map.get(i) == 1 && glassLocations.contains(i)) {
+                reference.add(-4);
+            }  else {
+                reference.add(objects.get(findBitmapByMapLocation(objects, tileLoc, i)).getLocation());
+            }//reference.add(i);
+        }
+
+        System.out.println("Reference w/o matches = " + reference);
+        return reference;
+    }
     /**************************************************************************************************
      returns a list of obstacles that are damaged as a result of the match
      (this does not include obstacles that are at a zero counter

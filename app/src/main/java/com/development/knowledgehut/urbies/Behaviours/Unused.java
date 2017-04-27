@@ -2096,6 +2096,58 @@ console.log(findShortestPath([0,0], grid));
         return blocked;
     }
 
+
+    /*private int isRowBlocked(ArrayList<Integer> map, int width, ArrayList<Integer> obstacleLocations) {
+        boolean blocked = false;
+        int found = -1;
+
+        for (int i = 0; i < map.size(); i = i + width) {
+            int count;
+            if (map.get(i) == 0 || obstacleLocations.contains(i)) {
+                count = 1;
+                for (int j = 1; j < width; j++) {
+                    if (map.get(i + j) == 0 || (map.get(i + j) == 1 && obstacleLocations.contains(i + j))) {
+                        count++;
+                    } else {
+                        count = 0;
+                    }
+                }
+                if (count == 5) {
+                    blocked = true;
+                    found = i;
+                    break;
+                }
+            }
+        }
+
+        return found;
+    }*/
+
+
+    private boolean isRowBlockedAboveEmptyTile(ArrayList<Integer>refCopy, int element, int width){
+        boolean result = false;
+
+        //get the beginning of the row relevant to element
+        int remainder = element % width;
+        int start = element - remainder;
+
+        int count = 0;
+        for(int i = start; i < (start + width); i++){
+            if(refCopy.get(i) == -2){
+                count++;
+            }
+            else {
+                result = false;
+                break;
+            }
+        }
+
+        if(count == width){
+            result = true;
+        }
+
+        return result;
+    }
     /*public ArrayList<ObjectPathCreator> separateTheMadnessTest(
             List<UrbieAnimation> objects, ArrayList<Integer> matches, ArrayList<Obstacles> obstacles,
             int width, ArrayList<Point> tilePos, ArrayList<Integer> map,
