@@ -562,6 +562,7 @@ class PlayScreen extends Screen {
                                 }
                             }
 
+                            //NOT SURE IF I NEED THIS HERE
                             //add the contents of userMatchOne into another arraylist which holds the urb value
                             for (int i = 0; i < userMatchOne.size(); i++) {
                                 urbMatchOne.add(findObjectByPosition(userMatchOne.get(i), Urbs));
@@ -665,15 +666,36 @@ class PlayScreen extends Screen {
                                     Urbs.get(urbsToMoveDown.get(i)).clearPath();
                                 }
                             }
+                            initialise = 4;
 
+                        } else if(initialise == 4){
+                            ArrayList<ObjectPathCreator> creators = gameMethods.replaceObjects(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen);
+
+                            if(userMatchOne.isEmpty()){
+                                urbMatchOne.clear();
+
+                                initialise = 0;
+                                pState = Procedure.REPLACE_OBJECTS;
+                            } else {
+                                for(int i = 0; i < creators.size(); i++){
+                                    futurePositions.add(creators.get(i).getElement());
+                                    futureCoordinates.add(creators.get(i).getPosition());
+                                    Urbs.get(creators.get(i).getElement()).setSpritePath(creators.get(i).getPath());
+                                    Urbs.get(creators.get(i).getElement()).setLocation(userMatchOne.get(i));
+
+                                }
+                                initialise = 5;
+                            }
+                        }
+                        else if(initialise == 6){
                             for (int i = 0; i < urbMatchOne.size(); i++) {
                                 Urbs.get(urbMatchOne.get(i)).clearPath();
                             }
 
-                            //clearDamagedObstacle(obstacleTiles);
-
+                            clearDamagedObstacle(obstacleTiles);
                             initialise = 0;
                             pState = Procedure.REPLACE_OBJECTS;
+
                         }
                         break;
 
@@ -999,6 +1021,7 @@ class PlayScreen extends Screen {
                             }
                         }
 
+                        //NOT SURE IF I NEED THIS HERE
                         //add the contents of userMatchOne into another arraylist which holds the urb value
                         for (int i = 0; i < userMatchOne.size(); i++) {
                             urbMatchOne.add(findObjectByPosition(userMatchOne.get(i), Urbs));
@@ -1102,7 +1125,6 @@ class PlayScreen extends Screen {
                         }
                         else if(initialise == 6){
 
-                            //NEED TO DO THE SAME THING THAT I'VE DONE HERE WITH AUTOMATIC MATCHES
                             for (int i = 0; i < urbMatchOne.size(); i++) {
                                 Urbs.get(urbMatchOne.get(i)).clearPath();
                             }
@@ -1434,11 +1456,34 @@ class PlayScreen extends Screen {
                                 Urbs.get(urbsToMoveDown.get(i)).clearPath();
                             }
 
+                            initialise = 3;
+
+
+
+                        } else if(initialise == 3){
+
+                            ArrayList<ObjectPathCreator> creators = gameMethods.replaceObjects(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen);
+
+                            if(userMatchOne.isEmpty()) {
+                                urbMatchOne.clear();
+                                initialise = 0;
+                                pState = Procedure.REPLACE_OBJECTS;
+                            } else {
+                                for(int i = 0; i < creators.size(); i++){
+                                    futurePositions.add(creators.get(i).getElement());
+                                    futureCoordinates.add(creators.get(i).getPosition());
+                                    Urbs.get(creators.get(i).getElement()).setSpritePath(creators.get(i).getPath());
+                                    Urbs.get(creators.get(i).getElement()).setLocation(userMatchOne.get(i));
+                                }
+                                initialise = 4;
+                            }
+                        }
+
+                        else if(initialise == 5){
                             for (int i = 0; i < urbMatchOne.size(); i++) {
                                 Urbs.get(urbMatchOne.get(i)).clearPath();
                             }
-
-                            //clearDamagedObstacle(obstacleTiles);
+                            clearDamagedObstacle(obstacleTiles);
 
                             initialise = 0;
                             pState = Procedure.REPLACE_OBJECTS;
@@ -1548,6 +1593,7 @@ class PlayScreen extends Screen {
 
     @Override
     public void render(float deltaTime) {
+
         Graphics graphics = game.getGraphics();
         graphics.clear(0);
 
@@ -1674,7 +1720,29 @@ class PlayScreen extends Screen {
                     }
                 }
 
+
+
+
+                //if there are no urbs to move down and replacements are equal to the size of the urb matches (this could be zero)
+                //if there are no matchedUrbs OR if there are matchedUrbs and more than 2 seconds have passed increase variable.
+                if (urbsToMoveDown.isEmpty()){// && replacements == urbMatchOne.size()) {
+                    if (!matchesOffScreen.isEmpty()) {
+                        if (System.currentTimeMillis() > startBounceOutTime + 2000) {
+                            initialise = 3;
+                        }
+                    } else {
+                        initialise = 3;
+                    }
+                }
+                //There are urbs to move down and replacements are equal to the size of the urb matches
+                else if (counter == urbsToMoveDown.size()){// && replacements == urbMatchOne.size()) {
+                    initialise = 3;
+                }
+            }
+
+            if(pState == Procedure.MATCH && initialise == 5){
                 int replacements = 0;
+
                 if (!urbMatchOne.isEmpty()) {
                     if (System.currentTimeMillis() > startBounceOutTime + 600) {
                         for (int i = 0; i < urbMatchOne.size(); i++) {
@@ -1685,20 +1753,8 @@ class PlayScreen extends Screen {
                     }
                 }
 
-                //if there are no urbs to move down and replacements are equal to the size of the urb matches (this could be zero)
-                //if there are no matchedUrbs OR if there are matchedUrbs and more than 2 seconds have passed increase variable.
-                if (urbsToMoveDown.isEmpty() && replacements == urbMatchOne.size()) {
-                    if (!matchesOffScreen.isEmpty()) {
-                        if (System.currentTimeMillis() > startBounceOutTime + 2000) {
-                            initialise = 3;
-                        }
-                    } else {
-                        initialise = 3;
-                    }
-                }
-                //There are urbs to move down and replacements are equal to the size of the urb matches
-                else if (counter == urbsToMoveDown.size() && replacements == urbMatchOne.size()) {
-                    initialise = 3;
+                if(replacements == urbMatchOne.size()){
+                    initialise = 6;
                 }
             }
         }
@@ -1793,7 +1849,9 @@ class PlayScreen extends Screen {
                 else if (counter == urbsToMoveDown.size()){// && replacements == urbMatchOne.size()) {
                     initialise = 3;
                 }
-            } if(pState == Procedure.MATCH && initialise == 5){
+            }
+
+            if(pState == Procedure.MATCH && initialise == 5){
                 int replacements = 0;
                 if (!urbMatchOne.isEmpty()) {
                     if (System.currentTimeMillis() > startBounceOutTime + 600) {
@@ -1850,20 +1908,11 @@ class PlayScreen extends Screen {
                         }
                     }
 
-                    int replacements = 0;
-                    if (!urbMatchOne.isEmpty()) {
-                        if (System.currentTimeMillis() > startBounceOutTime + 600) {
-                            for (int i = 0; i < urbMatchOne.size(); i++) {
-                                if (Urbs.get(urbMatchOne.get(i)).updatePath(deltaTime)) {
-                                    replacements++;
-                                }
-                            }
-                        }
-                    }
+
 
                     //if there are no urbs to move down and replacements are equal to the size of the urb matches (this could be zero)
                     //if there are no matchedUrbs OR if there are matchedUrbs and more than 2 seconds have passed increase variable.
-                    if (urbsToMoveDown.isEmpty() && replacements == urbMatchOne.size()) {
+                    if (urbsToMoveDown.isEmpty()){// && replacements == urbMatchOne.size()) {
                         if (!matchesOffScreen.isEmpty()) {
                             if (System.currentTimeMillis() > startBounceOutTime + 2000) {
                                 initialise = 2;
@@ -1873,11 +1922,29 @@ class PlayScreen extends Screen {
                         }
                     }
                     //There are urbs to move down and replacements are equal to the size of the urb matches
-                    else if (counter == urbsToMoveDown.size() && replacements == urbMatchOne.size()) {
+                    else if (counter == urbsToMoveDown.size()){// && replacements == urbMatchOne.size()) {
                         initialise = 2;
                     }
                 }
+
             }
+            if(pState == Procedure.MATCH && initialise == 4){
+                int replacements = 0;
+                if (!urbMatchOne.isEmpty()) {
+                    if (System.currentTimeMillis() > startBounceOutTime + 600) {
+                        for (int i = 0; i < urbMatchOne.size(); i++) {
+                            if (Urbs.get(urbMatchOne.get(i)).updatePath(deltaTime)) {
+                                replacements++;
+                            }
+                        }
+                    }
+                }
+
+                if(replacements == urbMatchOne.size()){
+                    initialise = 5;
+                }
+            }
+
             if (pState == Procedure.REPLACE_OBJECTS && initialise == 3) {
                 colourBombExplosion.draw(graphics);
                 if (colourBombExplosion.animFinished()) {
@@ -2727,26 +2794,30 @@ class PlayScreen extends Screen {
         userMatchTwo.clear();
     }
 
+    /*******************************************************
+     sort objects based on their position in the tile map
+     *******************************************************/
     private void sortUrbs(List<UrbieAnimation> urbieAnimations) {
-        int i, j;
-        UrbieAnimation temp;
 
-        for (i = 0; i < Urbs.size() - 1; i++) {
-            for (j = i + 1; j < Urbs.size(); j++) {
-                if (urbieAnimations.get(i).getLocation() > urbieAnimations.get(j).getLocation()) {
-                    temp = urbieAnimations.get(i);
-                    urbieAnimations.set(i, urbieAnimations.get(j));
-                    urbieAnimations.set(j, temp);
+        int temp = -1;
+        for(int i = 0; i < urbieAnimations.size(); i++){
+            int realLoc = gameMethods.findMapLocationOfBitmap(tileLocations, urbieAnimations, i);
+            if(urbieAnimations.get(i).getLocation() != realLoc){
+                if(realLoc > -1) {
+                    urbieAnimations.get(i).setLocation(realLoc);
+                } else {
+                    //urb is not on the tilemap
+                    urbieAnimations.get(i).setLocation(temp);
+                    temp--;
                 }
             }
         }
 
-        /*System.out.println("Sort Urbs Method");
-        for(i = 0; i < urbieAnimations.size(); i++){
+        System.out.println("Sort Urbs Method");
+        for(int i = 0; i < urbieAnimations.size(); i++){
             System.out.print(i + " = " + urbieAnimations.get(i).getLocation());
             System.out.println(" ");
-        }*/
-
+        }
     }
 
 
