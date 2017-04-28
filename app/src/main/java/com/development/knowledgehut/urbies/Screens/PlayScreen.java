@@ -1119,6 +1119,7 @@ class PlayScreen extends Screen {
                                     futureCoordinates.add(creators.get(i).getPosition());
                                     Urbs.get(creators.get(i).getElement()).setSpritePath(creators.get(i).getPath());
                                     Urbs.get(creators.get(i).getElement()).setLocation(userMatchOne.get(i));
+                                    System.out.println("replaced urbs = "+creators.get(i).getElement());
                                 }
                                 initialise = 5;
                             }
@@ -1856,6 +1857,7 @@ class PlayScreen extends Screen {
                 if (!urbMatchOne.isEmpty()) {
                     if (System.currentTimeMillis() > startBounceOutTime + 600) {
                         for (int i = 0; i < urbMatchOne.size(); i++) {
+                            System.out.println("urbMatchOne = "+urbMatchOne.get(i));
                             if (Urbs.get(urbMatchOne.get(i)).updatePath(deltaTime)) {
                                 replacements++;
                             }
