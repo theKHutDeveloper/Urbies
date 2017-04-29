@@ -22,6 +22,7 @@ import static com.development.knowledgehut.urbies.Screens.Urbies.UrbieStatus.CEM
 import static com.development.knowledgehut.urbies.Screens.Urbies.UrbieStatus.GLASS;
 import static com.development.knowledgehut.urbies.Screens.Urbies.UrbieStatus.NONE;
 import static com.development.knowledgehut.urbies.Screens.Urbies.UrbieStatus.WOODEN;
+import static com.development.knowledgehut.urbies.Screens.Urbies.UrbieType.BABY;
 
 public class GameMethods {
     /********************************************************************************
@@ -66,6 +67,18 @@ public class GameMethods {
         return -1;
     }
 
+    /********************************************************************************
+     * Given a location, find where this location is within the objects and return
+     * the relevant object index. If not found return -1
+     ********************************************************************************/
+    public int findSpecifiedLocation(List<UrbieAnimation> objects, int location){
+        for(int i = 0; i < objects.size(); i++){
+            if(objects.get(i).getLocation() == location){
+                return i;
+            }
+        }
+        return -1;
+    }
 
     /********************************************************************************
      * Find a bitmap at a specified location in the map system
@@ -147,7 +160,7 @@ public class GameMethods {
         } else if (bitmap == Assets.punk) {
             type = Urbies.UrbieType.PUNK;
         } else if (bitmap == Assets.baby) {
-            type = Urbies.UrbieType.BABY;
+            type = BABY;
         } else if (bitmap == Assets.lady) {
             type = Urbies.UrbieType.LADY;
         } else if (bitmap == Assets.nerd_girl) {
@@ -777,6 +790,30 @@ public class GameMethods {
         return found;
     }
 
+    private int getReverseLocationOfY(ArrayList<Point> tileLoc, Point position, int width) {
+        int result = -1;
+
+        ArrayList<Integer> yLocations = new ArrayList<>();
+        ArrayList<Integer> reverse = new ArrayList<>();
+
+        for(int i = 0; i < tileLoc.size(); i = i + width){
+            yLocations.add(tileLoc.get(i).y);
+        }
+
+        for(int i = 0; i < yLocations.size(); i++){
+            reverse.add(-yLocations.get(i));
+        }
+
+        Collections.sort(reverse);
+
+        if(yLocations.contains(position.y)){
+            result = reverse.get(yLocations.indexOf(position.y));
+        }
+
+        return result;
+
+    }
+
     public ArrayList<ObjectPathCreator>replaceObjects(List<UrbieAnimation> objects,
                                                       ArrayList<Integer> matches,
                                                       ArrayList<Obstacles> obstacles, int width,
@@ -806,6 +843,8 @@ public class GameMethods {
         reference = tilesWithoutMatches(objects, tilePos, map, obstacleLocations, glassLocations, emptyTiles);
 
 
+        System.out.println("Empty tiles = "+emptyTiles);
+        System.out.println("Reference = " +reference);
         if(!emptyTiles.isEmpty()) {
             for (int i = 0; i < emptyTiles.size(); i++) {
                 int blockage = isRowBlocked(reference, width);
@@ -822,11 +861,19 @@ public class GameMethods {
             matches.clear();
         }
         else if(availableTiles.size() == matches.size()){
+
+
             for(int i = 0; i < matches.size(); i++) {
                 ObjectPathCreator o = new ObjectPathCreator();
                 o.setElement(matches.get(i));
                 Point pos = tilePos.get(availableTiles.get(i));
-                o.setPosition(new Point(pos.x, -200));
+                int loc = getReverseLocationOfY(tilePos, pos, width);
+                if(loc != -1){
+                    o.setPosition(new Point(pos.x, loc));
+                }
+                else {
+                    o.setPosition(new Point(pos.x, -200)); //-200
+                }
                 o.addToPath(findLine(o.getPosition().x, o.getPosition().y, pos.x, pos.y));
                 objectPathCreators.add(o);
             }
@@ -837,12 +884,6 @@ public class GameMethods {
         else if(availableTiles.size() > matches.size()){
             System.out.println("The available tiles are > matches size");
         }
-        //1. how many matches do I have? A: userMatchOne.size()
-        //2. how many empty tiles do I have? emptyTiles.size()
-        //is there a blocked row?
-        //if so, are the empty tiles underneath them?
-        //3. how many of these empty tiles are completely blocked?
-        //This will determine how many if any matches can be replaced and / or held off screen
 
         return objectPathCreators;
     }
@@ -864,17 +905,12 @@ public class GameMethods {
         ArrayList<Integer> brokenObstacleLocations = new ArrayList<>();
         ArrayList<ObjectPathCreator>objectPathCreators =  new ArrayList<>();
         ArrayList<ObjectPathCreator>downPathCreators =  new ArrayList<>();
-        ArrayList<DataStore> store = new ArrayList<>();
         ArrayList<Integer> moveDownList = new ArrayList<>();
         ArrayList<Point> positions = new ArrayList<>();
-        ArrayList<Point> leftOverPositions = new ArrayList<>();
         ArrayList<Integer> emptyTiles;
         ArrayList<Integer> reference;
         ArrayList<PositionList>positionLists = new ArrayList<>();
 
-
-        System.out.println("==========================================================");
-        System.out.println("Matches = " + matches);
         ////////////////////////////////////////////////////////////////////////////////////////////
         //!!get a list of invisible obstacle locations e.g. WOOD, CEMENT and also GLASS obstacles
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -891,10 +927,6 @@ public class GameMethods {
         //Identify any empty tiles
         emptyTiles = getEmptyTiles(map, tilePos, objects);
         System.out.println("Empty tiles = " + emptyTiles);
-
-        //get current mapping of tile map
-        //I can then use this arraylist to track changes
-        reference = tileStatus(matches, map, obstacleLocations, glassLocations, emptyTiles);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         //1. Are there any obstacles that are damaged near the matched list elements?
@@ -921,7 +953,6 @@ public class GameMethods {
                         }
                     }
                 }
-                System.out.println("brokenObstacleLocations = " + brokenObstacleLocations);
             }
         }
 
@@ -929,7 +960,6 @@ public class GameMethods {
         if (obstacleLocations.isEmpty() && !entrance.isEmpty()) {
             entrance.clear();
         }
-        System.out.println("Entrance = " + entrance);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         //2. Does the matched list contain a urb submerged in GLASS? - if so remove glass urb from match list
@@ -968,8 +998,6 @@ public class GameMethods {
         for (int i = 0; i < matches.size(); i++) {
             int startingPoint = matches.get(i);
 
-            System.out.println("Matches: " + matches.get(i) + " % 5 = " + matches.get(i) % width);
-
             if (!brokenObstacleLocations.isEmpty() && !emptyTiles.isEmpty() && brokenObstacleLocations.contains(matches.get(i) % width)) {
                 reference = tileStatus(matches, map, obstacleLocations, glassLocations, emptyTiles); //update tileStatus
                 positionLists = fillEmptyTiles(matches, width, map, reference, entrance, tilePos, emptyTiles, pathway, i);
@@ -985,7 +1013,7 @@ public class GameMethods {
                         for (int q = 0; q < positionLists.get(h).getPosition().size(); q++) {
                             ArrayList<Point> getPath = findLine(sx, sy, positionLists.get(h).getPosition().get(q).x, positionLists.get(h).getPosition().get(q).y);
                             opc.addToPath(getPath);
-                            System.out.println("get path = " + getPath);
+
                             sx = positionLists.get(h).getPosition().get(q).x;
                             sy = positionLists.get(h).getPosition().get(q).y;
                         }
@@ -1002,7 +1030,6 @@ public class GameMethods {
                     System.out.println("" + objectPathCreators.get(h).getPath());
                 }
 
-                System.out.println("reference = " + reference);
             } else {
 
                 //Identify the valid positions that objects will be able to drop down to
@@ -1046,10 +1073,8 @@ public class GameMethods {
                                 o.setPosition(objects.get(urb_num).getPosition());
                                 o.addToPath(findLine(o.getPosition().x, o.getPosition().y, tempPosition.get(counter).x, tempPosition.get(counter).y));
                                 downPathCreators.add(o);
-                                //update the changes made here in reference
                                 int pos = findLocationByPosition(tempPosition.get(counter), tilePos);
                                 Collections.swap(reference, num, pos);
-                                System.out.println("reference = "+reference);
                                 tempPosition.remove(counter);
                             } else {
                                 //there is a blockage so add matches element to off-screen,
@@ -1063,9 +1088,6 @@ public class GameMethods {
                     }
                     num = num - width;
                 }
-
-                leftOverPositions.addAll(tempPosition);
-                uniqueArrayPointList(leftOverPositions);
                 tempPosition.clear();
                 emptyTiles.clear();
                 brokenObstacleLocations.clear();
@@ -1076,33 +1098,6 @@ public class GameMethods {
             objectPathCreators.addAll(downPathCreators);
         }
 
-        for(int h = 0; h < downPathCreators.size(); h++){
-            System.out.println("down path ref =" + downPathCreators.get(h).getElement());
-            System.out.println("down path start pos = " + downPathCreators.get(h).getPosition());
-            //System.out.println("down path = " + downPathCreators.get(h).getPath());
-        }
-
-        /*//remove any leftOverPositions that are also in positions
-        for (int i = leftOverPositions.size() - 1; i >= 0; i--) {
-            if (positions.contains(leftOverPositions.get(i))) {
-                leftOverPositions.remove(i);
-            }
-        }
-
-        for (int i = 0; i < moveDownList.size(); i++) {
-            DataStore d = new DataStore();
-            d.setElement(moveDownList.get(i));
-            d.setPosition(positions.get(i));
-            store.add(d);
-        }
-
-        for (int i = 0; i < leftOverPositions.size(); i++) {
-            DataStore d = new DataStore();
-            d.setElement(findLocationByPosition(leftOverPositions.get(i), tilePos)); //need to get element based on position of leftOverPosition
-            d.setPosition(leftOverPositions.get(i));
-            future.add(d);
-        }
-*/
         return objectPathCreators;
     }
 
@@ -1346,7 +1341,7 @@ public class GameMethods {
                 reference.add(-5);
             } else reference.add(i);
         }
-        System.out.println("Reference = " + reference);
+        //System.out.println("Reference = " + reference);
         return reference;
     }
 
@@ -1371,7 +1366,7 @@ public class GameMethods {
             }//reference.add(i);
         }
 
-        System.out.println("Reference w/o matches = " + reference);
+        //System.out.println("Reference w/o matches = " + reference);
         return reference;
     }
     /**************************************************************************************************
@@ -2909,6 +2904,95 @@ public class GameMethods {
         System.out.println("not Relevant = " + values);
         return values;
     }
+
+    public void resetVisualisePotentialMatch(List<UrbieAnimation> objects, ArrayList<Integer> possibleMatches) {
+        int duration = new Random().nextInt(12000) + 3001;
+
+        if (!possibleMatches.isEmpty()) {
+            for (int loop = 0; loop < possibleMatches.size(); loop++) {
+                switch (objects.get(possibleMatches.get(loop)).getType()) {
+                    case BABY:
+                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.baby);
+                        objects.get(possibleMatches.get(loop)).setFPS(10);
+                        break;
+                    case NERD:
+                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.nerd);
+                        objects.get(possibleMatches.get(loop)).setFPS(10);
+                        break;
+                    case PIGTAILS:
+                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.pigtails);
+                        objects.get(possibleMatches.get(loop)).setFPS(10);
+                        break;
+                    case PAC:
+                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.pac);
+                        objects.get(possibleMatches.get(loop)).setFPS(10);
+                        break;
+                    case LADY:
+                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.lady);
+                        objects.get(possibleMatches.get(loop)).setFPS(10);
+
+                        break;
+                    case PUNK:
+                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.punk);
+                        objects.get(possibleMatches.get(loop)).setFPS(10);
+
+                        break;
+                    case ROCKER:
+                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.rocker);
+                        objects.get(possibleMatches.get(loop)).setFPS(10);
+
+                        break;
+                    case GIRL_NERD:
+                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.nerd_girl);
+                        objects.get(possibleMatches.get(loop)).setFPS(10);
+                        break;
+                    case WHITE_CHOCOLATE:
+                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.chameleon);
+                        objects.get(possibleMatches.get(loop)).setFPS(30);
+                        duration = new Random().nextInt(1200) + 3001;
+                        break;
+                    case MAGICIAN:
+                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.magician);
+                        objects.get(possibleMatches.get(loop)).setFPS(30);
+                        duration = new Random().nextInt(1200) + 3001;
+                        break;
+                    case STRIPE_HORIZONTAL:
+                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.stripe_h);
+                        objects.get(possibleMatches.get(loop)).setFPS(30);
+                        duration = new Random().nextInt(1200) + 3001;
+                        break;
+                    case STRIPE_VERTICAL:
+                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.stripe_v);
+                        objects.get(possibleMatches.get(loop)).setFPS(30);
+                        duration = new Random().nextInt(1200) + 3001;
+                        break;
+                }
+
+                objects.get(possibleMatches.get(loop)).setFrameDuration(duration);
+            }
+        }
+    }
+
+
+    public int getSlope(float x1, float y1, float x2, float y2) {
+        Double angle = Math.toDegrees(Math.atan2(y1 - y2, x2 - x1));
+        if (angle > 45 && angle <= 135)
+            // top
+            return 1;
+        if (angle >= 135 && angle < 180 || angle < -135 && angle > -180)
+            // left
+            return 2;
+        if (angle < -45 && angle >= -135)
+            // down
+            return 3;
+        if (angle > -45 && angle <= 45)
+            // right
+            return 4;
+        return 0;
+    }
+
+
+
 
     /*private ArrayList<Integer> irrelevantPositions(int entrance, int width,
                                                    ArrayList<Integer> obstacleLocations,

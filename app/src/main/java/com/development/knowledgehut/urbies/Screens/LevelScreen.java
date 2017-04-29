@@ -95,7 +95,7 @@ public class LevelScreen extends Screen {
                     if(access_level >= (b+1)){
                         Urbies.level = b+1;
                         Urbies.tutorialLevel = false;
-                        game.setScreen(new PlayScreen(game));
+                        game.setScreen(new MainScreen(game));
                         return;
                     }
                 }

@@ -83,7 +83,7 @@ public class MenuScreen extends Screen {
                         y > tutorialPos.y && y <= tutorialPos.y + (coordinates.getY(Assets.tutorial.getHeight()))) {
                     Urbies.tutorialLevel = true;
                     Urbies.level = -1;
-                    game.setScreen(new PlayScreen(game));
+                    game.setScreen(new TutorialScreen(game));
 
                 }
             break;

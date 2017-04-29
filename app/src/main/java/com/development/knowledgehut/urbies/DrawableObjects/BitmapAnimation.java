@@ -331,6 +331,7 @@ public class BitmapAnimation implements Comparable<BitmapAnimation> {
             this.position.y = spritePath.get(pathCounter).y;
             isDestined = false;
         }
+
         return isDestined;
     }
 
