@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 
 import com.development.knowledgehut.urbies.DrawableObjects.UrbieAnimation;
-import com.development.knowledgehut.urbies.Objects.DataStore;
 import com.development.knowledgehut.urbies.Objects.MatchedDetails;
 import com.development.knowledgehut.urbies.Objects.ObjectPathCreator;
 import com.development.knowledgehut.urbies.Objects.Obstacles;
@@ -41,7 +40,7 @@ public class GameMethods {
                 objects.get(b).getStatus() == NONE
                 ) {
             switch (objects.get(a).getType()) {
-                case MAGICIAN:
+                case GOBSTOPPER:
                 case WHITE_CHOCOLATE:
                 case STRIPE_HORIZONTAL:
                 case STRIPE_VERTICAL:
@@ -104,13 +103,13 @@ public class GameMethods {
 
         switch (type) {
             case WHITE_CHOCOLATE:
-                temp = Assets.chameleon;
+                temp = Assets.whiteChocolate;
                 break;
-            case MAGIC_BOMB:
-                temp = Assets.magicBomb;
+            case GOBSTOPPER_BOMB:
+                temp = Assets.gobstopperBomb;
                 break;
-            case MAGICIAN:
-                temp = Assets.magician;
+            case GOBSTOPPER:
+                temp = Assets.gobstopper;
                 break;
             case STRIPE_HORIZONTAL:
                 temp = Assets.stripe_h;
@@ -173,10 +172,10 @@ public class GameMethods {
             type = Urbies.UrbieType.STRIPE_VERTICAL;
         } else if (bitmap == Assets.stripe_h) {
             type = Urbies.UrbieType.STRIPE_HORIZONTAL;
-        } else if (bitmap == Assets.chameleon) {
+        } else if (bitmap == Assets.whiteChocolate) {
             type = Urbies.UrbieType.WHITE_CHOCOLATE;
-        } else if (bitmap == Assets.magician) {
-            type = Urbies.UrbieType.MAGICIAN;
+        } else if (bitmap == Assets.gobstopper) {
+            type = Urbies.UrbieType.GOBSTOPPER;
         }
         return type;
     }
@@ -2947,12 +2946,12 @@ public class GameMethods {
                         objects.get(possibleMatches.get(loop)).setFPS(10);
                         break;
                     case WHITE_CHOCOLATE:
-                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.chameleon);
+                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.whiteChocolate);
                         objects.get(possibleMatches.get(loop)).setFPS(30);
                         duration = new Random().nextInt(1200) + 3001;
                         break;
-                    case MAGICIAN:
-                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.magician);
+                    case GOBSTOPPER:
+                        objects.get(possibleMatches.get(loop)).setBitmap(Assets.gobstopper);
                         objects.get(possibleMatches.get(loop)).setFPS(30);
                         duration = new Random().nextInt(1200) + 3001;
                         break;

@@ -108,7 +108,7 @@ class LoadingScreen extends Screen {
                 AppCompatDrawableManager.get().getDrawable(context, R.drawable.rocker_anim),
                 5, Graphics.BitmapFormat.ARGB4444);
 
-        Assets.chameleon = graphics.animatedBitmap(context,
+        Assets.whiteChocolate = graphics.animatedBitmap(context,
                 AppCompatDrawableManager.get().getDrawable(context, R.drawable.cham),
                 5, Graphics.BitmapFormat.ARGB4444);
 
@@ -120,11 +120,11 @@ class LoadingScreen extends Screen {
                 AppCompatDrawableManager.get().getDrawable(context, R.drawable.horizontal),
                 5, Graphics.BitmapFormat.ARGB4444);
 
-        Assets.magician = graphics.animatedBitmap(context,
+        Assets.gobstopper = graphics.animatedBitmap(context,
                 AppCompatDrawableManager.get().getDrawable(context, R.drawable.magic2),
                 5, Graphics.BitmapFormat.ARGB4444);
 
-        Assets.magicBomb = graphics.animatedBitmap(context,
+        Assets.gobstopperBomb = graphics.animatedBitmap(context,
                 AppCompatDrawableManager.get().getDrawable(context, R.drawable.bomb),
                 2, Graphics.BitmapFormat.ARGB4444);
 
@@ -280,7 +280,7 @@ class LoadingScreen extends Screen {
                 AppCompatDrawableManager.get().getDrawable(context, R.drawable.nerd_girl_bounce),
                 5, Graphics.BitmapFormat.ARGB4444);
 
-        Assets.chameleonBounce = graphics.animatedBitmap(context,
+        Assets.whiteChocolateBounce = graphics.animatedBitmap(context,
                 AppCompatDrawableManager.get().getDrawable(context, R.drawable.chambounce),
                 5, Graphics.BitmapFormat.ARGB4444);
 
@@ -292,7 +292,7 @@ class LoadingScreen extends Screen {
                 AppCompatDrawableManager.get().getDrawable(context, R.drawable.vertical_bounce),
                 16, Graphics.BitmapFormat.ARGB4444);
 
-        Assets.magicianBounce = graphics.animatedBitmap(context,
+        Assets.gobstopperBounce = graphics.animatedBitmap(context,
                 AppCompatDrawableManager.get().getDrawable(context, R.drawable.magic_bounce2),
                 5, Graphics.BitmapFormat.ARGB4444);
 
@@ -308,7 +308,7 @@ class LoadingScreen extends Screen {
                 AppCompatDrawableManager.get().getDrawable(context, R.drawable.vertical_fade),
                 5, Graphics.BitmapFormat.ARGB4444);
 
-        Assets.magician_fade_in_out = graphics.animatedBitmap(context,
+        Assets.gobstopper_fade_in_out = graphics.animatedBitmap(context,
                 AppCompatDrawableManager.get().getDrawable(context, R.drawable.magic_fade2),
                 5, Graphics.BitmapFormat.ARGB4444);
 

@@ -289,7 +289,7 @@ class PlayScreen extends Screen {
                             fps, frames, duration, true, Urbies.UrbieType.GIRL_NERD, valid.get(i), true, NONE, Urbies.VisibilityStatus.VISIBLE, true));
                     break;
                 case 80:
-                    objects.add(new UrbieAnimation(Assets.chameleon, new Point(tileLocations.get(valid.get(i)).x, tileLocations.get(valid.get(i)).y),
+                    objects.add(new UrbieAnimation(Assets.whiteChocolate, new Point(tileLocations.get(valid.get(i)).x, tileLocations.get(valid.get(i)).y),
                             fps, frames, duration, true, Urbies.UrbieType.WHITE_CHOCOLATE, valid.get(i), true, NONE, Urbies.VisibilityStatus.VISIBLE, true));
                     break;
             }
@@ -343,7 +343,7 @@ class PlayScreen extends Screen {
                                     if (Urbs.get(pos).getType() == Urbies.UrbieType.WHITE_CHOCOLATE ||
                                             Urbs.get(pos).getType() == Urbies.UrbieType.STRIPE_HORIZONTAL ||
                                             Urbs.get(pos).getType() == Urbies.UrbieType.STRIPE_VERTICAL ||
-                                            Urbs.get(pos).getType() == Urbies.UrbieType.MAGICIAN) {
+                                            Urbs.get(pos).getType() == Urbies.UrbieType.GOBSTOPPER) {
                                         specialRules = i;
                                     }
                                 }
@@ -620,7 +620,7 @@ class PlayScreen extends Screen {
                         );
 
                         for (int i = 0; i < Urbs.size(); i++) {
-                            if (Urbs.get(i).getType() == Urbies.UrbieType.MAGICIAN ||
+                            if (Urbs.get(i).getType() == Urbies.UrbieType.GOBSTOPPER ||
                                     Urbs.get(i).getType() == Urbies.UrbieType.STRIPE_HORIZONTAL ||
                                     Urbs.get(i).getType() == Urbies.UrbieType.STRIPE_VERTICAL ||
                                     Urbs.get(i).getType() == Urbies.UrbieType.WHITE_CHOCOLATE) {
@@ -1031,7 +1031,7 @@ class PlayScreen extends Screen {
 
                             switch (type) {
 
-                                case MAGICIAN:
+                                case GOBSTOPPER:
                                     if (setSpecialPhase == 0) {
                                         specialUrbUserObject = urbSp;
                                         userClicksUrb = urbTemp;
@@ -1039,7 +1039,7 @@ class PlayScreen extends Screen {
                                         if (Urbs.get(userClicksUrb).getType() != Urbies.UrbieType.STRIPE_HORIZONTAL ||
                                                 Urbs.get(userClicksUrb).getType() != Urbies.UrbieType.STRIPE_VERTICAL ||
                                                 Urbs.get(userClicksUrb).getType() != Urbies.UrbieType.WHITE_CHOCOLATE ||
-                                                Urbs.get(userClicksUrb).getType() != Urbies.UrbieType.MAGICIAN) {
+                                                Urbs.get(userClicksUrb).getType() != Urbies.UrbieType.GOBSTOPPER) {
 
                                             specials = gameMethods.findMatchingObjectTypes(Urbs, userClicksUrb);
                                             for (int i = 0; i < specials.size(); i++) {
@@ -1060,7 +1060,7 @@ class PlayScreen extends Screen {
                                     if (Urbs.get(urbTemp).getType() != Urbies.UrbieType.STRIPE_HORIZONTAL ||
                                             Urbs.get(urbTemp).getType() != Urbies.UrbieType.STRIPE_VERTICAL ||
                                             Urbs.get(urbTemp).getType() != Urbies.UrbieType.WHITE_CHOCOLATE ||
-                                            Urbs.get(urbTemp).getType() != Urbies.UrbieType.MAGICIAN) {
+                                            Urbs.get(urbTemp).getType() != Urbies.UrbieType.GOBSTOPPER) {
 
                                         specials = gameMethods.findMatchingObjectTypes(Urbs, urbTemp);
                                         for (int i = 0; i < specials.size(); i++) {
@@ -1118,7 +1118,7 @@ class PlayScreen extends Screen {
                                     break;
                             }
 
-                            if (type == Urbies.UrbieType.MAGICIAN) {
+                            if (type == Urbies.UrbieType.GOBSTOPPER) {
                                 if (startRotateAvailableUrbs) {
                                     if (System.currentTimeMillis() > startRotateTimer + 300) {
 
@@ -1265,7 +1265,7 @@ class PlayScreen extends Screen {
                             startBounceOutTime = System.currentTimeMillis();
 
                             if (magicBomb > -1) {
-                                Urbs.get(magicBomb).changeBitmapProperties(Assets.magicBomb, 10, 2, 2000, true, true);
+                                Urbs.get(magicBomb).changeBitmapProperties(Assets.gobstopperBomb, 10, 2, 2000, true, true);
                             }
 
                             initialise = 1;
@@ -2129,9 +2129,9 @@ class PlayScreen extends Screen {
 
     private void changeToEffectAnimation(int num, List<UrbieAnimation> objects, Urbies.UrbieType type) {
         switch (type) {
-            case MAGICIAN:
-                objects.get(num).changeBitmapProperties(Assets.magician_fade_in_out, 30, 5, 500, false, false);
-                objects.get(num).setType(Urbies.UrbieType.MAGICIAN);
+            case GOBSTOPPER:
+                objects.get(num).changeBitmapProperties(Assets.gobstopper_fade_in_out, 30, 5, 500, false, false);
+                objects.get(num).setType(Urbies.UrbieType.GOBSTOPPER);
                 break;
             case WHITE_CHOCOLATE:
                 objects.get(num).changeBitmapProperties(Assets.white_chocolate_fade, 30, 5, 500, false, false);
@@ -2152,12 +2152,12 @@ class PlayScreen extends Screen {
         int duration = new Random().nextInt(1200) + 3001;
         objects.get(num).resetAnimation();
         switch (type) {
-            case MAGICIAN:
-                objects.get(num).changeBitmapProperties(Assets.magician, 30, 5, new Random().nextInt(12000) + 3001, true, true);
-                objects.get(num).setType(Urbies.UrbieType.MAGICIAN);
+            case GOBSTOPPER:
+                objects.get(num).changeBitmapProperties(Assets.gobstopper, 30, 5, new Random().nextInt(12000) + 3001, true, true);
+                objects.get(num).setType(Urbies.UrbieType.GOBSTOPPER);
                 break;
             case WHITE_CHOCOLATE:
-                objects.get(num).changeBitmapProperties(Assets.chameleon, 30, 5, duration, true, true);
+                objects.get(num).changeBitmapProperties(Assets.whiteChocolate, 30, 5, duration, true, true);
                 objects.get(num).setType(Urbies.UrbieType.WHITE_CHOCOLATE);
                 break;
             case STRIPE_HORIZONTAL:
@@ -2274,12 +2274,12 @@ class PlayScreen extends Screen {
                         Urbs.get(possibleMatches.get(loop)).setFPS(10);
                         break;
                     case WHITE_CHOCOLATE:
-                        Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.chameleon);
+                        Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.whiteChocolate);
                         Urbs.get(possibleMatches.get(loop)).setFPS(30);
                         duration = new Random().nextInt(1200) + 3001;
                         break;
-                    case MAGICIAN:
-                        Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.magician);
+                    case GOBSTOPPER:
+                        Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.gobstopper);
                         Urbs.get(possibleMatches.get(loop)).setFPS(30);
                         duration = new Random().nextInt(1200) + 3001;
                         break;
@@ -2303,11 +2303,11 @@ class PlayScreen extends Screen {
 
     private void visualiseSpecialUrb(int position) {
         switch (Urbs.get(position).getType()) {
-            case MAGICIAN:
-                Urbs.get(position).setBitmap(Assets.magicianBounce);
+            case GOBSTOPPER:
+                Urbs.get(position).setBitmap(Assets.gobstopperBounce);
                 break;
             case WHITE_CHOCOLATE:
-                Urbs.get(position).setBitmap(Assets.chameleonBounce);
+                Urbs.get(position).setBitmap(Assets.whiteChocolateBounce);
                 break;
             case STRIPE_HORIZONTAL:
                 Urbs.get(position).setBitmap(Assets.stripeBounce_h);
@@ -2322,11 +2322,11 @@ class PlayScreen extends Screen {
 
     private void resetSpecialUrb(int position) {
         switch (Urbs.get(position).getType()) {
-            case MAGICIAN:
-                Urbs.get(position).setBitmap(Assets.magician);
+            case GOBSTOPPER:
+                Urbs.get(position).setBitmap(Assets.gobstopper);
                 break;
             case WHITE_CHOCOLATE:
-                Urbs.get(position).setBitmap(Assets.chameleon);
+                Urbs.get(position).setBitmap(Assets.whiteChocolate);
                 break;
             case STRIPE_HORIZONTAL:
                 Urbs.get(position).setBitmap(Assets.stripe_h);
@@ -2368,10 +2368,10 @@ class PlayScreen extends Screen {
                         Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.nerdGirlBounce);
                         break;
                     case WHITE_CHOCOLATE:
-                        Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.chameleonBounce);
+                        Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.whiteChocolateBounce);
                         break;
-                    case MAGICIAN:
-                        Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.magicianBounce);
+                    case GOBSTOPPER:
+                        Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.gobstopperBounce);
                         break;
                     case STRIPE_HORIZONTAL:
                         Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.stripeBounce_h);
@@ -2652,7 +2652,7 @@ class PlayScreen extends Screen {
         boolean result = false;
 
         switch (objects.get(element).getType()) {
-            case MAGICIAN:
+            case GOBSTOPPER:
             case STRIPE_HORIZONTAL:
             case STRIPE_VERTICAL:
             case WHITE_CHOCOLATE:
@@ -2663,7 +2663,7 @@ class PlayScreen extends Screen {
     }
 
     /*
-     DONE: Magician Urb + Chameleon Urb or Striped Urb = changes selected urb to the special urb e.g. chameleon or striped
+     DONE: Magician Urb + Chameleon Urb or Striped Urb = changes selected urb to the special urb e.g. whiteChocolate or striped
      DONE: Vertical Striped Urb + Horizontal Striped Urb = takes out row and column
      DONE: Horizontal Striped Urb + Horizontal Striped Urb = takes out 2 rows if striped urbs on different rows otherwise just 1 row
      DONE: Vertical Striped Urb + Vertical Striped Urb = takes out 2 columns if striped urbs on different columns otherwise just 1 column
@@ -2676,7 +2676,7 @@ class PlayScreen extends Screen {
 
         if (type1 == type2) {
             switch (type1) {
-                case MAGICIAN:
+                case GOBSTOPPER:
                     setMagicAndMagic(urbPos1, urbPos2, twoPos);
                     break;
                 case STRIPE_HORIZONTAL:
@@ -2689,9 +2689,9 @@ class PlayScreen extends Screen {
                     setChameleonAndChameleon(urbPos1, onePos, urbPos2, twoPos);
                     break;
             }
-        } else if (type1 == Urbies.UrbieType.MAGICIAN || type2 == Urbies.UrbieType.MAGICIAN) {
+        } else if (type1 == Urbies.UrbieType.GOBSTOPPER || type2 == Urbies.UrbieType.GOBSTOPPER) {
 
-            if (type1 == Urbies.UrbieType.MAGICIAN) {
+            if (type1 == Urbies.UrbieType.GOBSTOPPER) {
                 specialUrbUserObject = urbPos1;
                 userClicksUrb = urbPos2;
                 userSwapType = type2;
@@ -2939,9 +2939,9 @@ class PlayScreen extends Screen {
     }
 
     private void setMagicAndMagic(int urbPos1, int urbPos2, int pos2) {
-        Urbs.get(urbPos1).changeBitmapProperties(Assets.magician_fade_in_out, 30, 5, 800, false, true);
-        Urbs.get(urbPos1).setType(Urbies.UrbieType.MAGIC_BOMB);
-        Urbs.get(urbPos2).changeBitmapProperties(Assets.magician_fade_in_out, 30, 5, 800, false, true);
+        Urbs.get(urbPos1).changeBitmapProperties(Assets.gobstopper_fade_in_out, 30, 5, 800, false, true);
+        Urbs.get(urbPos1).setType(Urbies.UrbieType.GOBSTOPPER_BOMB);
+        Urbs.get(urbPos2).changeBitmapProperties(Assets.gobstopper_fade_in_out, 30, 5, 800, false, true);
         magicBomb = urbPos1;
 
         userMatchOne.add(pos2);

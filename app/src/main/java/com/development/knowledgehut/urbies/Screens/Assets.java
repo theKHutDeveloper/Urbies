@@ -28,8 +28,8 @@ public class Assets {
     public static Bitmap rocker;
     public static Bitmap stripe_v;
     public static Bitmap stripe_h;
-    public static Bitmap chameleon;
-    public static Bitmap magician;
+    public static Bitmap whiteChocolate;
+    public static Bitmap gobstopper;
     static Bitmap selector;
     static Bitmap bright_selector;
     static Bitmap babyBounce;
@@ -43,12 +43,12 @@ public class Assets {
     static Bitmap muzzle;
     static Bitmap stripeBounce_v;
     static Bitmap stripeBounce_h;
-    static Bitmap chameleonBounce;
-    static Bitmap magicianBounce;
+    static Bitmap whiteChocolateBounce;
+    static Bitmap gobstopperBounce;
     static Bitmap white_chocolate_fade;
     static Bitmap horizontal_fade;
     static Bitmap vertical_fade;
-    static Bitmap magician_fade_in_out;
+    static Bitmap gobstopper_fade_in_out;
     static Bitmap lightning0;
     static Bitmap lightning1;
     static Bitmap electric1;
@@ -61,7 +61,7 @@ public class Assets {
     static Bitmap speechCelebrate;
     static Bitmap wizard_idle;
     static Bitmap wizard_attack;
-    public static Bitmap magicBomb;
+    public static Bitmap gobstopperBomb;
     static Bitmap colourBombExplosion;
     static Bitmap holder;
     static Bitmap button;

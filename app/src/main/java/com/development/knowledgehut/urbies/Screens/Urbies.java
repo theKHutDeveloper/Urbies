@@ -12,8 +12,8 @@ public class Urbies extends AndroidGame {
 
     public enum UrbieType{
         BABY, PAC, PIGTAILS, NERD, PUNK, LADY, ROCKER,
-        GIRL_NERD, MAGICIAN, WHITE_CHOCOLATE,
-        STRIPE_HORIZONTAL, STRIPE_VERTICAL, MAGIC_BOMB, NONE
+        GIRL_NERD, GOBSTOPPER, WHITE_CHOCOLATE,
+        STRIPE_HORIZONTAL, STRIPE_VERTICAL, GOBSTOPPER_BOMB, NONE
     }
 
     public enum UrbieStatus{

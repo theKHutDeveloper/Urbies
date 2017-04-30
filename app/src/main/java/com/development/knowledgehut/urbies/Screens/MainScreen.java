@@ -24,6 +24,7 @@ import com.development.knowledgehut.urbies.Objects.ObjectPathCreator;
 import com.development.knowledgehut.urbies.Objects.Obstacles;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -63,9 +64,15 @@ public class MainScreen extends Screen {
     private ArrayList<Integer> futurePositions = new ArrayList<>();
     private ArrayList<BitmapAnimation> effects = new ArrayList<>();
     private ArrayList<Integer> matchesOffScreen = new ArrayList<>();
+    private ArrayList<Integer> updateMoveDownElements = new ArrayList<>();
     private ArrayList<Integer> entrance = new ArrayList<>();
     private ArrayList<Integer> possibleMatches = new ArrayList<>();
     private ArrayList<Integer> urbPossibleMatches = new ArrayList<>();
+    private ArrayList<Images> gobstopperSelect = new ArrayList<>();
+    private ArrayList<ArrayList<Integer>> specSpecials = new ArrayList<>(2);
+    private ArrayList<Integer> specials = new ArrayList<>();
+    private ArrayList<Integer> colourBombUrbs = new ArrayList<>();
+    private ArrayList<Integer> notInPlay = new ArrayList<>();
 
     private Images pause, help, board;
     private MatchState matchState;
@@ -75,6 +82,7 @@ public class MainScreen extends Screen {
     private Images victory, failed;
     private int one = -1, two = -1;
     private int urbOne, urbTwo;
+    private int gobstopperBomb = -1;
     private Urbies.UrbieType urbOneType, urbTwoType;
     private int initialise = 0;
     private int tileH;
@@ -92,6 +100,7 @@ public class MainScreen extends Screen {
     private int urbCounter = 0;
     private boolean startRotateAvailableUrbs = false;
     private Bitmap bmpSelected = null;
+    private BitmapAnimation colourBombExplosion;
 
     private ArrayList<Obstacles> obstacleTiles = new ArrayList<>();
     private SharedPreferences preferences;
@@ -171,13 +180,16 @@ public class MainScreen extends Screen {
 
                         //with the remaining matches remove the intersecting urb for matches with 4 or more elements
                         if (!details.isEmpty()) {
+
                             for (int i = 0; i < details.size(); i++) {
                                 if (!details.get(i).getReturnedMatches().isEmpty() && details.get(i).getMatchShape() != Urbies.MatchShape.LINE) {
+
                                     int element = gameMethods.findBitmapByMapLocation(Urbs, tileLocations, details.get(i).getIntersecting_element());
                                     levelManager.addUrbCounter(Urbs.get(element).getType(), 1);
                                     specialUrbs.add(element);
                                     specialUrbTypes.add(details.get(i).getUrbieType());
                                     int index = details.get(i).getReturnedMatches().indexOf(details.get(i).getIntersecting_element());
+
                                     if (index > -1) {
                                         details.get(i).getReturnedMatches().remove(index);
                                     }
@@ -187,14 +199,16 @@ public class MainScreen extends Screen {
 
                         int specialRules = -1;
                         if (!details.isEmpty()) {
+
                             for (int i = 0; i < details.size(); i++) {
+
                                 //if 3 of the same special urbs match apply special rule (all urbs out)
                                 if (!details.get(i).getReturnedMatches().isEmpty()) {
                                     int pos = gameMethods.findObjectByPosition(details.get(i).getReturnedMatches().get(0), Urbs);
                                     if (Urbs.get(pos).getType() == Urbies.UrbieType.WHITE_CHOCOLATE ||
                                             Urbs.get(pos).getType() == Urbies.UrbieType.STRIPE_HORIZONTAL ||
                                             Urbs.get(pos).getType() == Urbies.UrbieType.STRIPE_VERTICAL ||
-                                            Urbs.get(pos).getType() == Urbies.UrbieType.MAGICIAN) {
+                                            Urbs.get(pos).getType() == Urbies.UrbieType.GOBSTOPPER) {
                                         specialRules = i;
                                     }
                                 }
@@ -202,25 +216,29 @@ public class MainScreen extends Screen {
                         }
 
 
+                        //special rule pops out all urbs.
                         if (specialRules > -1) {
-                            //special rule pops out all urbs.
+
                             details.clear();
                             specialUrbs.clear();
                             Collections.addAll(matchList, validTiles);
                             levelManager.addBigPopToScore(validTiles.size());
-                        } else {
+                        }
+                        else {
                             for (int i = 0; i < details.size(); i++) {
                                 levelManager.addMatchesToScore(details.get(i).getMatchShape(), details.get(i).getReturnedMatches().size());
                             }
                         }
 
                         if (!details.isEmpty()) {
+
                             for (int i = 0; i < details.size(); i++) {
                                 matchList.add(details.get(i).getReturnedMatches());
                             }
                         }
 
                         if (!matchList.isEmpty()) {
+
                             for (int i = 0; i < matchList.size(); i++) {
                                 userMatchOne.addAll(matchList.get(i));
                             }
@@ -229,7 +247,9 @@ public class MainScreen extends Screen {
 
                             matchFoundations();
 
-                        } else {
+                        }
+                        else {
+
                             initialise = 0;
                             matchState = MatchState.READY;
                         }
@@ -238,30 +258,37 @@ public class MainScreen extends Screen {
 
                     case MATCH:
                         matchRoutine();
-                        break;
+                    break;
 
                     case REPLACE_OBJECTS:
+
                         replaceEvents();
                         pState = Procedure.CHECK;
-                        break;
+
+                    break;
                 }
 
             break;
 
 
-
-
             case SHUFFLE:
+
                 if (initialise == 1) {
+
                     ArrayList<Integer> newLocations = getArrayLocations();
                     moveUrbsToShuffledLocations(newLocations, Urbs, tileLocations);
+
                     initialise = 2;
                 }
 
                 if (initialise == 3) {
+
+                    sortUrbs(Urbs);
+
                     for (int i = 0; i < Urbs.size(); i++) {
                         Urbs.get(i).clearPath();
                     }
+
                     initialise = 0;
                     matchState = MatchState.AUTO;
                 }
@@ -272,13 +299,19 @@ public class MainScreen extends Screen {
             case READY:
 
                 if (levelManager.success()) {
+
                     if (initialise == 0) {
+
                         moveToNextScreenTimer = System.currentTimeMillis();
                         initialise = 1;
-                    } else if (initialise == 1) {
+                    }
+                    else if (initialise == 1) {
+
                         if (System.currentTimeMillis() > moveToNextScreenTimer + 2000) {
                             int access_lvl = preferences.getInt(Assets.ACCESS_LEVEL, 1);
+
                             if (access_lvl < Urbies.level + 1) {
+
                                 access_lvl++;
                                 preferences.edit().putInt(Assets.ACCESS_LEVEL, access_lvl).apply();
                             }
@@ -288,18 +321,25 @@ public class MainScreen extends Screen {
                         }
                     }
 
-                } else if (levelManager.failing()) {
+                }
+                else if (levelManager.failing()) {
+
                     if (initialise == 0) {
+
                         moveToNextScreenTimer = System.currentTimeMillis();
                         initialise = 1;
-                    } else if (initialise == 1) {
+                    }
+                    else if (initialise == 1) {
+
                         if (System.currentTimeMillis() > moveToNextScreenTimer + 2000) {
                             game.setScreen((new LevelScreen(game)));
                             return;
                         }
                     }
-                } else {
+                }
+                else {
                     if (initialise == 0) {
+
                         possibleMatches = gameMethods.findRandomPotentialMatch(
                                 Urbs,
                                 levelManager.getLevelTileMap().getMapLevel(),
@@ -307,7 +347,8 @@ public class MainScreen extends Screen {
                         );
 
                         for (int i = 0; i < Urbs.size(); i++) {
-                            if (Urbs.get(i).getType() == Urbies.UrbieType.MAGICIAN ||
+
+                            if (Urbs.get(i).getType() == Urbies.UrbieType.GOBSTOPPER ||
                                     Urbs.get(i).getType() == Urbies.UrbieType.STRIPE_HORIZONTAL ||
                                     Urbs.get(i).getType() == Urbies.UrbieType.STRIPE_VERTICAL ||
                                     Urbs.get(i).getType() == Urbies.UrbieType.WHITE_CHOCOLATE) {
@@ -316,8 +357,11 @@ public class MainScreen extends Screen {
                         }
 
                         if (possibleMatches.isEmpty() && urbPossibleMatches.isEmpty()) {
+
                             matchState = MatchState.SHUFFLE;
-                        } else {
+                        }
+                        else {
+
                             readyToMoveTimer = System.currentTimeMillis();
                         }
 
@@ -326,11 +370,14 @@ public class MainScreen extends Screen {
 
 
                     if (System.currentTimeMillis() > (readyToMoveTimer + 6000)) {
+
                         if (!possibleMatches.isEmpty()) {
                             visualisePotentialMatch(possibleMatches);
-                        } else if (!urbPossibleMatches.isEmpty()) {
+                        }
+                        else if (!urbPossibleMatches.isEmpty()) {
                             visualiseSpecialUrb(urbPossibleMatches.get(0));
                         }
+
                         showPossibleMove = true;
                     }
 
@@ -338,14 +385,16 @@ public class MainScreen extends Screen {
                         if (!possibleMatches.isEmpty()) {
                             gameMethods.resetVisualisePotentialMatch(Urbs, possibleMatches);
                             showPossibleMove = false;
-                        } else if (!urbPossibleMatches.isEmpty()) {
+                        }
+                        else if (!urbPossibleMatches.isEmpty()) {
                             resetSpecialUrb(urbPossibleMatches.get(0));
                         }
+
                         readyToMoveTimer = System.currentTimeMillis();
                         showPossibleMove = false;
                     }
                 }
-                break;
+            break;
 
 
             case SWAP:
@@ -359,6 +408,7 @@ public class MainScreen extends Screen {
                 }
 
                 if (initialise == 2) {
+
                     if (gameMethods.validSwap(Urbs, urbOne, urbTwo)) {
                         int temp = Urbs.get(urbOne).getLocation();
                         Urbs.get(urbOne).setLocation(Urbs.get(urbTwo).getLocation());
@@ -458,7 +508,9 @@ public class MainScreen extends Screen {
                             }
                         }
 
-                    } else {
+                    }
+                    else {
+
                         Urbs.get(urbOne).clearPath();
                         Urbs.get(urbTwo).clearPath();
                         initialise = 0;
@@ -466,7 +518,7 @@ public class MainScreen extends Screen {
                         matchState = MatchState.RESET_SWAP;
                     }
                 }
-                break;
+            break;
 
             case RESET_SWAP:
                 if (initialise == 0) {
@@ -506,6 +558,7 @@ public class MainScreen extends Screen {
 
             case USER_MATCH:
                 switch (pState) {
+
                     case CHECK:
                         //merge the two lists or put the list into userMatchOne
                         if (!userMatchOne.isEmpty() && !userMatchTwo.isEmpty()) {
@@ -536,6 +589,408 @@ public class MainScreen extends Screen {
                     break;
                 }
             break;
+
+
+            case SPECIAL_URBS:
+                switch (pState) {
+                    case CHECK:
+
+                        userMatchOne.clear();
+
+                        if (urbOneType != null && urbTwoType != null) { //both urbs are special objects
+                            setSpecialUrbPattern(urbOneType, urbOne, one, urbTwoType, urbTwo, two);
+                        } else {
+                            int urbTemp = -1, temp = -1;
+                            Urbies.UrbieType type = Urbies.UrbieType.NONE;
+                            int urbSp = -1;
+
+                            if (urbOneType != null) {
+                                urbTemp = urbTwo;
+                                type = urbOneType;
+                                temp = one;
+                                urbSp = urbOne;
+                            } else if (urbTwoType != null) {
+                                urbTemp = urbOne;
+                                type = urbTwoType;
+                                temp = two;
+                                urbSp = urbTwo;
+                            }
+
+                            switch (type) {
+
+                                case GOBSTOPPER:
+                                    if (setSpecialPhase == 0) {
+                                        specialUrbUserObject = urbSp;
+                                        userClicksUrb = urbTemp;
+
+                                        if (Urbs.get(userClicksUrb).getType() != Urbies.UrbieType.STRIPE_HORIZONTAL ||
+                                                Urbs.get(userClicksUrb).getType() != Urbies.UrbieType.STRIPE_VERTICAL ||
+                                                Urbs.get(userClicksUrb).getType() != Urbies.UrbieType.WHITE_CHOCOLATE ||
+                                                Urbs.get(userClicksUrb).getType() != Urbies.UrbieType.GOBSTOPPER) {
+
+                                            specials = gameMethods.findMatchingObjectTypes(Urbs, userClicksUrb);
+                                            for (int i = 0; i < specials.size(); i++) {
+                                                gobstopperSelect.add(
+                                                        new Images(Assets.bright_selector, new Point(Urbs.get(specials.get(i)).getX(), Urbs.get(specials.get(i)).getY()))
+                                                );
+                                            }
+                                            startRotateAvailableUrbs = true;
+                                            startRotateTimer = System.currentTimeMillis();
+                                            urbCounter = 0;
+                                        }
+                                        setSpecialPhase = 1;
+                                    }
+
+                                    allowSpecialUserInput = true;
+                                    break;
+                                case WHITE_CHOCOLATE:
+                                    if (Urbs.get(urbTemp).getType() != Urbies.UrbieType.STRIPE_HORIZONTAL ||
+                                            Urbs.get(urbTemp).getType() != Urbies.UrbieType.STRIPE_VERTICAL ||
+                                            Urbs.get(urbTemp).getType() != Urbies.UrbieType.WHITE_CHOCOLATE ||
+                                            Urbs.get(urbTemp).getType() != Urbies.UrbieType.GOBSTOPPER) {
+
+                                        specials = gameMethods.findMatchingObjectTypes(Urbs, urbTemp);
+                                        for (int i = 0; i < specials.size(); i++) {
+                                            specialFX.add(new SpecialFX(new ArrayList<>(Arrays.asList(
+                                                    Assets.lightning0, Assets.lightning1)),
+                                                    Urbs.get(urbSp).getX(),
+                                                    Urbs.get(urbSp).getY(),
+                                                    Urbs.get(specials.get(i)).getX(),
+                                                    Urbs.get(specials.get(i)).getY(),
+                                                    80, tileH));
+                                        }
+                                        Urbs.get(urbSp).changeBitmapProperties(Assets.white_chocolate_fade, 30, 5, 800, false, true);
+                                        levelManager.addSpecialUrbBonusToScore(Urbs.get(urbSp).getType(), specials.size() - 1);
+                                        levelManager.addUrbCounter(Urbs.get(specials.get(0)).getType(), specials.size());
+                                    }
+                                    break;
+
+                                case STRIPE_HORIZONTAL:
+                                    specials = gameMethods.findObjectsInRow(Urbs, temp, levelManager.getLevelTileMap().getMapLevel(),
+                                            tileLocations, tileWidth);
+
+                                    levelManager.addSpecialUrbBonusToScore(Urbs.get(urbSp).getType(), specials.size() - 1);
+                                    for (int i = 0; i < specials.size(); i++) {
+                                        levelManager.addUrbCounter(Urbs.get(specials.get(i)).getType(), 1);
+                                    }
+
+                                    specialFX.add(new SpecialFX(new ArrayList<>(Arrays.asList(
+                                            Assets.lightning0, Assets.lightning1)),
+                                            Urbs.get(specials.get(0)).getX(),
+                                            Urbs.get(specials.get(0)).getY(),
+                                            Urbs.get(specials.get(specials.size() - 1)).getX(),
+                                            Urbs.get(specials.get(specials.size() - 1)).getY(),
+                                            80, tileH)
+                                    );
+                                    Urbs.get(urbSp).changeBitmapProperties(Assets.horizontal_fade, 30, 5, 800, false, true);
+                                    break;
+
+                                case STRIPE_VERTICAL:
+                                    specials = gameMethods.findObjectsInColumn(Urbs, temp, levelManager.getLevelTileMap().getMapLevel(),
+                                            tileLocations, tileWidth);
+
+                                    levelManager.addSpecialUrbBonusToScore(Urbs.get(urbSp).getType(), specials.size() - 1);
+                                    for (int i = 0; i < specials.size(); i++) {
+                                        levelManager.addUrbCounter(Urbs.get(specials.get(i)).getType(), 1);
+                                    }
+                                    specialFX.add(new SpecialFX(new ArrayList<>(Arrays.asList(
+                                            Assets.lightning0, Assets.lightning1)),
+                                            Urbs.get(specials.get(0)).getX(),
+                                            Urbs.get(specials.get(0)).getY(),
+                                            Urbs.get(specials.get(specials.size() - 1)).getX(),
+                                            Urbs.get(specials.get(specials.size() - 1)).getY(),
+                                            80, tileH)
+                                    );
+                                    Urbs.get(urbSp).changeBitmapProperties(Assets.vertical_fade, 30, 5, 800, false, true);
+                                    break;
+                            }
+
+                            if (type == Urbies.UrbieType.GOBSTOPPER) {
+                                if (startRotateAvailableUrbs) {
+                                    if (System.currentTimeMillis() > startRotateTimer + 300) {
+
+                                        if (urbCounter < urbTypesInLevel.size()) {
+                                            urbCounter++;
+                                            if (urbCounter < urbTypesInLevel.size())
+                                                if (Urbs.get(userClicksUrb).getType() == urbTypesInLevel.get(urbCounter)) {
+                                                    urbCounter++;
+                                                }
+
+                                        }
+                                        if (urbCounter >= urbTypesInLevel.size()) {
+                                            urbCounter = 0;
+                                            if (Urbs.get(userClicksUrb).getType() == urbTypesInLevel.get(urbCounter)) {
+                                                urbCounter++;
+                                            }
+                                        }
+
+                                        switch (urbTypesInLevel.get(urbCounter)) {
+                                            case PAC:
+                                                Urbs.get(userClicksUrb).setBitmap(Assets.pac);
+                                                bmpSelected = Assets.pac;
+                                                break;
+                                            case PIGTAILS:
+                                                Urbs.get(userClicksUrb).setBitmap(Assets.pigtails);
+                                                bmpSelected = Assets.pigtails;
+                                                break;
+                                            case PUNK:
+                                                Urbs.get(userClicksUrb).setBitmap(Assets.punk);
+                                                bmpSelected = Assets.punk;
+                                                break;
+                                            case ROCKER:
+                                                Urbs.get(userClicksUrb).setBitmap(Assets.rocker);
+                                                bmpSelected = Assets.rocker;
+                                                break;
+                                            case NERD:
+                                                Urbs.get(userClicksUrb).setBitmap(Assets.nerd);
+                                                bmpSelected = Assets.nerd;
+                                                break;
+                                            case GIRL_NERD:
+                                                Urbs.get(userClicksUrb).setBitmap(Assets.nerd_girl);
+                                                bmpSelected = Assets.nerd_girl;
+                                                break;
+                                            case BABY:
+                                                Urbs.get(userClicksUrb).setBitmap(Assets.baby);
+                                                bmpSelected = Assets.baby;
+                                                break;
+                                            case LADY:
+                                                Urbs.get(userClicksUrb).setBitmap(Assets.lady);
+                                                bmpSelected = Assets.lady;
+                                                break;
+                                        }
+                                        startRotateTimer = System.currentTimeMillis();
+                                    }
+                                }
+
+                            } else if (type == Urbies.UrbieType.WHITE_CHOCOLATE || type == Urbies.UrbieType.STRIPE_HORIZONTAL ||
+                                    type == Urbies.UrbieType.STRIPE_VERTICAL) {
+                                if (!specials.isEmpty()) {
+                                    //convert specials to map positions
+                                    for (int i = 0; i < specials.size(); i++) {
+                                        userMatchOne.add(gameMethods.findMapLocationOfBitmap(tileLocations, Urbs, specials.get(i)));
+                                    }
+
+                                    if (type == Urbies.UrbieType.WHITE_CHOCOLATE) {
+                                        userMatchOne.add(temp);
+                                    }
+
+                                    Collections.sort(userMatchOne, reverseOrder());
+
+
+                                    objectsToMoveDown();
+                                    if (levelManager.isWood() || levelManager.isCement()) {
+                                        findDamagedObstacles(obstacleTiles);
+                                    }
+                                    clearDamagedObstacle(obstacleTiles);
+
+                                    if (!updateMoveDownElements.isEmpty()) {
+                                        addEmptyTilesAfterBrokenObstacleRemoved(updateMoveDownElements);
+                                    }
+
+                                    if (!objectsToMoveDown.isEmpty()) {
+                                        for (int i = 0; i < objectsToMoveDown.size(); i++) {
+                                            urbsToMoveDown.add(gameMethods.findBitmapByMapLocation(Urbs, tileLocations, objectsToMoveDown.get(i)));
+                                        }
+                                    }
+
+                                    for (int i = 0; i < userMatchOne.size(); i++) {
+                                        urbMatchOne.add(gameMethods.findObjectByPosition(userMatchOne.get(i), Urbs));
+                                    }
+
+                                    Urbs.get(urbTemp).clearPath();
+                                    Urbs.get(urbSp).clearPath();
+
+                                    setMatchedUrbs();
+
+                                    placeObjectsOffScreen();
+
+                                    initialise = 0;
+                                    pState = Procedure.MATCH;
+                                }
+                            }
+                        }
+                        break;
+
+                    case MATCH:
+
+                        if (initialise == 0) {
+                            clearUserSelection();
+                            urbOneType = null;
+                            urbTwoType = null;
+
+                            //define the move down path for remaining Urbs
+                            if (!urbsToMoveDown.isEmpty()) {
+                                for (int i = 0; i < urbsToMoveDown.size(); i++) {
+                                    Urbs.get(urbsToMoveDown.get(i)).findLine(Urbs.get(urbsToMoveDown.get(i)).getX(),
+                                            Urbs.get(urbsToMoveDown.get(i)).getY(), coordinatesToMoveTo.get(i).x, coordinatesToMoveTo.get(i).y);
+                                }
+                            }
+
+                            for (int i = 0; i < matchedUrbs.size(); i++) {
+                                int rnd = i % 3;
+                                switch (rnd) {
+                                    case 0:
+                                        matchedUrbs.get(i).setUpBounceOutLeft(matchedUrbs.get(i).getX(), matchedUrbs.get(i).getY());
+                                        break;
+                                    case 1:
+                                        matchedUrbs.get(i).setUpBounceOutMiddle(matchedUrbs.get(i).getX(), matchedUrbs.get(i).getY());
+                                        break;
+                                    case 2:
+                                        matchedUrbs.get(i).setUpBounceOutRight(matchedUrbs.get(i).getX(), matchedUrbs.get(i).getY());
+                                        break;
+                                }
+                                effects.add(new BitmapAnimation(Assets.muzzle,
+                                        new Point(matchedUrbs.get(i).getX(), matchedUrbs.get(i).getY()),
+                                        30,
+                                        4,
+                                        1200,
+                                        false,
+                                        -1, true));
+                            }
+                            canBounce = true;
+                            //freedomSounds();
+                            startBounceOutTime = System.currentTimeMillis();
+
+                            if (gobstopperBomb > -1) {
+                                Urbs.get(gobstopperBomb).changeBitmapProperties(Assets.gobstopperBomb, 10, 2, 2000, true, true);
+                            }
+
+                            initialise = 1;
+
+                        } else if (initialise == 2) {
+
+                            for (int i = 0; i < urbsToMoveDown.size(); i++) {
+                                Urbs.get(urbsToMoveDown.get(i)).clearPath();
+                            }
+
+                            initialise = 3;
+
+
+                        } else if (initialise == 3) {
+
+                            ArrayList<ObjectPathCreator> creators = gameMethods.replaceObjects(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen);
+
+                            if (userMatchOne.isEmpty()) {
+                                urbMatchOne.clear();
+                                initialise = 0;
+                                pState = Procedure.REPLACE_OBJECTS;
+                            } else {
+                                for (int i = 0; i < creators.size(); i++) {
+                                    futurePositions.add(creators.get(i).getElement());
+                                    futureCoordinates.add(creators.get(i).getPosition());
+                                    Urbs.get(creators.get(i).getElement()).setSpritePath(creators.get(i).getPath());
+                                    Urbs.get(creators.get(i).getElement()).setLocation(userMatchOne.get(i));
+                                }
+                                initialise = 4;
+                            }
+                        } else if (initialise == 5) {
+                            for (int i = 0; i < urbMatchOne.size(); i++) {
+                                Urbs.get(urbMatchOne.get(i)).clearPath();
+                            }
+                            clearDamagedObstacle(obstacleTiles);
+
+                            initialise = 0;
+                            pState = Procedure.REPLACE_OBJECTS;
+                        }
+
+                        break;
+
+
+                    case REPLACE_OBJECTS:
+
+                        if (initialise == 0) {
+                            //drop down elements have their locations changed according to their position in the arrayList
+                            for (int i = 0; i < coordinatesToMoveTo.size(); i++) {
+                                for (int j = 0; j < tileLocations.size(); j++) {
+                                    if (tileLocations.get(j) == coordinatesToMoveTo.get(i)) {
+                                        Urbs.get(urbsToMoveDown.get(i)).setLocation(j);
+                                    }
+                                }
+                            }
+                            initialise = 1;
+                        }
+
+                        if (initialise == 1) {
+
+                            sortUrbs(Urbs);
+                            initialise = 2;
+                        }
+
+                        if (initialise == 2) {
+                            if (gobstopperBomb > -1) {
+                                ArrayList<Integer> colourBombList = gameMethods.collectElementsForColourBomb(
+                                        levelManager.getLevelTileMap().getMapLevel(),
+                                        gameMethods.findMapLocationOfBitmap(tileLocations, Urbs, gobstopperBomb),
+                                        tileWidth
+                                );
+
+                                for (int i = 0; i < colourBombList.size(); i++) {
+                                    colourBombUrbs.add(gameMethods.findObjectByPosition(colourBombList.get(i), Urbs));
+                                }
+
+                                colourBombExplosion = new BitmapAnimation(
+                                        Assets.colourBombExplosion,
+                                        new Point(Urbs.get(gobstopperBomb).getX() + Urbs.get(gobstopperBomb).getWidth() / 2,
+                                                Urbs.get(gobstopperBomb).getY() + Urbs.get(gobstopperBomb).getHeight() / 2),
+                                        30,
+                                        5,
+                                        2000,
+                                        false,
+                                        -1, true
+                                );
+                                colourBombExplosion.setX(colourBombExplosion.getX() - colourBombExplosion.getWidth() / 2);
+                                colourBombExplosion.setY(colourBombExplosion.getY() - colourBombExplosion.getHeight() / 2);
+                                initialise = 3;
+                            } else {
+                                initialise = 4;
+                            }
+                        }
+
+                        if (initialise == 3) {
+                            int rndType = new Random().nextInt(urbTypesInLevel.size());
+
+                            for (int i = 0; i < colourBombUrbs.size(); i++) {
+                                if (Urbs.get(colourBombUrbs.get(i)).getFrameCount() != 5) {
+                                    Urbs.get(colourBombUrbs.get(i)).setFrameCount(5);
+                                }
+                                Urbs.get(colourBombUrbs.get(i)).setType(urbTypesInLevel.get(rndType));
+                                Urbs.get(colourBombUrbs.get(i)).setBitmap(gameMethods.findBitmapFromType(urbTypesInLevel.get(rndType)));
+                            }
+                        }
+
+                        if (initialise == 4) {
+                            canBounce = false;
+                            urbMatchOne.clear();
+                            userMatchOne.clear();
+                            matchedUrbs.clear();
+                            futureCoordinates.clear();
+                            futurePositions.clear();
+                            urbsToMoveDown.clear();
+                            objectsToMoveDown.clear();
+                            coordinatesToMoveTo.clear();
+                            specials.clear();
+                            specialUrbs.clear();
+                            specialFX.clear();
+                            specialUrbTypes.clear();
+                            specSpecials.clear();
+                            initialise = 0;
+                            effects.clear();
+                            if (gobstopperBomb > -1) {
+                                Urbs.get(gobstopperBomb).setFrameCount(5);
+                            }
+                            gobstopperBomb = -1;
+                            colourBombUrbs.clear();
+                            if (!matchesOffScreen.isEmpty()) {
+                                //Collections.addAll(matchesOffScreen);
+                                notInPlay.addAll(matchesOffScreen);
+                                matchesOffScreen.clear();
+                            }
+                            matchState = MatchState.AUTO;
+                            pState = Procedure.CHECK;
+                        }
+                        break;
+                }
+                break;
         }
     }
 
@@ -801,6 +1256,90 @@ public class MainScreen extends Screen {
             }
         }
 
+        if (matchState == MatchState.SPECIAL_URBS) {
+
+            if (!gobstopperSelect.isEmpty()) {
+                for (int i = 0; i < gobstopperSelect.size(); i++) {
+                    gobstopperSelect.get(i).draw(graphics);
+                }
+            }
+
+            int checker = 0;
+
+            for (int i = 0; i < specialFX.size(); i++) {
+                if (specialFX.get(i).isAnimationFinished()) {
+                    checker++;
+                }
+            }
+
+            if (checker == specialFX.size()) {
+                if (pState == Procedure.MATCH && initialise == 1) {
+                    int counter = 0;
+                    if (!urbsToMoveDown.isEmpty()) {
+                        if (!urbMatchOne.isEmpty()) {
+                            if (System.currentTimeMillis() > startBounceOutTime + 500) {
+                                for (int i = 0; i < urbsToMoveDown.size(); i++) {
+                                    if (Urbs.get(urbsToMoveDown.get(i)).updatePath(deltaTime)) {
+                                        counter++;
+                                    }
+                                }
+                            }
+                        } else {
+                            if (System.currentTimeMillis() > startBounceOutTime + 1200) {
+                                for (int i = 0; i < urbsToMoveDown.size(); i++) {
+                                    if (Urbs.get(urbsToMoveDown.get(i)).updatePath(deltaTime)) {
+                                        counter++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+                    //if there are no urbs to move down and replacements are equal to the size of the urb matches (this could be zero)
+                    //if there are no matchedUrbs OR if there are matchedUrbs and more than 2 seconds have passed increase variable.
+                    if (urbsToMoveDown.isEmpty()) {// && replacements == urbMatchOne.size()) {
+                        if (!matchesOffScreen.isEmpty()) {
+                            if (System.currentTimeMillis() > startBounceOutTime + 2000) {
+                                initialise = 2;
+                            }
+                        } else {
+                            initialise = 2;
+                        }
+                    }
+                    //There are urbs to move down and replacements are equal to the size of the urb matches
+                    else if (counter == urbsToMoveDown.size()) {// && replacements == urbMatchOne.size()) {
+                        initialise = 2;
+                    }
+                }
+
+            }
+            if (pState == Procedure.MATCH && initialise == 4) {
+                int replacements = 0;
+                if (!urbMatchOne.isEmpty()) {
+                    if (System.currentTimeMillis() > startBounceOutTime + 600) {
+                        for (int i = 0; i < urbMatchOne.size(); i++) {
+                            if (Urbs.get(urbMatchOne.get(i)).updatePath(deltaTime)) {
+                                replacements++;
+                            }
+                        }
+                    }
+                }
+
+                if (replacements == urbMatchOne.size()) {
+                    initialise = 5;
+                }
+            }
+
+            if (pState == Procedure.REPLACE_OBJECTS && initialise == 3) {
+                colourBombExplosion.draw(graphics);
+                if (colourBombExplosion.animFinished()) {
+                    initialise = 4;
+                }
+            }
+        }
+
+
     }
 
     @Override
@@ -1006,11 +1545,9 @@ public class MainScreen extends Screen {
 
         objectsToMoveDown();
 
-        if (!objectsToMoveDown.isEmpty()) {
-            for (int i = 0; i < objectsToMoveDown.size(); i++) {
-                urbsToMoveDown.add(gameMethods.findBitmapByMapLocation(Urbs, tileLocations, objectsToMoveDown.get(i)));
-            }
-        }
+
+
+        System.out.println("urbsToMoveDown = "+urbsToMoveDown);
 
         for (int i = 0; i < userMatchOne.size(); i++) {
             urbMatchOne.add(gameMethods.findObjectByPosition(userMatchOne.get(i), Urbs));
@@ -1115,11 +1652,11 @@ public class MainScreen extends Screen {
                 for (int i = 0; i < creators.size(); i++) {
                     futurePositions.add(creators.get(i).getElement());
                     futureCoordinates.add(creators.get(i).getPosition());
-                    Urbs.get(creators.get(i).getElement()).setSpritePath(creators.get(i).getPath());
-                    Urbs.get(creators.get(i).getElement()).setLocation(urbMatchOne.get(i));
+                    Urbs.get(urbMatchOne.get(i)).setSpritePath(creators.get(i).getPath());
+                    Urbs.get(urbMatchOne.get(i)).setLocation(urbMatchOne.get(i));
                     System.out.println("creators element = " + creators.get(i).getElement());
                     System.out.println("creators position = " + creators.get(i).getPosition());
-                    System.out.println("path counter = " + Urbs.get(creators.get(i).getElement()).getPathCounter());
+                    System.out.println("path counter = " + Urbs.get(urbMatchOne.get(i)).getPathCounter());
 
                 }
                 initialise = 5;
@@ -1189,17 +1726,31 @@ public class MainScreen extends Screen {
         for (int i = 0; i < creators.size(); i++) {
             objectsToMoveDown.add(creators.get(i).getElement());
             coordinatesToMoveTo.add(creators.get(i).getPath().get(creators.get(i).getPath().size() - 1));
-            Urbs.get(creators.get(i).getElement()).setSpritePath(creators.get(i).getPath());
+            int urbNum = gameMethods.findBitmapByMapLocation(Urbs, tileLocations, creators.get(i).getElement());
+            if(urbNum > -1){
+                Urbs.get(urbNum).setSpritePath(creators.get(i).getPath());
+                urbsToMoveDown.add(urbNum);
+            }
         }
+
+        /*if (!objectsToMoveDown.isEmpty()) {
+            for (int i = 0; i < objectsToMoveDown.size(); i++) {
+                urbsToMoveDown.add(gameMethods.findBitmapByMapLocation(Urbs, tileLocations, objectsToMoveDown.get(i)));
+            }
+        }
+
+        for (int i = 0; i < creators.size(); i++) {
+            Urbs.get(urbsToMoveDown.get(i)).setSpritePath(creators.get(i).getPath());
+        }*/
 
         System.out.println("objectsToMoveDown = " + objectsToMoveDown);
     }
 
     private void changeToEffectAnimation(int num, List<UrbieAnimation> objects, Urbies.UrbieType type) {
         switch (type) {
-            case MAGICIAN:
-                objects.get(num).changeBitmapProperties(Assets.magician_fade_in_out, 30, 5, 500, false, false);
-                objects.get(num).setType(Urbies.UrbieType.MAGICIAN);
+            case GOBSTOPPER:
+                objects.get(num).changeBitmapProperties(Assets.gobstopper_fade_in_out, 30, 5, 500, false, false);
+                objects.get(num).setType(Urbies.UrbieType.GOBSTOPPER);
                 break;
             case WHITE_CHOCOLATE:
                 objects.get(num).changeBitmapProperties(Assets.white_chocolate_fade, 30, 5, 500, false, false);
@@ -1224,12 +1775,12 @@ public class MainScreen extends Screen {
         int duration = new Random().nextInt(1200) + 3001;
         objects.get(num).resetAnimation();
         switch (type) {
-            case MAGICIAN:
-                objects.get(num).changeBitmapProperties(Assets.magician, 30, 5, new Random().nextInt(12000) + 3001, true, true);
-                objects.get(num).setType(Urbies.UrbieType.MAGICIAN);
+            case GOBSTOPPER:
+                objects.get(num).changeBitmapProperties(Assets.gobstopper, 30, 5, new Random().nextInt(12000) + 3001, true, true);
+                objects.get(num).setType(Urbies.UrbieType.GOBSTOPPER);
                 break;
             case WHITE_CHOCOLATE:
-                objects.get(num).changeBitmapProperties(Assets.chameleon, 30, 5, duration, true, true);
+                objects.get(num).changeBitmapProperties(Assets.whiteChocolate, 30, 5, duration, true, true);
                 objects.get(num).setType(Urbies.UrbieType.WHITE_CHOCOLATE);
                 break;
             case STRIPE_HORIZONTAL:
@@ -1325,11 +1876,6 @@ public class MainScreen extends Screen {
             }
         }
 
-        /*System.out.println("Sort Urbs Method");
-        for (int i = 0; i < urbieAnimations.size(); i++) {
-            System.out.print(i + " = " + urbieAnimations.get(i).getLocation());
-            System.out.println(" ");
-        }*/
     }
 
 
@@ -1446,11 +1992,14 @@ public class MainScreen extends Screen {
         blockedRows = gameMethods.getListOfBlockedRows(tileHeight, tileWidth, obstacleTiles, mapLevel);
         //so far this just removes the urbs that are underneath blocked row from the array list
 
-
         for (int i = 0; i < objects.size(); i++) {
+
             if (objects.get(i).getStatus() == NONE && objects.get(i).getActive()) {
+
                 if (!blockedRows.isEmpty()) {
+
                     for (int a = 0; a < blockedRows.size(); a++) {
+
                         if (objects.get(i).getLocation() < blockedRows.get(a).get(0)) {
                             objects.get(i).findLine(
                                     objects.get(i).getX(),
@@ -1458,23 +2007,22 @@ public class MainScreen extends Screen {
                                     positions.get(newLocations.get(counter)).x,
                                     positions.get(newLocations.get(counter)).y
                             );
-                            objects.get(i).setLocation(newLocations.get(counter));
+
                             counter++;
                         }
                     }
-                } else {
-                    objects.get(i).findLine(
-                            objects.get(i).getX(),
-                            objects.get(i).getY(),
+                }
+                else {
+
+                    objects.get(i).findLine(objects.get(i).getX(), objects.get(i).getY(),
                             positions.get(newLocations.get(counter)).x,
                             positions.get(newLocations.get(counter)).y
                     );
-                    objects.get(i).setLocation(newLocations.get(counter));
+
                     counter++;
                 }
             }
         }
-        sortUrbs(objects);
     }
 
 
@@ -1507,10 +2055,10 @@ public class MainScreen extends Screen {
                         Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.nerdGirlBounce);
                         break;
                     case WHITE_CHOCOLATE:
-                        Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.chameleonBounce);
+                        Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.whiteChocolateBounce);
                         break;
-                    case MAGICIAN:
-                        Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.magicianBounce);
+                    case GOBSTOPPER:
+                        Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.gobstopperBounce);
                         break;
                     case STRIPE_HORIZONTAL:
                         Urbs.get(possibleMatches.get(loop)).setBitmap(Assets.stripeBounce_h);
@@ -1532,11 +2080,11 @@ public class MainScreen extends Screen {
 
     private void visualiseSpecialUrb(int position) {
         switch (Urbs.get(position).getType()) {
-            case MAGICIAN:
-                Urbs.get(position).setBitmap(Assets.magicianBounce);
+            case GOBSTOPPER:
+                Urbs.get(position).setBitmap(Assets.gobstopperBounce);
                 break;
             case WHITE_CHOCOLATE:
-                Urbs.get(position).setBitmap(Assets.chameleonBounce);
+                Urbs.get(position).setBitmap(Assets.whiteChocolateBounce);
                 break;
             case STRIPE_HORIZONTAL:
                 Urbs.get(position).setBitmap(Assets.stripeBounce_h);
@@ -1552,11 +2100,11 @@ public class MainScreen extends Screen {
 
     private void resetSpecialUrb(int position) {
         switch (Urbs.get(position).getType()) {
-            case MAGICIAN:
-                Urbs.get(position).setBitmap(Assets.magician);
+            case GOBSTOPPER:
+                Urbs.get(position).setBitmap(Assets.gobstopper);
                 break;
             case WHITE_CHOCOLATE:
-                Urbs.get(position).setBitmap(Assets.chameleon);
+                Urbs.get(position).setBitmap(Assets.whiteChocolate);
                 break;
             case STRIPE_HORIZONTAL:
                 Urbs.get(position).setBitmap(Assets.stripe_h);
@@ -1574,7 +2122,7 @@ public class MainScreen extends Screen {
         boolean result = false;
 
         switch (objects.get(element).getType()) {
-            case MAGICIAN:
+            case GOBSTOPPER:
             case STRIPE_HORIZONTAL:
             case STRIPE_VERTICAL:
             case WHITE_CHOCOLATE:
@@ -1598,5 +2146,776 @@ public class MainScreen extends Screen {
         userMatchOne.addAll(matchOne);
         userMatchTwo.addAll(matchTwo);
     }
+
+
+    private ArrayList<List<Integer>> setSpecialUrbPattern(Urbies.UrbieType type1, int urbPos1, int onePos, Urbies.UrbieType type2, int urbPos2, int twoPos) {
+
+        if (type1 == type2) {
+            switch (type1) {
+                case GOBSTOPPER:
+                    setGobstopperAndGobstopper(urbPos1, urbPos2, twoPos);
+                    break;
+                case STRIPE_HORIZONTAL:
+                    setDoubleHorizontalStripedUrbs(urbPos1, onePos, urbPos2, twoPos);
+                    break;
+                case STRIPE_VERTICAL:
+                    setDoubleVerticalStripedUrbs(urbPos1, onePos, urbPos2, twoPos);
+                    break;
+                case WHITE_CHOCOLATE:
+                    setWhiteChocolateAndWhiteChocolate(urbPos1, onePos, urbPos2, twoPos);
+                    break;
+            }
+        } else if (type1 == Urbies.UrbieType.GOBSTOPPER || type2 == Urbies.UrbieType.GOBSTOPPER) {
+
+            if (type1 == Urbies.UrbieType.GOBSTOPPER) {
+                specialUrbUserObject = urbPos1;
+                userClicksUrb = urbPos2;
+                userSwapType = type2;
+            } else {
+                specialUrbUserObject = urbPos2;
+                userClicksUrb = urbPos1;
+                userSwapType = type1;
+            }
+            setGobstopperAndOther(userClicksUrb);
+
+        } else if (type1 == Urbies.UrbieType.WHITE_CHOCOLATE || type2 == Urbies.UrbieType.WHITE_CHOCOLATE) {
+            if (type1 == Urbies.UrbieType.STRIPE_HORIZONTAL || type2 == Urbies.UrbieType.STRIPE_HORIZONTAL) {
+                int urbSp;
+                int urbTemp;
+                int posTemp;
+                int posSp;
+
+                if (type1 == Urbies.UrbieType.WHITE_CHOCOLATE) {
+                    urbSp = urbPos1;
+                    urbTemp = urbPos2;
+                    posTemp = twoPos;
+                    posSp = onePos;
+                } else {
+                    urbSp = urbPos2;
+                    urbTemp = urbPos1;
+                    posTemp = onePos;
+                    posSp = twoPos;
+                }
+                setWhiteChocolateAndHStripe(urbSp, urbTemp, posTemp, posSp);
+
+            } else if (type1 == Urbies.UrbieType.STRIPE_VERTICAL || type2 == Urbies.UrbieType.STRIPE_VERTICAL) {
+                int urbSp;
+                int urbTemp;
+                int pos;
+                int posSp;
+
+                if (type1 == Urbies.UrbieType.WHITE_CHOCOLATE) {
+                    urbSp = urbPos1;
+                    urbTemp = urbPos2;
+                    pos = twoPos;
+                    posSp = onePos;
+                } else {
+                    urbSp = urbPos2;
+                    urbTemp = urbPos1;
+                    pos = onePos;
+                    posSp = twoPos;
+                }
+                setWhiteChocolateAndVStripe(urbSp, urbTemp, pos, posSp);
+            }
+        } else if (type1 == Urbies.UrbieType.STRIPE_HORIZONTAL || type2 == Urbies.UrbieType.STRIPE_HORIZONTAL) {
+            setDoubleStripedUrbs(type1, urbPos1, onePos, type2, urbPos2, twoPos);
+        }
+
+        return null;
+    }
+
+    private void setGobstopperAndOther(int urbTemp) {
+        if (setSpecialPhase == 0) {
+            allowSpecialUserInput = true;
+            startRotateAvailableUrbs = true;
+            startRotateTimer = System.currentTimeMillis();
+            urbCounter = 0;
+            setSpecialPhase = 1;
+            Urbs.get(urbTemp).setFrameCount(5);
+        }
+
+        if (startRotateAvailableUrbs) {
+            if (System.currentTimeMillis() > startRotateTimer + 300) {
+                if (urbCounter < urbTypesInLevel.size()) {
+                    urbCounter++;
+                }
+                if (urbCounter >= urbTypesInLevel.size()) {
+                    urbCounter = 0;
+                }
+
+                switch (urbTypesInLevel.get(urbCounter)) {
+                    case PAC:
+                        Urbs.get(urbTemp).setBitmap(Assets.pac);
+                        bmpSelected = Assets.pac;
+                        break;
+                    case PIGTAILS:
+                        Urbs.get(urbTemp).setBitmap(Assets.pigtails);
+                        bmpSelected = Assets.pigtails;
+                        break;
+                    case PUNK:
+                        Urbs.get(urbTemp).setBitmap(Assets.punk);
+                        bmpSelected = Assets.punk;
+                        break;
+                    case ROCKER:
+                        Urbs.get(urbTemp).setBitmap(Assets.rocker);
+                        bmpSelected = Assets.rocker;
+                        break;
+                    case NERD:
+                        Urbs.get(urbTemp).setBitmap(Assets.nerd);
+                        bmpSelected = Assets.nerd;
+                        break;
+                    case GIRL_NERD:
+                        Urbs.get(urbTemp).setBitmap(Assets.nerd_girl);
+                        bmpSelected = Assets.nerd_girl;
+                        break;
+                    case BABY:
+                        Urbs.get(urbTemp).setBitmap(Assets.baby);
+                        bmpSelected = Assets.baby;
+                        break;
+                    case LADY:
+                        Urbs.get(urbTemp).setBitmap(Assets.lady);
+                        bmpSelected = Assets.lady;
+                        break;
+                }
+                startRotateTimer = System.currentTimeMillis();
+            }
+        }
+    }
+
+    private void setWhiteChocolateAndWhiteChocolate(int urbSp, int pos1, int urbTemp, int pos2) {
+        List temp = new ArrayList<>(urbTypesInLevel);
+        Collections.shuffle(temp);
+        temp = temp.subList(0, 2);
+
+        for (int i = 0; i < temp.size(); i++) {
+            specials.addAll(gameMethods.getMatchingObjectsByType(Urbs, (Urbies.UrbieType) temp.get(i)));
+        }
+
+        for (int i = 0; i < specials.size(); i++) {
+            specialFX.add(new SpecialFX(new ArrayList<>(Arrays.asList(
+                    Assets.lightning0, Assets.lightning1)),
+                    Urbs.get(urbSp).getX(),
+                    Urbs.get(urbSp).getY(),
+                    Urbs.get(specials.get(i)).getX(),
+                    Urbs.get(specials.get(i)).getY(),
+                    80, tileH));
+        }
+        Urbs.get(urbSp).changeBitmapProperties(Assets.white_chocolate_fade, 30, 5, 800, false, true);
+        Urbs.get(urbTemp).changeBitmapProperties(Assets.white_chocolate_fade, 30, 5, 800, false, true);
+
+        if (!specials.isEmpty()) {
+            levelManager.addSpecialUrbBonusToScore(Urbs.get(urbSp).getType(), specials.size() - 1);
+            for (int i = 0; i < specials.size(); i++) {
+                levelManager.addUrbCounter(Urbs.get(specials.get(i)).getType(), 1);
+            }
+            //convert specials to map positions
+            for (int i = 0; i < specials.size(); i++) {
+                userMatchOne.add(gameMethods.findMapLocationOfBitmap(tileLocations, Urbs, specials.get(i)));
+            }
+
+            userMatchOne.add(pos1);
+            userMatchOne.add(pos2);
+            Collections.sort(userMatchOne, reverseOrder());
+
+
+            objectsToMoveDown();
+
+            if (levelManager.isWood() || levelManager.isCement()) {
+                findDamagedObstacles(obstacleTiles);
+            }
+
+            if (!objectsToMoveDown.isEmpty()) {
+                for (int i = 0; i < objectsToMoveDown.size(); i++) {
+                    urbsToMoveDown.add(gameMethods.findBitmapByMapLocation(Urbs, tileLocations, objectsToMoveDown.get(i)));
+                }
+            }
+
+            for (int i = 0; i < userMatchOne.size(); i++) {
+                urbMatchOne.add(gameMethods.findObjectByPosition(userMatchOne.get(i), Urbs));
+            }
+
+            Urbs.get(urbTemp).clearPath();
+            Urbs.get(urbSp).clearPath();
+
+            setMatchedUrbs();
+
+            placeObjectsOffScreen();
+
+            initialise = 0;
+            pState = Procedure.MATCH;
+        }
+    }
+
+    private void setWhiteChocolateAndHStripe(int urbSp, int urbTemp, int pos, int posSp) {
+        ArrayList<Integer> temp = gameMethods.findObjectsInRow(Urbs, pos, levelManager.getLevelTileMap().getMapLevel(),
+                tileLocations, tileWidth);
+
+        for (int i = 0; i < temp.size(); i++) {
+            specials.addAll(gameMethods.findMatchingObjectTypes(Urbs, temp.get(i)));
+        }
+
+        gameMethods.uniqueArrayIntegerList(specials);
+
+        if (specials.contains(urbSp)) {
+            specials.remove(specials.indexOf(urbSp));
+        }
+
+        for (int i = 0; i < specials.size(); i++) {
+            specialFX.add(new SpecialFX(new ArrayList<>(Arrays.asList(
+                    Assets.lightning0, Assets.lightning1)),
+                    Urbs.get(urbSp).getX(),
+                    Urbs.get(urbSp).getY(),
+                    Urbs.get(specials.get(i)).getX(),
+                    Urbs.get(specials.get(i)).getY(),
+                    80, tileH));
+        }
+        Urbs.get(urbSp).changeBitmapProperties(Assets.white_chocolate_fade, 30, 5, 800, false, true);
+        Urbs.get(urbTemp).changeBitmapProperties(Assets.horizontal_fade, 30, 5, 800, false, true);
+        levelManager.addSpecialUrbBonusToScore(Urbs.get(urbSp).getType(), specials.size() - 1);
+        for (int i = 0; i < specials.size(); i++) {
+            levelManager.addUrbCounter(Urbs.get(specials.get(i)).getType(), 1);
+        }
+
+        if (!specials.isEmpty()) {
+            //convert specials to map positions
+            for (int i = 0; i < specials.size(); i++) {
+                userMatchOne.add(gameMethods.findMapLocationOfBitmap(tileLocations, Urbs, specials.get(i)));
+            }
+
+            userMatchOne.add(posSp);
+            Collections.sort(userMatchOne, reverseOrder());
+
+            //identify if matches are next to any obstacles
+            /**/
+
+            objectsToMoveDown();
+            if (levelManager.isWood() || levelManager.isCement()) {
+                findDamagedObstacles(obstacleTiles);
+            }
+
+            if (!objectsToMoveDown.isEmpty()) {
+                for (int i = 0; i < objectsToMoveDown.size(); i++) {
+                    urbsToMoveDown.add(gameMethods.findBitmapByMapLocation(Urbs, tileLocations, objectsToMoveDown.get(i)));
+                }
+            }
+
+            for (int i = 0; i < userMatchOne.size(); i++) {
+                urbMatchOne.add(gameMethods.findObjectByPosition(userMatchOne.get(i), Urbs));
+            }
+
+            Urbs.get(urbTemp).clearPath();
+            Urbs.get(urbSp).clearPath();
+
+            setMatchedUrbs();
+            placeObjectsOffScreen();
+
+            initialise = 0;
+            pState = Procedure.MATCH;
+        }
+    }
+
+    private void setGobstopperAndGobstopper(int urbPos1, int urbPos2, int pos2) {
+        Urbs.get(urbPos1).changeBitmapProperties(Assets.gobstopper_fade_in_out, 30, 5, 800, false, true);
+        Urbs.get(urbPos1).setType(Urbies.UrbieType.GOBSTOPPER_BOMB);
+        Urbs.get(urbPos2).changeBitmapProperties(Assets.gobstopper_fade_in_out, 30, 5, 800, false, true);
+        gobstopperBomb = urbPos1;
+
+        userMatchOne.add(pos2);
+
+        /**/
+
+        objectsToMoveDown();
+        if (levelManager.isWood() || levelManager.isCement()) {
+            findDamagedObstacles(obstacleTiles);
+        }
+
+        if (!objectsToMoveDown.isEmpty()) {
+            for (int i = 0; i < objectsToMoveDown.size(); i++) {
+                urbsToMoveDown.add(gameMethods.findBitmapByMapLocation(Urbs, tileLocations, objectsToMoveDown.get(i)));
+            }
+        }
+
+        for (int i = 0; i < userMatchOne.size(); i++) {
+            urbMatchOne.add(gameMethods.findObjectByPosition(userMatchOne.get(i), Urbs));
+        }
+
+        Urbs.get(urbPos2).clearPath();
+        Urbs.get(urbPos1).clearPath();
+        setMatchedUrbs();
+
+        placeObjectsOffScreen();
+
+        initialise = 0;
+        pState = Procedure.MATCH;
+    }
+
+
+    private void setWhiteChocolateAndVStripe(int urbSp, int urbTemp, int pos, int posSp) {
+        ArrayList<Integer> temp = gameMethods.findObjectsInColumn(Urbs, pos, levelManager.getLevelTileMap().getMapLevel(),
+                tileLocations, tileWidth);
+
+        for (int i = 0; i < temp.size(); i++) {
+            specials.addAll(gameMethods.findMatchingObjectTypes(Urbs, temp.get(i)));
+        }
+
+        if (specials.contains(urbSp)) {
+            specials.remove(specials.indexOf(urbSp));
+        }
+
+        gameMethods.uniqueArrayIntegerList(specials);
+
+        for (int i = 0; i < specials.size(); i++) {
+            specialFX.add(new SpecialFX(new ArrayList<>(Arrays.asList(
+                    Assets.lightning0, Assets.lightning1)),
+                    Urbs.get(urbSp).getX(),
+                    Urbs.get(urbSp).getY(),
+                    Urbs.get(specials.get(i)).getX(),
+                    Urbs.get(specials.get(i)).getY(),
+                    80, tileH));
+        }
+        Urbs.get(urbSp).changeBitmapProperties(Assets.white_chocolate_fade, 30, 5, 800, false, true);
+        Urbs.get(urbTemp).changeBitmapProperties(Assets.vertical_fade, 30, 5, 800, false, true);
+        levelManager.addSpecialUrbBonusToScore(Urbs.get(urbSp).getType(), specials.size() - 1);
+        for (int i = 0; i < specials.size(); i++) {
+            levelManager.addUrbCounter(Urbs.get(specials.get(i)).getType(), 1);
+        }
+
+        if (!specials.isEmpty()) {
+            //convert specials to map positions
+            for (int i = 0; i < specials.size(); i++) {
+                userMatchOne.add(gameMethods.findMapLocationOfBitmap(tileLocations, Urbs, specials.get(i)));
+            }
+
+            userMatchOne.add(posSp);
+            Collections.sort(userMatchOne, reverseOrder());
+
+            //identify if matches are next to any obstacles
+            /**/
+
+            objectsToMoveDown();
+            if (levelManager.isWood() || levelManager.isCement()) {
+                findDamagedObstacles(obstacleTiles);
+            }
+            if (!objectsToMoveDown.isEmpty()) {
+                for (int i = 0; i < objectsToMoveDown.size(); i++) {
+                    urbsToMoveDown.add(gameMethods.findBitmapByMapLocation(Urbs, tileLocations, objectsToMoveDown.get(i)));
+                }
+            }
+
+            for (int i = 0; i < userMatchOne.size(); i++) {
+                urbMatchOne.add(gameMethods.findObjectByPosition(userMatchOne.get(i), Urbs));
+            }
+
+            Urbs.get(urbTemp).clearPath();
+            Urbs.get(urbSp).clearPath();
+
+            setMatchedUrbs();
+            placeObjectsOffScreen();
+
+            initialise = 0;
+            pState = Procedure.MATCH;
+        }
+    }
+
+    private void setDoubleStripedUrbs(Urbies.UrbieType type1, int urbPos1, int onePos, Urbies.UrbieType type2, int urbPos2, int twoPos) {
+        if (type1 == Urbies.UrbieType.STRIPE_VERTICAL || type2 == Urbies.UrbieType.STRIPE_VERTICAL) {
+            if (type1 == Urbies.UrbieType.STRIPE_VERTICAL) {
+                specSpecials.add(gameMethods.findObjectsInColumn(Urbs, onePos, levelManager.getLevelTileMap().getMapLevel(),
+                        tileLocations, tileWidth));
+
+                levelManager.addSpecialUrbBonusToScore(Urbs.get(urbPos1).getType(), specSpecials.get(0).size() - 1);
+
+                for (int i = 0; i < specSpecials.get(0).size(); i++) {
+                    levelManager.addUrbCounter(Urbs.get(specSpecials.get(0).get(i)).getType(), 1);
+                }
+
+                int size = specSpecials.get(0).size();
+
+                specialFX.add(new SpecialFX(new ArrayList<>(Arrays.asList(
+                        Assets.lightning0, Assets.lightning1)),
+                        Urbs.get(specSpecials.get(0).get(0)).getX(),
+                        Urbs.get(specSpecials.get(0).get(0)).getY(),
+                        Urbs.get(specSpecials.get(0).get(size - 1)).getX(),
+                        Urbs.get(specSpecials.get(0).get(size - 1)).getY(),
+                        80, tileH)
+                );
+
+                Urbs.get(urbPos1).changeBitmapProperties(Assets.vertical_fade, 30, 5, 800, false, true);
+
+                specSpecials.add(gameMethods.findObjectsInRow(Urbs, twoPos, levelManager.getLevelTileMap().getMapLevel(),
+                        tileLocations, tileWidth));
+                levelManager.addSpecialUrbBonusToScore(Urbs.get(urbPos2).getType(), specSpecials.get(1).size() - 1);
+
+                for (int i = 0; i < specSpecials.get(1).size(); i++) {
+                    levelManager.addUrbCounter(Urbs.get(specSpecials.get(1).get(i)).getType(), 1);
+                }
+
+
+                size = specSpecials.get(1).size();
+                specialFX.add(new SpecialFX(new ArrayList<>(Arrays.asList(
+                        Assets.lightning0, Assets.lightning1)),
+                        Urbs.get(specSpecials.get(1).get(0)).getX(),
+                        Urbs.get(specSpecials.get(1).get(0)).getY(),
+                        Urbs.get(specSpecials.get(1).get(size - 1)).getX(),
+                        Urbs.get(specSpecials.get(1).get(size - 1)).getY(),
+                        80, tileH)
+                );
+
+                Urbs.get(urbPos2).changeBitmapProperties(Assets.horizontal_fade, 30, 5, 800, false, true);
+            } else {
+                specSpecials.add(gameMethods.findObjectsInColumn(Urbs, twoPos, levelManager.getLevelTileMap().getMapLevel(),
+                        tileLocations, tileWidth));
+
+                levelManager.addSpecialUrbBonusToScore(Urbs.get(urbPos2).getType(), specSpecials.get(0).size() - 1);
+
+                for (int i = 0; i < specSpecials.get(0).size(); i++) {
+                    levelManager.addUrbCounter(Urbs.get(specSpecials.get(0).get(i)).getType(), 1);
+                }
+
+
+                int size = specSpecials.get(0).size();
+
+                specialFX.add(new SpecialFX(new ArrayList<>(Arrays.asList(
+                        Assets.lightning0, Assets.lightning1)),
+                        Urbs.get(specSpecials.get(0).get(0)).getX(),
+                        Urbs.get(specSpecials.get(0).get(0)).getY(),
+                        Urbs.get(specSpecials.get(0).get(size - 1)).getX(),
+                        Urbs.get(specSpecials.get(0).get(size - 1)).getY(),
+                        80, tileH)
+                );
+
+                Urbs.get(urbPos2).changeBitmapProperties(Assets.horizontal_fade, 30, 5, 800, false, true);
+                //============================================================================
+
+                specSpecials.add(gameMethods.findObjectsInRow(Urbs, onePos, levelManager.getLevelTileMap().getMapLevel(),
+                        tileLocations, tileWidth));
+
+                levelManager.addSpecialUrbBonusToScore(Urbs.get(urbPos1).getType(), specSpecials.get(1).size() - 1);
+
+                for (int i = 0; i < specSpecials.get(1).size(); i++) {
+                    levelManager.addUrbCounter(Urbs.get(specSpecials.get(1).get(i)).getType(), 1);
+                }
+
+
+                size = specSpecials.get(1).size();
+                specialFX.add(new SpecialFX(new ArrayList<>(Arrays.asList(
+                        Assets.lightning0, Assets.lightning1)),
+                        Urbs.get(specSpecials.get(1).get(0)).getX(),
+                        Urbs.get(specSpecials.get(1).get(0)).getY(),
+                        Urbs.get(specSpecials.get(1).get(size - 1)).getX(),
+                        Urbs.get(specSpecials.get(1).get(size - 1)).getY(),
+                        80, tileH)
+                );
+
+                Urbs.get(urbPos1).changeBitmapProperties(Assets.vertical_fade, 30, 5, 800, false, true);
+            }
+        }
+
+        if (!specSpecials.isEmpty()) {
+            for (int i = 0; i < specSpecials.size(); i++) {
+                for (int j = 0; j < specSpecials.get(i).size(); j++) {
+                    userMatchOne.add(gameMethods.findMapLocationOfBitmap(tileLocations, Urbs, specSpecials.get(i).get(j)));
+                }
+            }
+        }
+
+        gameMethods.uniqueArrayIntegerList(userMatchOne);
+        Collections.sort(userMatchOne, reverseOrder());
+
+        //identify if matches are next to any obstacles
+       /* */
+
+        objectsToMoveDown();
+        if (levelManager.isWood() || levelManager.isCement()) {
+            findDamagedObstacles(obstacleTiles);
+        }
+        if (!objectsToMoveDown.isEmpty()) {
+            for (int i = 0; i < objectsToMoveDown.size(); i++) {
+                urbsToMoveDown.add(gameMethods.findBitmapByMapLocation(Urbs, tileLocations, objectsToMoveDown.get(i)));
+            }
+        }
+
+        for (int i = 0; i < userMatchOne.size(); i++) {
+            urbMatchOne.add(gameMethods.findObjectByPosition(userMatchOne.get(i), Urbs));
+        }
+
+        Urbs.get(urbPos1).clearPath();
+        Urbs.get(urbPos2).clearPath();
+
+        setMatchedUrbs();
+
+        placeObjectsOffScreen();
+
+        initialise = 0;
+        pState = Procedure.MATCH;
+    }
+
+
+    private void findDamagedObstacles(ArrayList<Obstacles> obstacles) {
+
+        if (!obstacles.isEmpty()) {
+            int damage;
+
+            for (int i = 0; i < obstacles.size(); i++) {
+                if (obstacles.get(i).getOldStatus() != GLASS) {
+                    damage = gameMethods.isMatchNextToObstacle(obstacles.get(i).getObstacle().getLocation(),
+                            userMatchOne, levelManager.getLevelTileMap().getMapLevel().size(), tileWidth);
+
+                    if (damage != -1) {
+                        switch (obstacles.get(i).getOldStatus()) {
+                            case WOODEN:
+                                if (obstacles.get(i).getDestroyCounter() == 0) {
+                                    obstacles.get(i).getObstacle().changeBitmapProperties(Assets.wood_break_anim, 30, 7, 4000, false, true);
+                                } else if (obstacles.get(i).getDestroyCounter() == 1) {
+                                    obstacles.get(i).getObstacle().changeBitmapProperties(Assets.wood_25, 20, 1, 2000, true, true);
+                                }
+                                break;
+                            case CEMENT:
+                                if (obstacles.get(i).getDestroyCounter() == 0) {
+                                    obstacles.get(i).getObstacle().changeBitmapProperties(Assets.cement_break_anim, 30, 6, 4000, false, true);
+                                } else if (obstacles.get(i).getDestroyCounter() == 1) {
+                                    obstacles.get(i).getObstacle().changeBitmapProperties(Assets.cement_25, 20, 1, 2000, true, true);
+                                } else if (obstacles.get(i).getDestroyCounter() == 2) {
+                                    obstacles.get(i).getObstacle().changeBitmapProperties(Assets.cement_50, 20, 1, 2000, true, true);
+                                } else if (obstacles.get(i).getDestroyCounter() == 3) {
+                                    obstacles.get(i).getObstacle().changeBitmapProperties(Assets.cement_75, 20, 1, 2000, true, true);
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    private void clearDamagedObstacle(ArrayList<Obstacles> obstacles) {
+        if (!obstacles.isEmpty()) {
+            for (int i = obstacles.size() - 1; i >= 0; i--) {
+
+                //has already been accounted for and is awaiting deletion
+                if (obstacles.get(i).getStatus() == NONE && obstacles.get(i).getObstacle().animFinished()) {
+                    switch (obstacles.get(i).getOldStatus()) {
+                        case GLASS:
+                            levelManager.addToGlassCounter();
+                            break;
+                        case CEMENT:
+                            levelManager.addToCementCounter();
+                            break;
+                        case WOODEN:
+                            levelManager.addToWoodenCounter();
+                            break;
+                    }
+                    obstacles.remove(i);
+                }
+            }
+        }
+    }
+
+
+    /***********************************************************************************************
+     Given an array which holds the map element of the empty tiles, merge the elements and position
+     into the arrays which will be used to move elements down
+     ***********************************************************************************************/
+    private void addEmptyTilesAfterBrokenObstacleRemoved(ArrayList<Integer> elementsToAdd) {
+
+        if (elementsToAdd.size() > 1) {
+            //make sure empty tile array starts at the highest element
+            Collections.sort(elementsToAdd, Collections.<Integer>reverseOrder());
+        }
+
+        if (!futurePositions.isEmpty()) {
+            futurePositions.addAll(elementsToAdd);
+
+            //make sure array starts at the highest element
+            Collections.sort(futurePositions, Collections.<Integer>reverseOrder());
+
+            for (int i = 1; i < futurePositions.size(); i++) {
+                int key = futurePositions.get(i);
+                int j = i - 1;
+
+                while (j >= 0 && (futurePositions.get(j).compareTo(key)) < 0) {
+                    futurePositions.set(j + 1, futurePositions.get(j));
+                    j--;
+                }
+                futurePositions.set(j + 1, key);
+            }
+        }
+
+        if (!futureCoordinates.isEmpty()) {
+            for (int i = 0; i < elementsToAdd.size(); i++) {
+                int index = futurePositions.indexOf(elementsToAdd.get(i));
+                futureCoordinates.add(index, tileLocations.get(elementsToAdd.get(i)));
+            }
+        }
+    }
+
+
+    private void setDoubleHorizontalStripedUrbs(int urbPos1, int onePos, int urbPos2, int twoPos) {
+        int size;
+
+        specSpecials.add(gameMethods.findObjectsInRow(Urbs, onePos, levelManager.getLevelTileMap().getMapLevel(),
+                tileLocations, tileWidth));
+
+        levelManager.addSpecialUrbBonusToScore(Urbs.get(urbPos1).getType(), specSpecials.get(0).size() - 1);
+
+        for (int i = 0; i < specSpecials.get(0).size(); i++) {
+            levelManager.addUrbCounter(Urbs.get(specSpecials.get(0).get(i)).getType(), 1);
+        }
+
+
+        size = specSpecials.get(0).size();
+        specialFX.add(new SpecialFX(new ArrayList<>(Arrays.asList(
+                Assets.lightning0, Assets.lightning1)),
+                Urbs.get(specSpecials.get(0).get(0)).getX(),
+                Urbs.get(specSpecials.get(0).get(0)).getY(),
+                Urbs.get(specSpecials.get(0).get(size - 1)).getX(),
+                Urbs.get(specSpecials.get(0).get(size - 1)).getY(),
+                80, tileH)
+        );
+        Urbs.get(urbPos1).changeBitmapProperties(Assets.horizontal_fade, 30, 5, 800, false, true);
+
+        specSpecials.add(gameMethods.findObjectsInRow(Urbs, twoPos, levelManager.getLevelTileMap().getMapLevel(),
+                tileLocations, tileWidth));
+
+        levelManager.addSpecialUrbBonusToScore(Urbs.get(urbPos2).getType(), specSpecials.get(1).size() - 1);
+
+        for (int i = 0; i < specSpecials.get(1).size(); i++) {
+            levelManager.addUrbCounter(Urbs.get(specSpecials.get(1).get(i)).getType(), 1);
+        }
+
+        size = specSpecials.get(1).size();
+        specialFX.add(new SpecialFX(new ArrayList<>(Arrays.asList(
+                Assets.lightning0, Assets.lightning1)),
+                Urbs.get(specSpecials.get(1).get(0)).getX(),
+                Urbs.get(specSpecials.get(1).get(0)).getY(),
+                Urbs.get(specSpecials.get(1).get(size - 1)).getX(),
+                Urbs.get(specSpecials.get(1).get(size - 1)).getY(),
+                80, tileH)
+        );
+        Urbs.get(urbPos2).changeBitmapProperties(Assets.horizontal_fade, 30, 5, 800, false, true);
+
+        if (!specSpecials.isEmpty()) {
+            for (int i = 0; i < specSpecials.size(); i++) {
+                for (int j = 0; j < specSpecials.get(i).size(); j++) {
+                    userMatchOne.add(gameMethods.findMapLocationOfBitmap(tileLocations, Urbs, specSpecials.get(i).get(j)));
+                }
+            }
+        }
+
+        gameMethods.uniqueArrayIntegerList(userMatchOne);
+        Collections.sort(userMatchOne, reverseOrder());
+
+        //identify if matches are next to any obstacles
+        /**/
+
+        objectsToMoveDown();
+        if (levelManager.isWood() || levelManager.isCement()) {
+            findDamagedObstacles(obstacleTiles);
+        }
+        if (!objectsToMoveDown.isEmpty()) {
+            for (int i = 0; i < objectsToMoveDown.size(); i++) {
+                urbsToMoveDown.add(gameMethods.findBitmapByMapLocation(Urbs, tileLocations, objectsToMoveDown.get(i)));
+            }
+        }
+
+        for (int i = 0; i < userMatchOne.size(); i++) {
+            urbMatchOne.add(gameMethods.findObjectByPosition(userMatchOne.get(i), Urbs));
+        }
+
+        Urbs.get(urbPos1).clearPath();
+        Urbs.get(urbPos2).clearPath();
+
+        setMatchedUrbs();
+
+        placeObjectsOffScreen();
+
+        initialise = 0;
+        pState = Procedure.MATCH;
+    }
+
+
+    private void setDoubleVerticalStripedUrbs(int urbPos1, int onePos, int urbPos2, int twoPos) {
+        specSpecials.add(gameMethods.findObjectsInColumn(Urbs, onePos, levelManager.getLevelTileMap().getMapLevel(),
+                tileLocations, tileWidth));
+
+        levelManager.addSpecialUrbBonusToScore(Urbs.get(urbPos1).getType(), specSpecials.get(0).size() - 1);
+
+        for (int i = 0; i < specSpecials.get(0).size(); i++) {
+            levelManager.addUrbCounter(Urbs.get(specSpecials.get(0).get(i)).getType(), 1);
+        }
+
+        int size = specSpecials.get(0).size();
+
+        specialFX.add(new SpecialFX(new ArrayList<>(Arrays.asList(
+                Assets.lightning0, Assets.lightning1)),
+                Urbs.get(specSpecials.get(0).get(0)).getX(),
+                Urbs.get(specSpecials.get(0).get(0)).getY(),
+                Urbs.get(specSpecials.get(0).get(size - 1)).getX(),
+                Urbs.get(specSpecials.get(0).get(size - 1)).getY(),
+                80, tileH)
+        );
+
+        Urbs.get(urbPos1).changeBitmapProperties(Assets.vertical_fade, 30, 5, 800, false, true);
+
+        specSpecials.add(gameMethods.findObjectsInColumn(Urbs, twoPos, levelManager.getLevelTileMap().getMapLevel(),
+                tileLocations, tileWidth));
+
+        levelManager.addSpecialUrbBonusToScore(Urbs.get(urbPos2).getType(), specSpecials.get(1).size() - 1);
+        for (int i = 0; i < specSpecials.get(1).size(); i++) {
+            levelManager.addUrbCounter(Urbs.get(specSpecials.get(1).get(i)).getType(), 1);
+        }
+        size = specSpecials.get(1).size();
+
+        specialFX.add(new SpecialFX(new ArrayList<>(Arrays.asList(
+                Assets.lightning0, Assets.lightning1)),
+                Urbs.get(specSpecials.get(1).get(0)).getX(),
+                Urbs.get(specSpecials.get(1).get(0)).getY(),
+                Urbs.get(specSpecials.get(1).get(size - 1)).getX(),
+                Urbs.get(specSpecials.get(1).get(size - 1)).getY(),
+                80, tileH)
+        );
+
+        Urbs.get(urbPos2).changeBitmapProperties(Assets.vertical_fade, 30, 5, 800, false, true);
+
+        if (!specSpecials.isEmpty()) {
+            for (int i = 0; i < specSpecials.size(); i++) {
+                for (int j = 0; j < specSpecials.get(i).size(); j++) {
+                    userMatchOne.add(gameMethods.findMapLocationOfBitmap(tileLocations, Urbs, specSpecials.get(i).get(j)));
+                }
+            }
+        }
+
+        gameMethods.uniqueArrayIntegerList(userMatchOne);
+        Collections.sort(userMatchOne, reverseOrder());
+
+        //identify if matches are next to any obstacles
+        /**/
+
+        objectsToMoveDown();
+        if (levelManager.isWood() || levelManager.isCement()) {
+            findDamagedObstacles(obstacleTiles);
+        }
+        if (!objectsToMoveDown.isEmpty()) {
+            for (int i = 0; i < objectsToMoveDown.size(); i++) {
+                urbsToMoveDown.add(gameMethods.findBitmapByMapLocation(Urbs, tileLocations, objectsToMoveDown.get(i)));
+            }
+        }
+
+        for (int i = 0; i < userMatchOne.size(); i++) {
+            urbMatchOne.add(gameMethods.findObjectByPosition(userMatchOne.get(i), Urbs));
+        }
+
+        Urbs.get(urbPos1).clearPath();
+        Urbs.get(urbPos2).clearPath();
+
+        setMatchedUrbs();
+
+        placeObjectsOffScreen();
+
+        initialise = 0;
+        pState = Procedure.MATCH;
+    }
+
 }
 

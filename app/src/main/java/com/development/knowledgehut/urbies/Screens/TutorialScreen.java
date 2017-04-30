@@ -250,7 +250,7 @@ public class TutorialScreen extends Screen {
                             fps, frames, duration, true, Urbies.UrbieType.GIRL_NERD, valid.get(i), true, NONE, Urbies.VisibilityStatus.VISIBLE, true));
                     break;
                 case 80:
-                    objects.add(new UrbieAnimation(Assets.chameleon, new Point(tileLocations.get(valid.get(i)).x, tileLocations.get(valid.get(i)).y),
+                    objects.add(new UrbieAnimation(Assets.whiteChocolate, new Point(tileLocations.get(valid.get(i)).x, tileLocations.get(valid.get(i)).y),
                             fps, frames, duration, true, Urbies.UrbieType.WHITE_CHOCOLATE, valid.get(i), true, NONE, Urbies.VisibilityStatus.VISIBLE, true));
                     break;
             }

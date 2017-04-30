@@ -109,7 +109,7 @@ public class LevelManager {
             case 7:
             case 8:
             case 9:
-            case 10: total = 5; break;
+            case 10: total = 7; break; //5
             case 2:
             case 5:
             case 6:
@@ -394,7 +394,7 @@ public class LevelManager {
         score = score + (matchSize * 50);
 
         switch(type){
-            case MAGICIAN:
+            case GOBSTOPPER:
             case STRIPE_HORIZONTAL:
             case STRIPE_VERTICAL:
             case WHITE_CHOCOLATE:
