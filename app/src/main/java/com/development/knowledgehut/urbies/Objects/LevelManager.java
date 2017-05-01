@@ -104,7 +104,6 @@ public class LevelManager {
             case -3:
             case -4:
             case 1:
-            case 2:
             case 3:
             case 4:
             case 7:
@@ -112,6 +111,7 @@ public class LevelManager {
             case 9:
             case 10: total = 5; break; //5
 
+            case 2:
             case 5:
             case 6:
             case 11:

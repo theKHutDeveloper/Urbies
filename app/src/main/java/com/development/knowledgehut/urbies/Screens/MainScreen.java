@@ -125,7 +125,7 @@ public class MainScreen extends Screen {
         validTiles = baseTiles.getValidTileLocations();
         tileH = baseTiles.getIndividualTileWidth();
 
-        if (Urbies.level == 2) {
+        if (Urbies.level == 100) {
             Urbs = fakeUrbies(Urbs, validTiles, validTiles.size(), 10, 5);
             matchState = MatchState.AUTO;
             pState = Procedure.CHECK;
@@ -584,13 +584,13 @@ public class MainScreen extends Screen {
 
                         matchFoundations();
 
-                        break;
+                    break;
 
                     case MATCH:
 
                         matchRoutine();
 
-                        break;
+                    break;
 
 
                     case REPLACE_OBJECTS:
@@ -599,7 +599,7 @@ public class MainScreen extends Screen {
                         matchState = MatchState.AUTO;
                         pState = Procedure.CHECK;
 
-                        break;
+                    break;
                 }
                 break;
 
@@ -648,8 +648,6 @@ public class MainScreen extends Screen {
                                                 Urbs.get(userClicksUrb).getType() != Urbies.UrbieType.GOBSTOPPER) {
 
                                             specials = gameMethods.findMatchingObjectTypes(Urbs, userClicksUrb);
-                                            System.out.println("userClickUrb = "+userClicksUrb);
-                                            System.out.println(Urbs.get(userClicksUrb).getType());
 
                                             for (int i = 0; i < specials.size(); i++) {
                                                 gobstopperSelect.add(
@@ -666,8 +664,6 @@ public class MainScreen extends Screen {
                                         allowSpecialUserInput = true;
                                         setSpecialPhase = 1;
                                     }
-
-                                    //allowSpecialUserInput = true;
 
                                     break;
 
@@ -1431,9 +1427,8 @@ public class MainScreen extends Screen {
             int event_action = event.getAction();
             switch (event_action) {
                 case MotionEvent.ACTION_UP:
-                    System.out.println("END");
-                    allowSpecialUserInput = false;
 
+                    allowSpecialUserInput = false;
 
                     //take a course of action depending on whether the magic happens with a basic urb
                     //or with a special object
@@ -1442,7 +1437,6 @@ public class MainScreen extends Screen {
                         for (int j = 0; j < specials.size(); j++) {
                             changeToSpecialUrb(specials.get(j), Urbs, userSwapType);
                         }
-
                     }
                     else {
 
@@ -1489,8 +1483,7 @@ public class MainScreen extends Screen {
                         notInPlay.addAll(matchesOffScreen);
                         matchesOffScreen.clear();
                     }
-
-                    break;
+                break;
             }
         }
     }
@@ -1571,7 +1564,7 @@ public class MainScreen extends Screen {
 
             switch (event_action) {
                 case MotionEvent.ACTION_DOWN:
-                    System.out.println("GOBSTOPPER");
+
                     startRotateAvailableUrbs = false;
 
                     specials = gameMethods.getMatchingObjectsByType(Urbs, userClicksUrbType);
@@ -1685,7 +1678,7 @@ public class MainScreen extends Screen {
     private List<UrbieAnimation> fakeUrbies(List<UrbieAnimation> objects, ArrayList<Integer> valid, int size, int fps, int frames) {
         ArrayList<Integer> values = new ArrayList<>();
 
-        if (Urbies.level == 2) {
+        if (Urbies.level == 100) {
             Collections.addAll(values,
                        2, 5, 4,
                     1, 5, 1, 2, 6,
@@ -2438,12 +2431,10 @@ public class MainScreen extends Screen {
             if (type1 == Urbies.UrbieType.GOBSTOPPER) {
                 specialUrbUserObject = urbPos1;
                 userClicksUrb = urbPos2;
-                //userClicksUrbType = Urbs.get(userClicksUrb).getType();
                 userSwapType = type2;
             } else {
                 specialUrbUserObject = urbPos2;
                 userClicksUrb = urbPos1;
-                //userClicksUrbType = Urbs.get(userClicksUrb).getType();
                 userSwapType = type1;
             }
             setGobstopperAndOther(userClicksUrb);
