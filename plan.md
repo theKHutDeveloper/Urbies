@@ -15,7 +15,10 @@ Double Gobstopper - Correct
 Chocolate & Vertical - Correct
 Chocolate & Horizontal - Correct
 Horizontal & Vertical - Correct
-Gobstopper & Horizontal - 
-Gobstopper & Vertical -
-Gobstopper & Chocolate - 
-3 of the same special objects in a row - Correct
+Gobstopper & Horizontal - Correct
+Gobstopper & Vertical - Correct
+Gobstopper & Chocolate - Correct 
+3 of the same special objects in a row (this can not be swapped it has to happen automatically) - Correct
+
+Make sure that shuffle method works when in obstacles levels.
+Make sure special objects work when in obstacle levels

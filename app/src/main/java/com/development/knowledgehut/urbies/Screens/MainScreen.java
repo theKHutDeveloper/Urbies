@@ -1689,7 +1689,7 @@ public class MainScreen extends Screen {
             Collections.addAll(values,
                        2, 5, 4,
                     1, 5, 1, 2, 6,
-                   11, 1, 5, 1, 2,
+                   11, 13, 5, 1, 2,
                     2, 5, 3, 4, 1,
                        4, 2, 6);
             urbTypesInLevel.add(Urbies.UrbieType.BABY);
@@ -2438,10 +2438,12 @@ public class MainScreen extends Screen {
             if (type1 == Urbies.UrbieType.GOBSTOPPER) {
                 specialUrbUserObject = urbPos1;
                 userClicksUrb = urbPos2;
+                //userClicksUrbType = Urbs.get(userClicksUrb).getType();
                 userSwapType = type2;
             } else {
                 specialUrbUserObject = urbPos2;
                 userClicksUrb = urbPos1;
+                //userClicksUrbType = Urbs.get(userClicksUrb).getType();
                 userSwapType = type1;
             }
             setGobstopperAndOther(userClicksUrb);
@@ -2519,34 +2521,42 @@ public class MainScreen extends Screen {
                     case PAC:
                         Urbs.get(urbTemp).setBitmap(Assets.pac);
                         bmpSelected = Assets.pac;
+                        userClicksUrbType = Urbies.UrbieType.PAC;
                         break;
                     case PIGTAILS:
                         Urbs.get(urbTemp).setBitmap(Assets.pigtails);
                         bmpSelected = Assets.pigtails;
+                        userClicksUrbType = Urbies.UrbieType.PIGTAILS;
                         break;
                     case PUNK:
                         Urbs.get(urbTemp).setBitmap(Assets.punk);
                         bmpSelected = Assets.punk;
+                        userClicksUrbType = Urbies.UrbieType.PUNK;
                         break;
                     case ROCKER:
                         Urbs.get(urbTemp).setBitmap(Assets.rocker);
                         bmpSelected = Assets.rocker;
+                        userClicksUrbType = Urbies.UrbieType.ROCKER;
                         break;
                     case NERD:
                         Urbs.get(urbTemp).setBitmap(Assets.nerd);
                         bmpSelected = Assets.nerd;
+                        userClicksUrbType = Urbies.UrbieType.NERD;
                         break;
                     case GIRL_NERD:
                         Urbs.get(urbTemp).setBitmap(Assets.nerd_girl);
                         bmpSelected = Assets.nerd_girl;
+                        userClicksUrbType = Urbies.UrbieType.GIRL_NERD;
                         break;
                     case BABY:
                         Urbs.get(urbTemp).setBitmap(Assets.baby);
                         bmpSelected = Assets.baby;
+                        userClicksUrbType = Urbies.UrbieType.BABY;
                         break;
                     case LADY:
                         Urbs.get(urbTemp).setBitmap(Assets.lady);
                         bmpSelected = Assets.lady;
+                        userClicksUrbType = Urbies.UrbieType.LADY;
                         break;
                 }
                 startRotateTimer = System.currentTimeMillis();
