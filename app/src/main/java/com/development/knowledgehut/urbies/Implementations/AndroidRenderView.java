@@ -34,6 +34,13 @@ public class AndroidRenderView extends SurfaceView implements Runnable {
 
     SimpleOnGestureListener gestureListener = new SimpleOnGestureListener(){
         @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            //return super.onSingleTapUp(e);
+            game.getCurrentScreen().onStandardTouch(e);
+            return true;
+        }
+
+        @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY){
             game.getCurrentScreen().doFlingEvent(e1, e2);
             return true;
@@ -44,6 +51,7 @@ public class AndroidRenderView extends SurfaceView implements Runnable {
             game.getCurrentScreen().input(e);
             return true;
         }
+
     };
 
 

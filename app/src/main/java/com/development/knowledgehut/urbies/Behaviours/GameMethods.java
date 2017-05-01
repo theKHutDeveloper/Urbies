@@ -209,6 +209,7 @@ public class GameMethods {
                 returnedList.add(i);
             }
         }
+        System.out.println("matching urbs = "+returnedList);
         return returnedList;
     }
 
