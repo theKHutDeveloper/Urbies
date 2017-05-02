@@ -828,6 +828,9 @@ public class GameMethods {
         ArrayList<Integer> emptyTiles;
         ArrayList<Integer> availableTiles = new ArrayList<>();
 
+        //TODO: Should I reference the entrance in separateTheMadness? which identifies if new objects
+        //TODO: need to be passed thru an entrance point?
+        
         if (!obstacles.isEmpty()) {
             for (int i = 0; i < obstacles.size(); i++) {
                 if (!obstacles.get(i).isVisible() && obstacles.get(i).getDestroyCounter() > 0) {
