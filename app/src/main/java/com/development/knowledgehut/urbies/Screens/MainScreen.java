@@ -125,12 +125,24 @@ public class MainScreen extends Screen {
         validTiles = baseTiles.getValidTileLocations();
         tileH = baseTiles.getIndividualTileWidth();
 
-        if (Urbies.level == 100) {
+        if (Urbies.level == 11) {
             Urbs = fakeUrbies(Urbs, validTiles, validTiles.size(), 10, 5);
-            matchState = MatchState.AUTO;
-            pState = Procedure.CHECK;
-            levelManager.startTimer();
-        } else {
+            ArrayList<Integer> locations = new ArrayList<>(levelManager.obstacleTileLocation());
+            for (int i = 0; i < locations.size(); i++) {
+                int pos = gameMethods.findBitmapByMapLocation(Urbs, tileLocations, locations.get(i));
+                obstacleTiles.add(new Obstacles(
+                        new BitmapAnimation(Assets.cement_100, new Point(Urbs.get(pos).getX(), Urbs.get(pos).getY()), 20, 1, 2000, true, locations.get(i), true),
+                        Urbies.UrbieStatus.CEMENT, Urbies.VisibilityStatus.INVISIBLE)
+                );
+                Urbs.get(pos).setStatus(Urbies.UrbieStatus.CEMENT);
+                Urbs.get(pos).setVisible(Urbies.VisibilityStatus.INVISIBLE);
+                matchState = MatchState.AUTO;
+                pState = Procedure.CHECK;
+                levelManager.startTimer();
+            }
+        }
+
+        else {
 
             randomUrbsPlayingInLevel(levelManager.getUrbsInLevel());
             Urbs = createUrbies(Urbs, validTiles, validTiles.size(), 10, 5);
@@ -817,14 +829,16 @@ public class MainScreen extends Screen {
 
                                     Collections.sort(userMatchOne, reverseOrder());
 
-
                                     objectsToMoveDown();
 
-                                    /*if (levelManager.isWood() || levelManager.isCement()) {
+                                    if (levelManager.isWood() || levelManager.isCement()) {
                                         findDamagedObstacles(obstacleTiles);
                                     }
-                                    clearDamagedObstacle(obstacleTiles);
-*/
+
+                                    if (levelManager.isWood() || levelManager.isCement() || levelManager.isGlass()) {
+                                        clearDamagedObstacle(obstacleTiles);
+                                    }
+
                                     /*if (!updateMoveDownElements.isEmpty()) {
                                         addEmptyTilesAfterBrokenObstacleRemoved(updateMoveDownElements);
                                     }*/
@@ -923,7 +937,7 @@ public class MainScreen extends Screen {
                                 Urbs.get(urbMatchOne.get(i)).clearPath();
                                 Urbs.get(urbMatchOne.get(i)).resetCounter();
                             }
-                            clearDamagedObstacle(obstacleTiles);
+                            //clearDamagedObstacle(obstacleTiles);
 
                             initialise = 0;
                             pState = Procedure.REPLACE_OBJECTS;
@@ -1086,6 +1100,14 @@ public class MainScreen extends Screen {
         for (int i = 0; i < Urbs.size(); i++) {
             if (Urbs.get(i).getStatus() != NONE) {
                 Urbs.get(i).draw(graphics);
+            }
+        }
+
+        if (levelManager.isGlass() || levelManager.isWood() || levelManager.isCement()) {
+            if (!obstacleTiles.isEmpty()) {
+                for (int i = 0; i < obstacleTiles.size(); i++) {
+                    obstacleTiles.get(i).getObstacle().draw(graphics);
+                }
             }
         }
 
@@ -1678,6 +1700,21 @@ public class MainScreen extends Screen {
     private List<UrbieAnimation> fakeUrbies(List<UrbieAnimation> objects, ArrayList<Integer> valid, int size, int fps, int frames) {
         ArrayList<Integer> values = new ArrayList<>();
 
+        if (Urbies.level == 11) {
+            Collections.addAll(values,
+                    1, 2, 5, 4, 1,
+                    1, 5, 1, 2, 6,
+                    5, 1, 5, 1, 2,
+                    2, 5, 3, 4, 1,
+                    1, 2, 2, 1, 1,
+                    2, 3, 6, 5, 6);
+            urbTypesInLevel.add(Urbies.UrbieType.BABY);
+            urbTypesInLevel.add(Urbies.UrbieType.PAC);
+            urbTypesInLevel.add(Urbies.UrbieType.NERD);
+            urbTypesInLevel.add(Urbies.UrbieType.PIGTAILS);
+            urbTypesInLevel.add(Urbies.UrbieType.ROCKER);
+        }
+
         if (Urbies.level == 100) {
             Collections.addAll(values,
                        2, 5, 4,
@@ -1794,6 +1831,14 @@ public class MainScreen extends Screen {
 
         objectsToMoveDown();
 
+        if (levelManager.isWood() || levelManager.isCement()) {
+            findDamagedObstacles(obstacleTiles);
+        }
+
+        if (levelManager.isWood() || levelManager.isCement() || levelManager.isGlass()) {
+            clearDamagedObstacle(obstacleTiles);
+        }
+
         System.out.println("urbsToMoveDown = " + urbsToMoveDown);
 
         for (int i = 0; i < userMatchOne.size(); i++) {
@@ -1888,6 +1933,23 @@ public class MainScreen extends Screen {
                 pState = Procedure.REPLACE_OBJECTS;
             } else {
                 System.out.println("UserMatchOne = " + userMatchOne);
+
+                //get urbs that are off screen and store their position in array
+                //for use further down
+                if(urbMatchOne.size() < creators.size()){
+                    urbMatchOne.clear();
+                    int count = 0;
+                    for(int i = 0; i < Urbs.size(); i++){
+                        if(Urbs.get(i).getPosition().y < 0){
+                            urbMatchOne.add(i);
+                            count++;
+                            if(count == creators.size()){
+                                break;
+                            }
+                        }
+                    }
+
+                }
 
 
                 for (int i = 0; i < creators.size(); i++) {
@@ -2598,6 +2660,14 @@ public class MainScreen extends Screen {
 
             objectsToMoveDown();
 
+            if (levelManager.isWood() || levelManager.isCement()) {
+                findDamagedObstacles(obstacleTiles);
+            }
+
+            if (levelManager.isWood() || levelManager.isCement() || levelManager.isGlass()) {
+                clearDamagedObstacle(obstacleTiles);
+            }
+
             /*if (levelManager.isWood() || levelManager.isCement()) {
                 findDamagedObstacles(obstacleTiles);
             }
@@ -2670,6 +2740,13 @@ public class MainScreen extends Screen {
 
             objectsToMoveDown();
 
+            if (levelManager.isWood() || levelManager.isCement()) {
+                findDamagedObstacles(obstacleTiles);
+            }
+
+            if (levelManager.isWood() || levelManager.isCement() || levelManager.isGlass()) {
+                clearDamagedObstacle(obstacleTiles);
+            }
             /*if (levelManager.isWood() || levelManager.isCement()) {
                 findDamagedObstacles(obstacleTiles);
             }*/
@@ -2704,6 +2781,14 @@ public class MainScreen extends Screen {
         userMatchOne.add(pos2);
 
         objectsToMoveDown();
+
+        if (levelManager.isWood() || levelManager.isCement()) {
+            findDamagedObstacles(obstacleTiles);
+        }
+
+        if (levelManager.isWood() || levelManager.isCement() || levelManager.isGlass()) {
+            clearDamagedObstacle(obstacleTiles);
+        }
 
         /*if (levelManager.isWood() || levelManager.isCement()) {
             findDamagedObstacles(obstacleTiles);
@@ -2775,6 +2860,13 @@ public class MainScreen extends Screen {
 
             objectsToMoveDown();
 
+            if (levelManager.isWood() || levelManager.isCement()) {
+                findDamagedObstacles(obstacleTiles);
+            }
+
+            if (levelManager.isWood() || levelManager.isCement() || levelManager.isGlass()) {
+                clearDamagedObstacle(obstacleTiles);
+            }
             /*if (levelManager.isWood() || levelManager.isCement()) {
                 findDamagedObstacles(obstacleTiles);
             }*/
@@ -2907,9 +2999,13 @@ public class MainScreen extends Screen {
 
         objectsToMoveDown();
 
-        /*if (levelManager.isWood() || levelManager.isCement()) {
+        if (levelManager.isWood() || levelManager.isCement()) {
             findDamagedObstacles(obstacleTiles);
-        }*/
+        }
+
+        if (levelManager.isWood() || levelManager.isCement() || levelManager.isGlass()) {
+            clearDamagedObstacle(obstacleTiles);
+        }
 
         for (int i = 0; i < userMatchOne.size(); i++) {
             urbMatchOne.add(gameMethods.findObjectByPosition(userMatchOne.get(i), Urbs));
@@ -3099,6 +3195,13 @@ public class MainScreen extends Screen {
 
         objectsToMoveDown();
 
+        if (levelManager.isWood() || levelManager.isCement()) {
+            findDamagedObstacles(obstacleTiles);
+        }
+
+        if (levelManager.isWood() || levelManager.isCement() || levelManager.isGlass()) {
+            clearDamagedObstacle(obstacleTiles);
+        }
 
         /*if (levelManager.isWood() || levelManager.isCement()) {
             findDamagedObstacles(obstacleTiles);
@@ -3182,6 +3285,13 @@ public class MainScreen extends Screen {
 
         objectsToMoveDown();
 
+        if (levelManager.isWood() || levelManager.isCement()) {
+            findDamagedObstacles(obstacleTiles);
+        }
+
+        if (levelManager.isWood() || levelManager.isCement() || levelManager.isGlass()) {
+            clearDamagedObstacle(obstacleTiles);
+        }
         /*if (levelManager.isWood() || levelManager.isCement()) {
             findDamagedObstacles(obstacleTiles);
         }*/

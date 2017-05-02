@@ -862,7 +862,6 @@ public class GameMethods {
         }
         else if(availableTiles.size() == matches.size()){
 
-
             for(int i = 0; i < matches.size(); i++) {
                 ObjectPathCreator o = new ObjectPathCreator();
                 o.setElement(matches.get(i));
@@ -883,6 +882,45 @@ public class GameMethods {
         }
         else if(availableTiles.size() > matches.size()){
             System.out.println("The available tiles are > matches size");
+            int count = 0;
+            for(int i = 0; i < matches.size(); i++){
+                if(count < availableTiles.size()) {
+                    ObjectPathCreator o = new ObjectPathCreator();
+                    o.setElement(matches.get(i));
+                    Point pos = tilePos.get(availableTiles.get(count));
+                    int loc = getReverseLocationOfY(tilePos, pos, width);
+                    if (loc != -1) {
+                        o.setPosition(new Point(pos.x, loc));
+                    } else {
+                        o.setPosition(new Point(pos.x, -200));
+                    }
+                    o.addToPath(findLine(o.getPosition().x, o.getPosition().y, pos.x, pos.y));
+                    objectPathCreators.add(o);
+                    count++;
+                }
+            }
+
+            for(int i = 0; i < matchesOffScreen.size(); i++){
+                if(count < availableTiles.size()) {
+                    ObjectPathCreator o = new ObjectPathCreator();
+                    o.setElement(matchesOffScreen.get(i));
+                    Point pos = tilePos.get(availableTiles.get(count));
+
+                    int loc = getReverseLocationOfY(tilePos, pos, width);
+                    //need to amend here -- if cement broken need to follow path so urb does not pass thru other urbs or solid obstacles
+                    if (loc != -1) {
+                        o.setPosition(new Point(pos.x, loc));
+                    } else {
+                        o.setPosition(new Point(pos.x, -200));
+                    }
+
+                    o.addToPath(findLine(o.getPosition().x, o.getPosition().y, pos.x, pos.y));
+                    objectPathCreators.add(o);
+
+                    matches.add(matchesOffScreen.get(i));
+                    count++;
+                }
+            }
         }
 
         return objectPathCreators;
