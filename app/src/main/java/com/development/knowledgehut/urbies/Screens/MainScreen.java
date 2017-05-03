@@ -1120,7 +1120,9 @@ public class MainScreen extends Screen {
 
         for (int i = 0; i < matchedUrbs.size(); i++) {
             if (!effects.isEmpty()) {
-                effects.get(i).draw(graphics);
+                if(i < effects.size()) {
+                    effects.get(i).draw(graphics);
+                }
             }
             matchedUrbs.get(i).draw(graphics);
             if (canBounce) {

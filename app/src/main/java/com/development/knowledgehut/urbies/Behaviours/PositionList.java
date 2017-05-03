@@ -22,7 +22,17 @@ public class PositionList {
         position.add(p);
     }
 
+    public void setPositionAt(Point p, int index){
+        position.add(index, p);
+    }
     public ArrayList<Point> getPosition(){
         return position;
+    }
+
+    public Point getPositionAt(int index){
+        if(index < position.size()){
+            return position.get(index);
+        }
+        return new Point(-1,-1);
     }
 }
