@@ -34,7 +34,7 @@ import static com.development.knowledgehut.urbies.Screens.Urbies.UrbieStatus.GLA
 import static com.development.knowledgehut.urbies.Screens.Urbies.UrbieStatus.NONE;
 import static java.util.Collections.reverseOrder;
 
-public class MainScreen extends Screen {
+class MainScreen extends Screen {
 
     private enum MatchState {
         AUTO, READY, SWAP, RESET_SWAP, USER_MATCH, SHUFFLE, SPECIAL_URBS
@@ -70,7 +70,9 @@ public class MainScreen extends Screen {
     private ArrayList<Integer> futurePositions = new ArrayList<>();
     private ArrayList<BitmapAnimation> effects = new ArrayList<>();
     private ArrayList<Integer> matchesOffScreen = new ArrayList<>();
-    private ArrayList<Integer> updateMoveDownElements = new ArrayList<>();
+    //private ArrayList<Integer> updateMoveDownElements = new ArrayList<>();
+    private ArrayList<Integer>newMoveDownLocations = new ArrayList<>();
+    private ArrayList<Integer>newReplacedLocatons = new ArrayList<>();
     private ArrayList<Integer> entrance = new ArrayList<>();
     private ArrayList<Integer> possibleMatches = new ArrayList<>();
     private ArrayList<Integer> urbPossibleMatches = new ArrayList<>();
@@ -188,6 +190,10 @@ public class MainScreen extends Screen {
         }
         loadGameText();
         loadGui();
+
+        for(int i = 0; i < tileLocations.size(); i++){
+            System.out.println(tileLocations.get(i));
+        }
     }
 
 
@@ -1919,14 +1925,28 @@ public class MainScreen extends Screen {
 
             if (!urbsToMoveDown.isEmpty()) {
                 for (int i = 0; i < urbsToMoveDown.size(); i++) {
+                    System.out.println("old loc = " +Urbs.get(urbsToMoveDown.get(i)).getLocation());
                     Urbs.get(urbsToMoveDown.get(i)).clearPath();
                     Urbs.get(urbsToMoveDown.get(i)).resetCounter();
+                    Urbs.get(urbsToMoveDown.get(i)).setLocation(newMoveDownLocations.get(i));
+                    System.out.println("new move down location = " +newMoveDownLocations.get(i));
+                }
+
+                for (int i = 0; i < urbsToMoveDown.size(); i++) {
+                    System.out.println("new loc = " +Urbs.get(urbsToMoveDown.get(i)).getLocation());
                 }
             }
             initialise = 4;
         } else if (initialise == 4) {
 
+            matchedUrbs.clear();
+
             ArrayList<ObjectPathCreator> creators = gameMethods.replaceObjects(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen);
+
+            for(int i = 0; i < creators.size(); i++){
+                System.out.println(" " + creators.get(i).getPosition());
+                System.out.println("Urb is going to " + creators.get(i).getFutureElement());
+            }
 
             if (userMatchOne.isEmpty()) {
                 urbMatchOne.clear();
@@ -1938,7 +1958,7 @@ public class MainScreen extends Screen {
 
                 //get urbs that are off screen and store their position in array
                 //for use further down
-                if(urbMatchOne.size() < creators.size()){
+                //if(urbMatchOne.isEmpty()){
                     urbMatchOne.clear();
                     int count = 0;
                     for(int i = 0; i < Urbs.size(); i++){
@@ -1951,7 +1971,7 @@ public class MainScreen extends Screen {
                         }
                     }
 
-                }
+               // }
 
 
                 for (int i = 0; i < creators.size(); i++) {
@@ -1973,6 +1993,10 @@ public class MainScreen extends Screen {
                     Urbs.get(urbMatchOne.get(i)).clearPath();
                     Urbs.get(urbMatchOne.get(i)).resetCounter();
                 }
+            }
+
+            for(int i = 0; i < Urbs.size(); i++){
+                System.out.println("locations after replacement " + Urbs.get(i).getLocation() + ", " + Urbs.get(i).getType());
             }
 
             initialise = 0;
@@ -2010,6 +2034,7 @@ public class MainScreen extends Screen {
             futureCoordinates.clear();
             futurePositions.clear();
             urbsToMoveDown.clear();
+            newMoveDownLocations.clear();
             objectsToMoveDown.clear();
             coordinatesToMoveTo.clear();
             specialUrbs.clear();
@@ -2031,6 +2056,8 @@ public class MainScreen extends Screen {
         for (int i = 0; i < creators.size(); i++) {
             objectsToMoveDown.add(creators.get(i).getElement());
             coordinatesToMoveTo.add(creators.get(i).getPath().get(creators.get(i).getPath().size() - 1));
+            newMoveDownLocations.add(creators.get(i).getFutureElement());
+
             int urbNum = gameMethods.findBitmapByMapLocation(Urbs, tileLocations, creators.get(i).getElement());
             if (urbNum > -1) {
                 Urbs.get(urbNum).setSpritePath(creators.get(i).getPath());
@@ -2039,6 +2066,8 @@ public class MainScreen extends Screen {
         }
 
         System.out.println("objectsToMoveDown = " + objectsToMoveDown);
+        System.out.println("matchesOffScreen = "+matchesOffScreen);
+        System.out.println("newMoveDownLocations = " + newMoveDownLocations);
     }
 
 
@@ -2175,6 +2204,9 @@ public class MainScreen extends Screen {
             }
         }
 
+        for(int i = 0; i < urbieAnimations.size(); i++) {
+            System.out.println(urbieAnimations.get(i).getLocation());
+        }
     }
 
 
@@ -3096,42 +3128,6 @@ public class MainScreen extends Screen {
     }
 
 
-    /***********************************************************************************************
-     Given an array which holds the map element of the empty tiles, merge the elements and position
-     into the arrays which will be used to move elements down
-     ***********************************************************************************************/
-    private void addEmptyTilesAfterBrokenObstacleRemoved(ArrayList<Integer> elementsToAdd) {
-
-        if (elementsToAdd.size() > 1) {
-            //make sure empty tile array starts at the highest element
-            Collections.sort(elementsToAdd, Collections.<Integer>reverseOrder());
-        }
-
-        if (!futurePositions.isEmpty()) {
-            futurePositions.addAll(elementsToAdd);
-
-            //make sure array starts at the highest element
-            Collections.sort(futurePositions, Collections.<Integer>reverseOrder());
-
-            for (int i = 1; i < futurePositions.size(); i++) {
-                int key = futurePositions.get(i);
-                int j = i - 1;
-
-                while (j >= 0 && (futurePositions.get(j).compareTo(key)) < 0) {
-                    futurePositions.set(j + 1, futurePositions.get(j));
-                    j--;
-                }
-                futurePositions.set(j + 1, key);
-            }
-        }
-
-        if (!futureCoordinates.isEmpty()) {
-            for (int i = 0; i < elementsToAdd.size(); i++) {
-                int index = futurePositions.indexOf(elementsToAdd.get(i));
-                futureCoordinates.add(index, tileLocations.get(elementsToAdd.get(i)));
-            }
-        }
-    }
 
 
     /********************************************************

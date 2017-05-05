@@ -10,6 +10,7 @@ public class ObjectPathCreator {
     private int element;
     private Point position;
     private ArrayList<Point> paths = new ArrayList<>();
+    private int futureElement;
 
     public void setElement(int element){
         this.element = element;
@@ -32,6 +33,22 @@ public class ObjectPathCreator {
 
     public ArrayList<Point> getPath(){
         return paths;
+    }
+
+    public void setFutureElement(int e){
+        this.futureElement = e;
+    }
+
+    public int getFutureElement(){
+        return this.futureElement;
+    }
+
+    public void print(){
+        System.out.println("element = "+element);
+        System.out.println("positon = " +position );
+        System.out.println("start & end path " + paths.get(0) + ", " + paths.get(paths.size() -1));
+        System.out.println("future location = "+ futureElement);
+
     }
 
 }

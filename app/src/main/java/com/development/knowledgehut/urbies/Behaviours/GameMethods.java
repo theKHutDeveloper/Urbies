@@ -549,7 +549,8 @@ public class GameMethods {
         int found = -1;
 
         for (int i = 0; i < tilePos.size(); i++) {
-            if (tilePos.get(i) == position) {
+
+            if (tilePos.get(i).equals(position)) {
                 found = i;
                 break;
             }
@@ -875,9 +876,15 @@ public class GameMethods {
                     o.setPosition(new Point(pos.x, loc));
                 }
                 else {
-                    o.setPosition(new Point(pos.x, -200)); //-200
+                    o.setPosition(new Point(pos.x, -200));
                 }
                 o.addToPath(findLine(o.getPosition().x, o.getPosition().y, pos.x, pos.y));
+                int futureLoc = findLocationByPosition(pos, tilePos);
+                if(futureLoc != -1) {
+                    o.setFutureElement(futureLoc);
+                }
+                o.print();
+
                 objectPathCreators.add(o);
             }
         }
@@ -886,16 +893,6 @@ public class GameMethods {
         }
         else if(availableTiles.size() > matches.size()){
             System.out.println("The available tiles are > matches size");
-
-            /*if(availableTiles.size() == matches.size() + matchesOffScreen.size()){
-                matches.addAll(matchesOffScreen);
-            }
-            else {
-                int sum = availableTiles.size() - matches.size();
-                for(int i = 0; i < sum; i++){
-                    matches.add(matchesOffScreen.get(i));
-                }
-            }*/
 
             Collections.sort(availableTiles, Collections.<Integer>reverseOrder());
 
@@ -922,7 +919,7 @@ public class GameMethods {
 
                 ObjectPathCreator o = new ObjectPathCreator();
                 o.setElement(positionList.getLocation_id());
-                o.setPosition(new Point(positionList.getPositionAt(positionList.getPosition().size()).x, positionList.getPositionAt(positionList.getPosition().size()).y ));
+                //o.setPosition(new Point(positionList.getPositionAt(positionList.getPosition().size()).x, positionList.getPositionAt(positionList.getPosition().size()).y ));
 
                 int sx = positionList.getPositionAt(0).x;
                 int sy = positionList.getPositionAt(0).y;
@@ -936,50 +933,17 @@ public class GameMethods {
                     sy = positionList.getPosition().get(q).y;
                 }
 
+                o.setPosition(o.getPath().get(o.getPath().size() - 1));
+                int futureLoc = findLocationByPosition(o.getPosition(), tilePos);
+                if(futureLoc != -1) {
+                    o.setFutureElement(futureLoc);
+                }
+                o.print();
                 objectPathCreators.add(o);
 
-                System.out.println(positionList.getPosition());
+
                 reference.set(availableTiles.get(i),availableTiles.get(i));
             }
-            /*int count = 0;
-            for(int i = 0; i < matches.size(); i++){
-                if(count < availableTiles.size()) {
-                    ObjectPathCreator o = new ObjectPathCreator();
-                    o.setElement(matches.get(i));
-                    Point pos = tilePos.get(availableTiles.get(count));
-                    int loc = getReverseLocationOfY(tilePos, pos, width);
-                    if (loc != -1) {
-                        o.setPosition(new Point(pos.x, loc));
-                    } else {
-                        o.setPosition(new Point(pos.x, -200));
-                    }
-                    o.addToPath(findLine(o.getPosition().x, o.getPosition().y, pos.x, pos.y));
-                    objectPathCreators.add(o);
-                    count++;
-                }
-            }
-
-            for(int i = 0; i < matchesOffScreen.size(); i++){
-                if(count < availableTiles.size()) {
-                    ObjectPathCreator o = new ObjectPathCreator();
-                    o.setElement(matchesOffScreen.get(i));
-                    Point pos = tilePos.get(availableTiles.get(count));
-
-                    int loc = getReverseLocationOfY(tilePos, pos, width);
-                    //need to amend here -- if cement broken need to follow path so urb does not pass thru other urbs or solid obstacles
-                    if (loc != -1) {
-                        o.setPosition(new Point(pos.x, loc));
-                    } else {
-                        o.setPosition(new Point(pos.x, -200));
-                    }
-
-                    o.addToPath(findLine(o.getPosition().x, o.getPosition().y, pos.x, pos.y));
-                    objectPathCreators.add(o);
-
-                    matches.add(matchesOffScreen.get(i));
-                    count++;
-                }
-            }*/
         }
 
         return objectPathCreators;
@@ -1114,6 +1078,12 @@ public class GameMethods {
                             sx = positionLists.get(h).getPosition().get(q).x;
                             sy = positionLists.get(h).getPosition().get(q).y;
                         }
+
+                        int futureLoc = findLocationByPosition(opc.getPosition(), tilePos);
+                        System.out.println("futureLoc = "+futureLoc);
+                        if(futureLoc != -1) {
+                            opc.setFutureElement(futureLoc);
+                        }
                         objectPathCreators.add(opc);
                     }
                 }
@@ -1122,9 +1092,10 @@ public class GameMethods {
                 }
 
                 for(int h = 0; h < objectPathCreators.size(); h++){
-                    System.out.println("" + objectPathCreators.get(h).getElement());
-                    System.out.println("" + objectPathCreators.get(h).getPosition());
-                    System.out.println("" + objectPathCreators.get(h).getPath());
+                    System.out.println("Angie " + objectPathCreators.get(h).getElement());
+                    System.out.println("Angie " + objectPathCreators.get(h).getPosition());
+                    System.out.println("Angie " + objectPathCreators.get(h).getPath());
+                    System.out.println("Angie " + objectPathCreators.get(h).getFutureElement());
                 }
 
             } else {
@@ -1169,6 +1140,11 @@ public class GameMethods {
                                 o.setElement(num);
                                 o.setPosition(objects.get(urb_num).getPosition());
                                 o.addToPath(findLine(o.getPosition().x, o.getPosition().y, tempPosition.get(counter).x, tempPosition.get(counter).y));
+
+                                int futureLoc = findLocationByPosition(tempPosition.get(counter), tilePos);
+                                if(futureLoc != -1) {
+                                    o.setFutureElement(futureLoc);
+                                }
                                 downPathCreators.add(o);
                                 int pos = findLocationByPosition(tempPosition.get(counter), tilePos);
                                 Collections.swap(reference, num, pos);
@@ -1177,7 +1153,9 @@ public class GameMethods {
                                 //there is a blockage so add matches element to off-screen,
                                 //it will not drop back down
                                 if (obstacleLocations.contains(num)) {
-                                    matchesOffScreen.add(matches.get(i));
+                                    matchesOffScreen.add(findObjectByPosition(matches.get(i), objects));
+
+                                    //TODO: matchesOffScreen now contain the Urb element instead of the location element
                                     break;
                                 }
                             }

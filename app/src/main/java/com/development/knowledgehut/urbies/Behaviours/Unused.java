@@ -26,6 +26,93 @@ public class Unused {
 
     private GameMethods gameMethods;
 
+    /***********************************************************************************************
+     Given an array which holds the map element of the empty tiles, merge the elements and position
+     into the arrays which will be used to move elements down
+     ***********************************************************************************************/
+    private void addEmptyTilesAfterBrokenObstacleRemoved(ArrayList<Integer> elementsToAdd, ArrayList<Integer>futurePositions, ArrayList<Point>futureCoordinates, ArrayList<Point>tileLocations) {
+
+        if (elementsToAdd.size() > 1) {
+            //make sure empty tile array starts at the highest element
+            Collections.sort(elementsToAdd, Collections.<Integer>reverseOrder());
+        }
+
+        if (!futurePositions.isEmpty()) {
+            futurePositions.addAll(elementsToAdd);
+
+            //make sure array starts at the highest element
+            Collections.sort(futurePositions, Collections.<Integer>reverseOrder());
+
+            for (int i = 1; i < futurePositions.size(); i++) {
+                int key = futurePositions.get(i);
+                int j = i - 1;
+
+                while (j >= 0 && (futurePositions.get(j).compareTo(key)) < 0) {
+                    futurePositions.set(j + 1, futurePositions.get(j));
+                    j--;
+                }
+                futurePositions.set(j + 1, key);
+            }
+        }
+
+        if (!futureCoordinates.isEmpty()) {
+            for (int i = 0; i < elementsToAdd.size(); i++) {
+                int index = futurePositions.indexOf(elementsToAdd.get(i));
+                futureCoordinates.add(index, tileLocations.get(elementsToAdd.get(i)));
+            }
+        }
+    }
+
+    /*if(availableTiles.size() == matches.size() + matchesOffScreen.size()){
+                matches.addAll(matchesOffScreen);
+            }
+            else {
+                int sum = availableTiles.size() - matches.size();
+                for(int i = 0; i < sum; i++){
+                    matches.add(matchesOffScreen.get(i));
+                }
+            }*/
+
+
+     /*int count = 0;
+            for(int i = 0; i < matches.size(); i++){
+                if(count < availableTiles.size()) {
+                    ObjectPathCreator o = new ObjectPathCreator();
+                    o.setElement(matches.get(i));
+                    Point pos = tilePos.get(availableTiles.get(count));
+                    int loc = getReverseLocationOfY(tilePos, pos, width);
+                    if (loc != -1) {
+                        o.setPosition(new Point(pos.x, loc));
+                    } else {
+                        o.setPosition(new Point(pos.x, -200));
+                    }
+                    o.addToPath(findLine(o.getPosition().x, o.getPosition().y, pos.x, pos.y));
+                    objectPathCreators.add(o);
+                    count++;
+                }
+            }
+
+            for(int i = 0; i < matchesOffScreen.size(); i++){
+                if(count < availableTiles.size()) {
+                    ObjectPathCreator o = new ObjectPathCreator();
+                    o.setElement(matchesOffScreen.get(i));
+                    Point pos = tilePos.get(availableTiles.get(count));
+
+                    int loc = getReverseLocationOfY(tilePos, pos, width);
+                    //need to amend here -- if cement broken need to follow path so urb does not pass thru other urbs or solid obstacles
+                    if (loc != -1) {
+                        o.setPosition(new Point(pos.x, loc));
+                    } else {
+                        o.setPosition(new Point(pos.x, -200));
+                    }
+
+                    o.addToPath(findLine(o.getPosition().x, o.getPosition().y, pos.x, pos.y));
+                    objectPathCreators.add(o);
+
+                    matches.add(matchesOffScreen.get(i));
+                    count++;
+                }
+            }*/
 /////////////////////////////////////////////////////////////////
     //If there are any empty tiles and an entrance point then
     //use A-star path finding to evaluate the shortest distance
