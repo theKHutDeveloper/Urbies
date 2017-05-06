@@ -13,7 +13,6 @@ import com.development.knowledgehut.urbies.Screens.Urbies;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -210,7 +209,7 @@ public class GameMethods {
                 returnedList.add(i);
             }
         }
-        System.out.println("matching urbs = "+returnedList);
+
         return returnedList;
     }
 
@@ -454,7 +453,6 @@ public class GameMethods {
             uniqueMatchedDetails(matchedDetails);
         }
 
-        //System.out.println("Automatic Matched Details"+matchedDetails);
         return matchedDetails;
     }
 
@@ -847,9 +845,6 @@ public class GameMethods {
 
         reference = tilesWithoutMatches(objects, tilePos, map, obstacleLocations, glassLocations, emptyTiles);
 
-        System.out.println("Empty tiles = "+emptyTiles);
-        System.out.println("Reference = " +reference);
-
         if(!emptyTiles.isEmpty()) {
             for (int i = 0; i < emptyTiles.size(); i++) {
                 int blockage = isRowBlocked(reference, width);
@@ -1080,7 +1075,7 @@ public class GameMethods {
                         }
 
                         int futureLoc = findLocationByPosition(opc.getPosition(), tilePos);
-                        System.out.println("futureLoc = "+futureLoc);
+
                         if(futureLoc != -1) {
                             opc.setFutureElement(futureLoc);
                         }
@@ -1089,13 +1084,6 @@ public class GameMethods {
                 }
                 if(!positionLists.isEmpty()) {
                     emptyTiles.clear(); //this should be placed somewhere else
-                }
-
-                for(int h = 0; h < objectPathCreators.size(); h++){
-                    System.out.println("Angie " + objectPathCreators.get(h).getElement());
-                    System.out.println("Angie " + objectPathCreators.get(h).getPosition());
-                    System.out.println("Angie " + objectPathCreators.get(h).getPath());
-                    System.out.println("Angie " + objectPathCreators.get(h).getFutureElement());
                 }
 
             } else {
@@ -1477,7 +1465,7 @@ public class GameMethods {
                 reference.add(-5);
             } else reference.add(i);
         }
-        //System.out.println("Reference = " + reference);
+
         return reference;
     }
 
@@ -1499,12 +1487,12 @@ public class GameMethods {
                 reference.add(-4);
             }  else {
                 reference.add(objects.get(findBitmapByMapLocation(objects, tileLoc, i)).getLocation());
-            }//reference.add(i);
+            }
         }
 
-        //System.out.println("Reference w/o matches = " + reference);
         return reference;
     }
+
     /**************************************************************************************************
      returns a list of obstacles that are damaged as a result of the match
      (this does not include obstacles that are at a zero counter
@@ -1563,7 +1551,6 @@ public class GameMethods {
             possible_moves.addAll(tempPlacement);
         }
 
-        //System.out.println("possible moves " + possible_moves);
         return possible_moves;
     }
 
@@ -1589,7 +1576,6 @@ public class GameMethods {
             }
         }
 
-        //System.out.println("chosen " + chosen);
         return chosen;
     }
 
@@ -1666,7 +1652,7 @@ public class GameMethods {
                 }
             }
         }
-        //System.out.println("pairs " + pairs);
+
         return pairs;
     }
 
@@ -1688,7 +1674,6 @@ public class GameMethods {
             }
         }
 
-        //System.out.println("pairs = " + availableMoves);
         return availableMoves;
     }
 
@@ -2526,7 +2511,7 @@ public class GameMethods {
         for (int i = 0; i < matchOfThree.size(); i++) {
             urbMatchOfThree.add(findObjectByPosition(matchOfThree.get(i), objects));
         }
-        //System.out.println("MatchOfThreeObstacles = " + matchOfThree + " UrbMatchOfThree = " + urbMatchOfThree);
+
         return urbMatchOfThree;
     }
 
@@ -2999,10 +2984,6 @@ public class GameMethods {
 
         }
 
-       /* System.out.println("convertArray  ");
-        for (int[] aConvertArray : convertArray) {
-            System.out.println("[" + aConvertArray[0] + "][" + aConvertArray[1] + "]");
-        }*/
         return convertArray;
     }
 
@@ -3158,51 +3139,6 @@ public class GameMethods {
 
 
 
-
-    /*private ArrayList<Integer> irrelevantPositions(int entrance, int width,
-                                                   ArrayList<Integer> obstacleLocations,
-                                                   ArrayList<Integer> glassLocations) {
-
-        ArrayList<Integer> values = new ArrayList<>();
-
-        int x = 0;
-        int y = 0;
-        int loop = 0;
-
-        while (loop < entrance) {
-            values.add(y);
-            values.add(x);
-            x++;
-
-            if (x == width) {
-                x = 0;
-                y++;
-            }
-            loop++;
-        }
-
-        //add the glass/wood/cement obstacle locations also
-        for (int i = 0; i < obstacleLocations.size(); i++) {
-            if (obstacleLocations.get(i) >= entrance) {
-                y = obstacleLocations.get(i) / width;
-                x = obstacleLocations.get(i) % width;
-                values.add(y);
-                values.add(x);
-            }
-        }
-
-        for (int i = 0; i < glassLocations.size(); i++) {
-            if (glassLocations.get(i) >= entrance) {
-                y = glassLocations.get(i) / width;
-                x = glassLocations.get(i) % width;
-                values.add(y);
-                values.add(x);
-            }
-        }
-
-        System.out.println("not Relevant = " + values);
-        return values;
-    }*/
 
 
 

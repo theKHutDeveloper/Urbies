@@ -2664,4 +2664,51 @@ console.log(findShortestPath([0,0], grid));
     }
 
 */
+
+            /*private ArrayList<Integer> irrelevantPositions(int entrance, int width,
+                                                   ArrayList<Integer> obstacleLocations,
+                                                   ArrayList<Integer> glassLocations) {
+
+        ArrayList<Integer> values = new ArrayList<>();
+
+        int x = 0;
+        int y = 0;
+        int loop = 0;
+
+        while (loop < entrance) {
+            values.add(y);
+            values.add(x);
+            x++;
+
+            if (x == width) {
+                x = 0;
+                y++;
+            }
+            loop++;
+        }
+
+        //add the glass/wood/cement obstacle locations also
+        for (int i = 0; i < obstacleLocations.size(); i++) {
+            if (obstacleLocations.get(i) >= entrance) {
+                y = obstacleLocations.get(i) / width;
+                x = obstacleLocations.get(i) % width;
+                values.add(y);
+                values.add(x);
+            }
+        }
+
+        for (int i = 0; i < glassLocations.size(); i++) {
+            if (glassLocations.get(i) >= entrance) {
+                y = glassLocations.get(i) / width;
+                x = glassLocations.get(i) % width;
+                values.add(y);
+                values.add(x);
+            }
+        }
+
+        System.out.println("not Relevant = " + values);
+        return values;
+    }*/
+
+
 }

@@ -59,4 +59,12 @@ public class UrbieAnimation extends BitmapAnimation{
     public boolean getActive(){
         return active;
     }
+
+    public void print(){
+        System.out.println("location = "+ getLocation());
+        System.out.println("type = "+type);
+        System.out.println("visible = "+visible);
+        System.out.println("active = "+active);
+        System.out.println("status = "+status);
+    }
 }

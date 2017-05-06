@@ -26,7 +26,7 @@ public class LevelScreen extends Screen {
         Coordinates coordinates = new Coordinates();
 
         SharedPreferences preferences = game.getFileIO().getPreferences();
-        access_level = preferences.getInt(Assets.ACCESS_LEVEL, 1);
+        access_level = preferences.getInt(Assets.ACCESS_LEVEL, 11);
 
 
         holder = new Images(Assets.holder, new Point(coordinates.getX(5), coordinates.getY(5) + OFFSET_Y));

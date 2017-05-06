@@ -14,14 +14,14 @@ public class LevelManager {
     private int ladyCounter, punkCounter, rockerCounter;
     private int girlNerdCounter, pigTailsCounter, score;
     private int glassCounter, woodenCounter;
-    private int cementCounter, singleCounter, doubleCounter;
-    private int cagedCounter, poisonedCounter;
+    private int cementCounter;//, singleCounter, doubleCounter;
+    //private int cagedCounter, poisonedCounter;
 
 
-    private int minScore, pac, baby, nerd, lady, punk, rocker;
-    private int maxTimer, nerd_girl, pig_tails, moves, glass;
-    private int wooden, cement, single_tile, double_tile;
-    private int cage, poison;
+    private int minScore;// pac, baby, nerd, lady, punk, rocker;
+    private int maxTimer, moves, glass;//nerd_girl, pig_tails,
+    private int wooden, cement;//, single_tile, double_tile;
+    //private int cage, poison;
     private long timer;
 
     public class MapData{
@@ -62,12 +62,12 @@ public class LevelManager {
         nerdCounter = ladyCounter = 0;
         punkCounter = rockerCounter = 0;
         girlNerdCounter = pigTailsCounter = 0;
-        glassCounter = woodenCounter = cementCounter = singleCounter = doubleCounter = 0;
+        glassCounter = woodenCounter = cementCounter = 0;//singleCounter = doubleCounter = 0;
 
-        minScore = pac =baby = nerd = lady = punk = rocker = 0;
-        maxTimer = nerd_girl = pig_tails = moves = glass = 0;
-        wooden = cement = single_tile = double_tile = 0;
-        cage =  poison = 0;
+        minScore = 0;//pac =baby = nerd = lady = punk = rocker = 0;
+        maxTimer = 0;//nerd_girl = pig_tails = moves = glass = 0;
+        wooden = cement = 0;//single_tile = double_tile = 0;
+        //cage =  poison = 0;
 
         levelCreator();
     }
@@ -233,6 +233,7 @@ public class LevelManager {
     /****************************************************************************
      Return the glass target count the player must aim for to pass the level
      ****************************************************************************/
+    @SuppressWarnings("unused")
     public int glassTarget(){
         return glass;
     }
@@ -241,12 +242,14 @@ public class LevelManager {
     /****************************************************************************
      Return the wood target count the player must aim for to pass the level
      ****************************************************************************/
+    @SuppressWarnings("unused")
     public int woodTarget() { return wooden; }
 
 
     /****************************************************************************
      Return the cement target count the player must aim for to pass the level
      ****************************************************************************/
+    @SuppressWarnings("unused")
     public int cementTarget() { return cement; }
 
 
@@ -487,6 +490,7 @@ public class LevelManager {
     /****************************************************************************
      Return glass counter
      ****************************************************************************/
+    @SuppressWarnings("unused")
     public int getGlassCounter(){
         return glassCounter;
     }
@@ -495,6 +499,7 @@ public class LevelManager {
     /****************************************************************************
      Return wood counter
      ****************************************************************************/
+    @SuppressWarnings("unused")
     public int getWoodenCounter() { return woodenCounter; }
 
 

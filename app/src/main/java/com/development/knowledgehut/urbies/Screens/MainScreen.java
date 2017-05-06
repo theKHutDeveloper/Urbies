@@ -66,13 +66,13 @@ class MainScreen extends Screen {
     private ArrayList<Images> urbGUI = new ArrayList<>();
     private ArrayList<Integer> specialUrbs = new ArrayList<>();
     private ArrayList<Urbies.UrbieType> specialUrbTypes = new ArrayList<>();
-    private ArrayList<Point> futureCoordinates = new ArrayList<>();
-    private ArrayList<Integer> futurePositions = new ArrayList<>();
+    //private ArrayList<Point> futureCoordinates = new ArrayList<>();
+    //private ArrayList<Integer> futurePositions = new ArrayList<>();
     private ArrayList<BitmapAnimation> effects = new ArrayList<>();
     private ArrayList<Integer> matchesOffScreen = new ArrayList<>();
     //private ArrayList<Integer> updateMoveDownElements = new ArrayList<>();
-    private ArrayList<Integer>newMoveDownLocations = new ArrayList<>();
-    private ArrayList<Integer>newReplacedLocatons = new ArrayList<>();
+    private ArrayList<Integer> newMoveDownLocations = new ArrayList<>();
+    private ArrayList<Integer> newReplacedLocatons = new ArrayList<>();
     private ArrayList<Integer> entrance = new ArrayList<>();
     private ArrayList<Integer> possibleMatches = new ArrayList<>();
     private ArrayList<Integer> urbPossibleMatches = new ArrayList<>();
@@ -91,7 +91,7 @@ class MainScreen extends Screen {
     private Paint text;
 
     private int one = -1, two = -1, gobstopperBomb = -1;
-    private int urbOne, urbTwo;
+    private int urbOne = -1, urbTwo = -1;
     private int initialise = 0;
     private int tileH, tileWidth, tileHeight;
     private int setSpecialPhase = 0;
@@ -110,7 +110,7 @@ class MainScreen extends Screen {
     /********************************************************
      Constructor
      *********************************************************/
-    public MainScreen(Game game) {
+    MainScreen(Game game) {
         super(game);
 
         preferences = game.getFileIO().getPreferences();
@@ -127,7 +127,7 @@ class MainScreen extends Screen {
         validTiles = baseTiles.getValidTileLocations();
         tileH = baseTiles.getIndividualTileWidth();
 
-        if (Urbies.level == 11) {
+        if (Urbies.level == 101) {
             Urbs = fakeUrbies(Urbs, validTiles, validTiles.size(), 10, 5);
             ArrayList<Integer> locations = new ArrayList<>(levelManager.obstacleTileLocation());
             for (int i = 0; i < locations.size(); i++) {
@@ -142,10 +142,7 @@ class MainScreen extends Screen {
                 pState = Procedure.CHECK;
                 levelManager.startTimer();
             }
-        }
-
-        else {
-
+        } else {
             randomUrbsPlayingInLevel(levelManager.getUrbsInLevel());
             Urbs = createUrbies(Urbs, validTiles, validTiles.size(), 10, 5);
 
@@ -191,7 +188,7 @@ class MainScreen extends Screen {
         loadGameText();
         loadGui();
 
-        for(int i = 0; i < tileLocations.size(); i++){
+        for (int i = 0; i < tileLocations.size(); i++) {
             System.out.println(tileLocations.get(i));
         }
     }
@@ -339,7 +336,7 @@ class MainScreen extends Screen {
                     } else if (initialise == 1) {
 
                         if (System.currentTimeMillis() > moveToNextScreenTimer + 2000) {
-                            int access_lvl = preferences.getInt(Assets.ACCESS_LEVEL, 1);
+                            int access_lvl = preferences.getInt(Assets.ACCESS_LEVEL, 11); //1
 
                             if (access_lvl < Urbies.level + 1) {
 
@@ -602,13 +599,13 @@ class MainScreen extends Screen {
 
                         matchFoundations();
 
-                    break;
+                        break;
 
                     case MATCH:
 
                         matchRoutine();
 
-                    break;
+                        break;
 
 
                     case REPLACE_OBJECTS:
@@ -617,7 +614,7 @@ class MainScreen extends Screen {
                         matchState = MatchState.AUTO;
                         pState = Procedure.CHECK;
 
-                    break;
+                        break;
                 }
                 break;
 
@@ -930,8 +927,8 @@ class MainScreen extends Screen {
 
                                 for (int i = 0; i < creators.size(); i++) {
 
-                                    futurePositions.add(creators.get(i).getElement());
-                                    futureCoordinates.add(creators.get(i).getPosition());
+                                    //futurePositions.add(creators.get(i).getElement());
+                                    //futureCoordinates.add(creators.get(i).getPosition());
                                     Urbs.get(urbMatchOne.get(i)).setSpritePath(creators.get(i).getPath());
                                     Urbs.get(urbMatchOne.get(i)).setLocation(userMatchOne.get(i));
                                 }
@@ -1021,8 +1018,8 @@ class MainScreen extends Screen {
                             urbMatchOne.clear();
                             userMatchOne.clear();
                             matchedUrbs.clear();
-                            futureCoordinates.clear();
-                            futurePositions.clear();
+                            //futureCoordinates.clear();
+                            //futurePositions.clear();
                             urbsToMoveDown.clear();
                             objectsToMoveDown.clear();
                             coordinatesToMoveTo.clear();
@@ -1084,21 +1081,21 @@ class MainScreen extends Screen {
             graphics.drawBitmap(Assets.tile, tileLocations.get(validTiles.get(i)).x, tileLocations.get(validTiles.get(i)).y);
         }
 
-        graphics.drawText(Integer.toString(levelManager.getScore()), 500, (int) (50 * AndroidGame.GAME_SCALE_X), text);
+        graphics.drawText(Integer.toString(levelManager.getScore()), 500, (int) (100 * AndroidGame.GAME_SCALE_X), text);
 
         if (levelManager.isMoveLevel()) {
-            graphics.drawText(Integer.toString(levelManager.getMoves()), 800, (int) (50 * AndroidGame.GAME_SCALE_X), text);
+            graphics.drawText(Integer.toString(levelManager.getMoves()), 800, (int) (100 * AndroidGame.GAME_SCALE_X), text);
         }
 
         if (levelManager.isTimedLevel()) {
-            graphics.drawText(Integer.toString(levelManager.getTimeRemaining()), 800, (int) (50 * AndroidGame.GAME_SCALE_X), text);
+            graphics.drawText(Integer.toString(levelManager.getTimeRemaining()), 800, (int) (100 * AndroidGame.GAME_SCALE_X), text);
         }
 
-        if (urbOne > 0) {
+        if (urbOne > -1) {
             graphics.drawBitmap(Assets.selector, tileLocations.get(one).x, tileLocations.get(one).y);
         }
 
-        if (urbTwo > 0) {
+        if (urbTwo > -1) {
             graphics.drawBitmap(Assets.selector, tileLocations.get(two).x, tileLocations.get(two).y);
         }
 
@@ -1126,11 +1123,13 @@ class MainScreen extends Screen {
 
         for (int i = 0; i < matchedUrbs.size(); i++) {
             if (!effects.isEmpty()) {
-                if(i < effects.size()) {
+                if (i < effects.size()) {
                     effects.get(i).draw(graphics);
                 }
             }
+
             matchedUrbs.get(i).draw(graphics);
+
             if (canBounce) {
                 matchedUrbs.get(i).bounceOut(deltaTime);
             }
@@ -1160,6 +1159,7 @@ class MainScreen extends Screen {
                 }
 
                 int counter = 0;
+
                 if (!urbsToMoveDown.isEmpty()) {
                     if (!urbMatchOne.isEmpty()) {
                         if (System.currentTimeMillis() > startBounceOutTime + 500) {
@@ -1467,8 +1467,7 @@ class MainScreen extends Screen {
                         for (int j = 0; j < specials.size(); j++) {
                             changeToSpecialUrb(specials.get(j), Urbs, userSwapType);
                         }
-                    }
-                    else {
+                    } else {
 
                         for (int i = 0; i < specials.size(); i++) {
                             Urbs.get(specials.get(i)).changeBitmapProperties(
@@ -1485,8 +1484,8 @@ class MainScreen extends Screen {
                     urbMatchOne.clear();
                     userMatchOne.clear();
                     matchedUrbs.clear();
-                    futureCoordinates.clear();
-                    futurePositions.clear();
+                    //futureCoordinates.clear();
+                    //futurePositions.clear();
                     urbsToMoveDown.clear();
                     objectsToMoveDown.clear();
                     coordinatesToMoveTo.clear();
@@ -1513,7 +1512,7 @@ class MainScreen extends Screen {
                         notInPlay.addAll(matchesOffScreen);
                         matchesOffScreen.clear();
                     }
-                break;
+                    break;
             }
         }
     }
@@ -1605,13 +1604,14 @@ class MainScreen extends Screen {
                     levelManager.addSpecialUrbBonusToScore(Urbs.get(specialUrbUserObject).getType(),
                             specials.size());
 
-                break;
+                    break;
 
 
             }
         }
 
     }
+
     /********************************************************
      generate the urbs to be displayed in level
      *********************************************************/
@@ -1725,11 +1725,11 @@ class MainScreen extends Screen {
 
         if (Urbies.level == 100) {
             Collections.addAll(values,
-                       2, 5, 4,
+                    2, 5, 4,
                     1, 5, 1, 2, 6,
-                   11, 13, 5, 1, 2,
+                    11, 13, 5, 1, 2,
                     2, 5, 3, 4, 1,
-                       4, 2, 6);
+                    4, 2, 6);
             urbTypesInLevel.add(Urbies.UrbieType.BABY);
             urbTypesInLevel.add(Urbies.UrbieType.PAC);
             urbTypesInLevel.add(Urbies.UrbieType.NERD);
@@ -1847,8 +1847,6 @@ class MainScreen extends Screen {
             clearDamagedObstacle(obstacleTiles);
         }
 
-        System.out.println("urbsToMoveDown = " + urbsToMoveDown);
-
         for (int i = 0; i < userMatchOne.size(); i++) {
             urbMatchOne.add(gameMethods.findObjectByPosition(userMatchOne.get(i), Urbs));
         }
@@ -1925,65 +1923,47 @@ class MainScreen extends Screen {
 
             if (!urbsToMoveDown.isEmpty()) {
                 for (int i = 0; i < urbsToMoveDown.size(); i++) {
-                    System.out.println("old loc = " +Urbs.get(urbsToMoveDown.get(i)).getLocation());
                     Urbs.get(urbsToMoveDown.get(i)).clearPath();
                     Urbs.get(urbsToMoveDown.get(i)).resetCounter();
                     Urbs.get(urbsToMoveDown.get(i)).setLocation(newMoveDownLocations.get(i));
-                    System.out.println("new move down location = " +newMoveDownLocations.get(i));
-                }
-
-                for (int i = 0; i < urbsToMoveDown.size(); i++) {
-                    System.out.println("new loc = " +Urbs.get(urbsToMoveDown.get(i)).getLocation());
                 }
             }
             initialise = 4;
         } else if (initialise == 4) {
 
-            matchedUrbs.clear();
-
             ArrayList<ObjectPathCreator> creators = gameMethods.replaceObjects(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen);
-
-            for(int i = 0; i < creators.size(); i++){
-                System.out.println(" " + creators.get(i).getPosition());
-                System.out.println("Urb is going to " + creators.get(i).getFutureElement());
-            }
 
             if (userMatchOne.isEmpty()) {
                 urbMatchOne.clear();
 
                 initialise = 0;
                 pState = Procedure.REPLACE_OBJECTS;
-            } else {
+            }
+            else {
                 System.out.println("UserMatchOne = " + userMatchOne);
 
                 //get urbs that are off screen and store their position in array
                 //for use further down
-                //if(urbMatchOne.isEmpty()){
-                    urbMatchOne.clear();
-                    int count = 0;
-                    for(int i = 0; i < Urbs.size(); i++){
-                        if(Urbs.get(i).getPosition().y < 0){
-                            urbMatchOne.add(i);
-                            count++;
-                            if(count == creators.size()){
-                                break;
-                            }
+
+                urbMatchOne.clear();
+                int count = 0;
+                for (int i = 0; i < Urbs.size(); i++) {
+                    if (Urbs.get(i).getPosition().y < 0) {
+                        urbMatchOne.add(i);
+                        count++;
+                        if (count == creators.size()) {
+                            break;
                         }
                     }
-
-               // }
-
+                }
 
                 for (int i = 0; i < creators.size(); i++) {
-
-                    futurePositions.add(creators.get(i).getElement());
-                    futureCoordinates.add(creators.get(i).getPosition());
+                    //futurePositions.add(creators.get(i).getElement());
+                    //futureCoordinates.add(creators.get(i).getPosition());
                     Urbs.get(urbMatchOne.get(i)).setSpritePath(creators.get(i).getPath());
                     Urbs.get(urbMatchOne.get(i)).setLocation(urbMatchOne.get(i));
-                    System.out.println("creators element = " + creators.get(i).getElement());
-                    System.out.println("creators position = " + creators.get(i).getPosition());
-                    System.out.println("path counter = " + Urbs.get(urbMatchOne.get(i)).getPathCounter());
-
+                    Urbs.get(urbMatchOne.get(i)).setActive(true);
+                    newReplacedLocatons.add(creators.get(i).getElement());
                 }
                 initialise = 5;
             }
@@ -1995,9 +1975,7 @@ class MainScreen extends Screen {
                 }
             }
 
-            for(int i = 0; i < Urbs.size(); i++){
-                System.out.println("locations after replacement " + Urbs.get(i).getLocation() + ", " + Urbs.get(i).getType());
-            }
+
 
             initialise = 0;
             pState = Procedure.REPLACE_OBJECTS;
@@ -2011,13 +1989,18 @@ class MainScreen extends Screen {
     private void replaceEvents() {
         if (initialise == 0) {
             //drop down elements have their locations changed according to their position in the arrayList
-            for (int i = 0; i < coordinatesToMoveTo.size(); i++) {
-                for (int j = 0; j < tileLocations.size(); j++) {
-                    if (tileLocations.get(j) == coordinatesToMoveTo.get(i)) {
-                        Urbs.get(urbsToMoveDown.get(i)).setLocation(j);
-                    }
+            if(!urbsToMoveDown.isEmpty()) {
+                for (int i = 0; i < urbsToMoveDown.size(); i++) {
+                    Urbs.get(urbsToMoveDown.get(i)).setLocation(newMoveDownLocations.get(i));
                 }
             }
+
+            if(!urbMatchOne.isEmpty()) {
+                for (int i = 0; i < urbMatchOne.size(); i++) {
+                    Urbs.get(urbMatchOne.get(i)).setLocation(newReplacedLocatons.get(i));
+                }
+            }
+
             initialise = 1;
         }
 
@@ -2027,14 +2010,22 @@ class MainScreen extends Screen {
         }
 
         if (initialise == 2) {
+            for (int i = 0; i < Urbs.size(); i++) {
+                System.out.println("locations after replacement " + Urbs.get(i).getLocation() + ", " + Urbs.get(i).getType());
+            }
+            Urbs.get(8).print();
+            Urbs.get(15).print();
+            Urbs.get(20).print();
+            Urbs.get(22).print();
             canBounce = false;
             urbMatchOne.clear();
             userMatchOne.clear();
             matchedUrbs.clear();
-            futureCoordinates.clear();
-            futurePositions.clear();
+            //futureCoordinates.clear();
+            //futurePositions.clear();
             urbsToMoveDown.clear();
             newMoveDownLocations.clear();
+            newReplacedLocatons.clear();
             objectsToMoveDown.clear();
             coordinatesToMoveTo.clear();
             specialUrbs.clear();
@@ -2066,7 +2057,7 @@ class MainScreen extends Screen {
         }
 
         System.out.println("objectsToMoveDown = " + objectsToMoveDown);
-        System.out.println("matchesOffScreen = "+matchesOffScreen);
+        System.out.println("matchesOffScreen = " + matchesOffScreen);
         System.out.println("newMoveDownLocations = " + newMoveDownLocations);
     }
 
@@ -2203,10 +2194,6 @@ class MainScreen extends Screen {
                 }
             }
         }
-
-        for(int i = 0; i < urbieAnimations.size(); i++) {
-            System.out.println(urbieAnimations.get(i).getLocation());
-        }
     }
 
 
@@ -2244,6 +2231,7 @@ class MainScreen extends Screen {
         if (!matchesOffScreen.isEmpty()) {
             for (int a = urbMatchOne.size() - 1; a >= 0; a--) {
                 if (matchesOffScreen.contains(Urbs.get(urbMatchOne.get(a)).getLocation())) {
+                    changeToRandomBitmap(urbMatchOne.get(a), Urbs);
                     Urbs.get(urbMatchOne.get(a)).setY(-300);
                     Urbs.get(urbMatchOne.get(a)).setActive(false);
                     urbMatchOne.remove(a);
@@ -3126,8 +3114,6 @@ class MainScreen extends Screen {
             }
         }
     }
-
-
 
 
     /********************************************************
