@@ -304,6 +304,7 @@ class MainScreen extends Screen {
                 if (initialise == 1) {
 
                     ArrayList<Integer> newLocations = getArrayLocations();
+                    System.out.println("new Shuffle Locations = "+newLocations);
                     moveUrbsToShuffledLocations(newLocations, Urbs, tileLocations);
 
                     initialise = 2;
@@ -2010,9 +2011,9 @@ class MainScreen extends Screen {
         }
 
         if (initialise == 2) {
-            for (int i = 0; i < Urbs.size(); i++) {
+            /*for (int i = 0; i < Urbs.size(); i++) {
                 System.out.println("locations after replacement " + Urbs.get(i).getLocation() + ", " + Urbs.get(i).getType());
-            }
+            }*/
             Urbs.get(8).print();
             Urbs.get(15).print();
             Urbs.get(20).print();
@@ -2021,8 +2022,6 @@ class MainScreen extends Screen {
             urbMatchOne.clear();
             userMatchOne.clear();
             matchedUrbs.clear();
-            //futureCoordinates.clear();
-            //futurePositions.clear();
             urbsToMoveDown.clear();
             newMoveDownLocations.clear();
             newReplacedLocatons.clear();
@@ -2324,14 +2323,16 @@ class MainScreen extends Screen {
                     for (int a = 0; a < blockedRows.size(); a++) {
 
                         if (objects.get(i).getLocation() < blockedRows.get(a).get(0)) {
-                            objects.get(i).findLine(
-                                    objects.get(i).getX(),
-                                    objects.get(i).getY(),
-                                    positions.get(newLocations.get(counter)).x,
-                                    positions.get(newLocations.get(counter)).y
-                            );
+                            if(counter < newLocations.size()) {
+                                objects.get(i).findLine(
+                                        objects.get(i).getX(),
+                                        objects.get(i).getY(),
+                                        positions.get(newLocations.get(counter)).x,
+                                        positions.get(newLocations.get(counter)).y
+                                );
 
-                            counter++;
+                                counter++;
+                            }
                         }
                     }
                 } else {

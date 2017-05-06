@@ -12,6 +12,7 @@ import com.development.knowledgehut.urbies.Screens.Assets;
 import com.development.knowledgehut.urbies.Screens.Urbies;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -891,14 +892,19 @@ public class GameMethods {
 
             Collections.sort(availableTiles, Collections.<Integer>reverseOrder());
 
-            for(int i = 0; i < availableTiles.size(); i++) {
-                ArrayList<Integer>entrancePoints = new ArrayList<>();
+            ArrayList<Integer>entrancePoints = new ArrayList<>();
 
-                for(int j = 0; j < width; j++){
-                    if(reference.get(j) == -3){
-                        entrancePoints.add(j);
-                    }
+            for(int j = 0; j < width; j++){
+                if(reference.get(j) == -3){
+                    entrancePoints.add(j);
                 }
+            }
+
+            availableTiles = orderListByColumnWithEntrancesLast(availableTiles, entrancePoints, width);
+            System.out.println("entrancePoints = "+entrancePoints);
+            System.out.println("availableTiles = "+availableTiles);
+
+            for(int i = 0; i < availableTiles.size(); i++) {
 
                 System.out.println("reference = "+reference);
                 PositionList positionList = addNewObjects(reference, map, availableTiles.get(i),  entrancePoints, tilePos, width);
@@ -2488,6 +2494,7 @@ public class GameMethods {
     /**********************************************************************
      Returns a list of triples of potential matches that involve obstacles
      **********************************************************************/
+    //TODO: Problem may occur here. For some reason a match is included that is under cement. location 19 (cement), 13 and 17 status is none
     private ArrayList<Integer> findObstaclesThatCanBeMatched(ArrayList<Obstacles> obstacles, ArrayList<Integer> mapLevel, int horizontalSize, List<UrbieAnimation> objects) {
         ArrayList<Integer> pairs;
         ArrayList<Integer> potentialForMatches = new ArrayList<>();
@@ -3139,7 +3146,47 @@ public class GameMethods {
     }
 
 
+    /***********************************************************************************************
+        Given a list of available tiles and the unblocked (free from obstacles) columns, arrange the
+        order of available tiles so that the placement of the new objects do not block other
+        available tiles from getting to their destination
+     ***********************************************************************************************/
+    private ArrayList<Integer>orderListByColumnWithEntrancesLast(ArrayList<Integer>availableTiles, ArrayList<Integer>entranceList, int width){
+        int[][] mArray = new int[availableTiles.size()][2];
 
+        ArrayList<Integer>entryColumns = new ArrayList<>();
+        ArrayList<Integer>temp = new ArrayList<>();
+        ArrayList<Integer>sorted = new ArrayList<>();
+
+        for(int i = 0; i < entranceList.size(); i++){
+            entryColumns.add(entranceList.get(i) % width);
+        }
+
+        for(int i = 0; i < availableTiles.size(); i++){
+            mArray[i][0] = availableTiles.get(i);
+            mArray[i][1] = availableTiles.get(i) % width;
+        }
+
+        for(int i = 0; i < width; i++) {
+            for (int j = 0; j < mArray.length; j++) {
+                if (mArray[j][1] == i) {
+                    if(entryColumns.contains(mArray[j][1])){
+                        temp.add(mArray[j][0]);
+                    }
+                    else sorted.add(mArray[j][0]);
+                }
+            }
+        }
+
+        sorted.addAll(temp);
+
+        System.out.println(sorted);
+
+        availableTiles.clear();
+        availableTiles = sorted;
+
+        return availableTiles;
+    }
 
 
 

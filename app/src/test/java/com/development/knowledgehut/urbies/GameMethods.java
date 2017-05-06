@@ -4,7 +4,9 @@ import com.development.knowledgehut.urbies.Behaviours.PathFinding;
 
 import org.junit.Test;
 
+
 import java.util.ArrayList;
+
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
@@ -22,6 +24,52 @@ public class GameMethods {
         //Collections.addAll(obstacleLocations, 15, 17, 19);
         Collections.addAll(matches, 12, 13, 14);
     }
+
+    @Test
+    public void sortMultipleArray() throws Exception{
+        int width = 5;
+        int[][]mArray = new int[5][2];
+
+        ArrayList<Integer>entryCol = new ArrayList<>();
+        ArrayList<Integer>sorted = new ArrayList<>();
+        ArrayList<Integer>expected = new ArrayList<>();
+        ArrayList<Integer>addToEnd = new ArrayList<>();
+
+        Collections.addAll(entryCol, 2, 3);
+
+        mArray[0][0] = 24;
+        mArray[0][1] = 4;
+        mArray[1][0] = 23;
+        mArray[1][1] = 3;
+        mArray[2][0] = 22;
+        mArray[2][1] = 2;
+        mArray[3][0] = 21;
+        mArray[3][1] = 1;
+        mArray[4][0] = 18;
+        mArray[4][1] = 3;
+
+
+        for(int i = 0; i < width; i++) {
+            for (int j = 0; j < mArray.length; j++) {
+                if (mArray[j][1] == i) {
+                    if(entryCol.contains(mArray[j][1])){
+                        addToEnd.add(mArray[j][0]);
+                    }
+                    else sorted.add(mArray[j][0]);
+                }
+            }
+        }
+
+        Collections.addAll(expected, 21, 24, 22, 23, 18);
+        sorted.addAll(addToEnd);
+
+        System.out.println(sorted);
+
+        assertEquals("result = ", expected, sorted);
+
+    }
+
+
 
     @Test
     public void pathFindingTest() throws Exception{
