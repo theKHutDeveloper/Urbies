@@ -900,6 +900,7 @@ public class GameMethods {
                     }
                 }
 
+                System.out.println("reference = "+reference);
                 PositionList positionList = addNewObjects(reference, map, availableTiles.get(i),  entrancePoints, tilePos, width);
 
                 int y = tilePos.get(availableTiles.get(i)).y;
