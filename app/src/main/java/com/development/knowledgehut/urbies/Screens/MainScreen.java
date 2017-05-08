@@ -127,7 +127,7 @@ class MainScreen extends Screen {
         validTiles = baseTiles.getValidTileLocations();
         tileH = baseTiles.getIndividualTileWidth();
 
-        if (Urbies.level == 101) {
+        if (Urbies.level == 11) {
             Urbs = fakeUrbies(Urbs, validTiles, validTiles.size(), 10, 5);
             ArrayList<Integer> locations = new ArrayList<>(levelManager.obstacleTileLocation());
             for (int i = 0; i < locations.size(); i++) {
@@ -1711,12 +1711,12 @@ class MainScreen extends Screen {
 
         if (Urbies.level == 11) {
             Collections.addAll(values,
-                    1, 2, 5, 4, 1,
-                    1, 5, 1, 2, 6,
-                    5, 1, 5, 1, 2,
+                    1, 2, 5, 1, 2,
+                    1, 5, 2, 1, 6,
+                    5, 3, 1, 2, 4,
                     2, 5, 3, 4, 1,
-                    1, 2, 2, 1, 1,
-                    2, 3, 6, 5, 6);
+                    1, 4, 2, 1, 2,
+                    3, 3, 6, 2, 6);
             urbTypesInLevel.add(Urbies.UrbieType.BABY);
             urbTypesInLevel.add(Urbies.UrbieType.PAC);
             urbTypesInLevel.add(Urbies.UrbieType.NERD);
