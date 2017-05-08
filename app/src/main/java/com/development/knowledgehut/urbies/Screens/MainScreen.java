@@ -1711,12 +1711,12 @@ class MainScreen extends Screen {
 
         if (Urbies.level == 11) {
             Collections.addAll(values,
-                    1, 2, 5, 1, 2,
-                    1, 5, 2, 1, 6,
-                    5, 3, 1, 2, 4,
-                    2, 5, 3, 4, 1,
-                    1, 4, 2, 1, 2,
-                    3, 3, 6, 2, 6);
+                    1, 2, 5, 6, 1, 6,
+                    1, 5, 6, 1, 2, 1,
+                    5, 3, 4, 2, 5, 2,
+                    2, 5, 3, 4, 1, 4,
+                    1, 4, 1, 2, 2, 5,
+                    3, 1, 6, 2, 6, 5);
             urbTypesInLevel.add(Urbies.UrbieType.BABY);
             urbTypesInLevel.add(Urbies.UrbieType.PAC);
             urbTypesInLevel.add(Urbies.UrbieType.NERD);

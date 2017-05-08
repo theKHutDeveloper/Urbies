@@ -8,6 +8,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import static org.junit.Assert.assertEquals;
 
@@ -98,6 +100,90 @@ public class GameMethods {
 
         assert true;
     }
+
+    @Test
+    public void unknown() throws Exception {
+        int[][]pathway = new int[7][2];
+        LinkedList<int[][]> queue = new LinkedList<>();
+        ArrayList<Integer>reference = new ArrayList<>();
+        int width = 6;
+
+        Collections.addAll(reference,
+                0,  1,  2,  3,  4,  5,
+                6,  7,  8,  9, 10, 11,
+                12, 13, 14, -5, -5, -5,
+                -2, -2, -2, 21, 22, 23,
+                -3, -3, -3, -3, -3, -3, //27,28,29,
+                30, 31, 32, 33, 34, 35
+        );
+
+        int t[][] = new int[1][2];
+        t[0][0] = 4; t[0][1] = 0;
+        queue.add(t);
+        int t1[][] = new int[1][2];
+        t1[0][0] = 4; t1[0][1] = 1;
+        queue.add(t1);
+        int t2[][] = new int[1][2];
+        t2[0][0] = 4; t2[0][1] = 2;
+        queue.add(t2);
+        int t3[][] = new int[1][2];
+        t3[0][0] = 4; t3[0][1] = 3;
+        queue.add(t3);
+        int t4[][] = new int[1][2];
+        t4[0][0] = 4; t4[0][1] = 4;
+        queue.add(t4);
+        int t5[][] = new int[1][2];
+        t5[0][0] = 4; t5[0][1] = 5;
+        queue.add(t5);
+        int t6[][] = new int[1][2];
+        t6[0][0] = 3; t6[0][1] = 5;
+        queue.add(t6);
+        //add the rest of the objects in the same column as entrance (23)
+        int t7[][] = new int[1][2];
+        t7[0][0] = 2; t7[0][1] = 5;
+        queue.add(t7);
+        int t8[][] = new int[1][2];
+        t8[0][0] = 1; t8[0][1] = 5;
+        queue.add(t8);
+        int t9[][] = new int[1][2];
+        t9[0][0] = 0; t9[0][1] = 5;
+        queue.add(t9);
+
+        //access via new for-loop
+        for(Object object : queue) {
+            int[][] element = (int[][]) object;
+            int position = (element[0][0] * width)+element[0][1];
+            System.out.println("Position = "+position);
+        }
+
+        //this works so now i need to include the other urbs in the same column as 23
+        for(int i = 0; i < queue.size(); i++){
+            int[][] element;
+            element = queue.get(i);
+            int position = (element[0][0] * width)+element[0][1];
+
+            if(reference.get(position) != -3 && reference.get(position) != -5){
+                int[][]temp = new int[i + 1][2];
+                for(int j = 0; j < i+1; j++){
+                    temp[j][0] = queue.get(j)[0][0];
+                    temp[j][1] = queue.get(j)[0][1];
+                }
+                System.out.println(position);
+                for(int j = 0; j < temp.length; j++) {
+                    System.out.println("temp = " + temp[j][0] + ": "+temp[j][1]);
+
+                }
+                int value = (queue.peekFirst()[0][0] * width) + queue.peekFirst()[0][1];
+                int no_value = reference.get(value);
+                reference.set(value, position);
+                reference.set(position, no_value);
+                queue.pollFirst();
+                i--;
+            }
+        }
+        System.out.println(reference);
+    }
+
 
     @Test
     public void testing() throws Exception {

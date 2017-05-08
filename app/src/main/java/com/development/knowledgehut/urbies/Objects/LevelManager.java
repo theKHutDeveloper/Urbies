@@ -301,11 +301,12 @@ public class LevelManager {
                 locations.add(24);
                 break;
             case 11:
-                locations.add(15);
-                locations.add(16);
-                locations.add(17);
                 locations.add(18);
                 locations.add(19);
+                locations.add(20);
+                locations.add(21);
+                locations.add(22);
+                locations.add(23);
                 break;
             case 13:
                 locations.add(20);
@@ -686,13 +687,13 @@ public class LevelManager {
                 break;
             case 11:
                 Collections.addAll(mapLevel,
-                        1,1,1,1,1,
-                        1,1,1,1,1,
-                        1,1,1,1,1,
-                        1,1,1,1,1,
-                        1,1,1,1,1,
-                        1,1,1,1,1);
-                mapWidth = 5;
+                        1,1,1,1,1,1,
+                        1,1,1,1,1,1,
+                        1,1,1,1,1,1,
+                        1,1,1,1,1,1,
+                        1,1,1,1,1,1,
+                        1,1,1,1,1,1);
+                mapWidth = 6;
                 mapHeight = 6;
                 break;
 
