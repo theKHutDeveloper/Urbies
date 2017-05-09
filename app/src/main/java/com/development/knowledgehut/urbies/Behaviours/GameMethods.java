@@ -1317,7 +1317,67 @@ public class GameMethods {
         return objectPathCreators;
     }
 
+/*
+ArrayList<Integer>entranceColumn = new ArrayList<>();
 
+for(int i = 0; i < entrances.size(); i++){
+	entranceColumn.add(entrances.get(i) % width);
+}
+
+public boolean elementsLessThan(ArrayList<Integer>arrlist1, ArrayList<Integer>arrlist2){
+	if(Collections.max(arrlist1) < Collections.min(arrlist2)) return true;
+}
+
+
+If entrances is EMPTY
+
+	go to method Simple
+
+else if entrances NOT EMPTY && emptyTiles is EMPTY && elementsLessThan(matches, entrances)
+
+	go to method Simple
+
+ens
+
+if emptyTiles is NOT EMPTY && entrances is NOT EMPTY && entrancesColumn.contains(matchlist(i)% width)
+
+	go to method Complex
+
+else
+	go to method Simple
+
+end
+
+
+{if emptyTiles is EMPTY && entrances is NOT EMPTY && matches.get(i) > Collections.max(entrances)
+
+	go to method Complex
+
+if emptyTiles is NOT EMPTY && entrances is NOT EMPTY && matches.get(i) > Collections.max(entrances)
+
+	go to method Complex}
+
+
+//replace above with
+
+if entrances is NOT EMPTY && matches.get(i) > Collections.max(entrances)
+
+	go to method Complex
+
+===========================================================
+entrance 22 (column 4)
+
+empty = 27 (col 3), 28 (col 4), 29 (col 5)
+
+if empty col includes 4 order so that 4 is last so empty becomes
+27, 29, 28
+
+
+m = 4, 5, 6
+
+e = 18, 19
+
+ */
     private ArrayList<Point> findLine(int x0, int y0, int x1, int y1){
         ArrayList<Point>spritePath = new ArrayList<>();
 

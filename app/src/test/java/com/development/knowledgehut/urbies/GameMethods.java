@@ -27,6 +27,26 @@ public class GameMethods {
         Collections.addAll(matches, 12, 13, 14);
     }
 
+    public boolean elementsLessThan(ArrayList<Integer>arrlist1, ArrayList<Integer>arrlist2){
+        if(Collections.max(arrlist1) < Collections.min(arrlist2)) return true;
+        return false;
+    }
+
+    @Test
+    public void isArrayListValuesLessThanOther() throws Exception{
+        ArrayList<Integer>one = new ArrayList<>();
+        ArrayList<Integer>two = new ArrayList<>();
+
+        Collections.addAll(one, 12, 13, 14, 15);
+        Collections.addAll(two, 18, 19);
+
+        System.out.println(elementsLessThan(one, two));
+
+        if(elementsLessThan(one, two)){
+            assert true;
+        } else assert false;
+    }
+
     @Test
     public void sortMultipleArray() throws Exception{
         int width = 5;
