@@ -4,6 +4,7 @@ package com.development.knowledgehut.urbies.Behaviours;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 
 public class PathFinding {
@@ -95,6 +96,94 @@ public class PathFinding {
             }
         }
     }
+
+    public LinkedList<int[]> getPath(int x, int y, int si, int sj, int ei, int ej, int[][] blocked){
+        LinkedList<int[]> example = new LinkedList<>();
+
+        //reset
+        grid = new Cell[x][y];
+        closed = new boolean[x][y];
+
+        open = new PriorityQueue(16, new Comparator() {
+
+
+            @Override
+            public int compare(Object o1, Object o2) {
+                Cell c1 = (Cell)o1;
+                Cell c2 = (Cell)o2;
+                return c1.finalCost < c2.finalCost ? -1:
+                        c1.finalCost > c2.finalCost ? 1 : 0;
+            }
+        });
+
+        //set start position
+        setStartCell(si, sj);
+
+        //set end position
+        setEndCell(ei, ej);
+
+        for(int i=0;i<x;++i){
+            for(int j=0;j<y;++j){
+                grid[i][j] = new Cell(i, j);
+                grid[i][j].hCost = Math.abs(i-endI)+Math.abs(j-endJ);
+            }
+        }
+        grid[si][sj].finalCost = 0;
+
+           /*
+             Set blocked cells. Simply set the cell values to null
+             for blocked cells.
+           */
+        for (int[] aBlocked : blocked) {
+            setBlocked(aBlocked[0], aBlocked[1]);
+        }
+
+        //Display initial map
+        System.out.println("Grid: ");
+        for(int i=0; i<x; ++i){
+            for(int j=0;j<y;++j){
+                if(i==si&&j==sj)System.out.print("SO  "); //Source
+                else if(i==ei && j==ej)System.out.print("DE  ");  //Destination
+                else if(grid[i][j]!=null)System.out.printf("%-3d ", 0);
+                else System.out.print("BL  ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+
+        AStar();
+        System.out.println("\nScores for cells: ");
+        for(int i=0; i<x; ++i){
+            for(int j=0; j<y; ++j){
+                if(grid[i][j]!=null)System.out.printf("%-3d ", grid[i][j].finalCost);
+                else System.out.print("BL  ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+
+        if(closed[endI][endJ]){
+            //Trace back the path
+
+            System.out.println("Path: ");
+            Cell current = grid[endI][endJ];
+            while(current.parent!=null){
+                int[] ex = new int [2];
+                ex[0] = current.i;
+                ex[1] = current.j;
+                example.add(ex);
+                current = current.parent;
+            }
+            int[] ex = new int [2];
+            ex[0] = current.i;
+            ex[1] = current.j;
+            example.add(ex);
+            System.out.println();
+        }else example.clear();
+
+        return example;
+    }
+
 
     public ArrayList<int[]> getPath(int tCase, int x, int y, int si, int sj, int ei, int ej, int[][] blocked){
 

@@ -133,7 +133,7 @@ public class GameMethods {
                 6,  7,  8,  9, 10, 11,
                 12, 13, 14, -5, -5, -5,
                 -2, -2, -2, 21, 22, 23,
-                -3, -3, -3, -3, -3, -3, //27,28,29,
+                -3, -3, -3, 27, 28, 29,
                 30, 31, 32, 33, 34, 35
         );
 
@@ -176,7 +176,6 @@ public class GameMethods {
             System.out.println("Position = "+position);
         }
 
-        //this works so now i need to include the other urbs in the same column as 23
         for(int i = 0; i < queue.size(); i++){
             int[][] element;
             element = queue.get(i);
@@ -201,7 +200,13 @@ public class GameMethods {
                 i--;
             }
         }
-        System.out.println(reference);
+        //System.out.println(reference);
+        for(int i = 0; i < reference.size(); i++){
+            System.out.print(reference.get(i) + ", ");
+            if(i % width == 5){
+                System.out.println("");
+            }
+        }
     }
 
 

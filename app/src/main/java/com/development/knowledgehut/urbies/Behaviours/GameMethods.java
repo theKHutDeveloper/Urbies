@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -764,7 +765,9 @@ public class GameMethods {
         return emptyTiles;
     }
 
-
+    /********************************************************************************
+     *
+     ********************************************************************************/
     private int isRowBlocked(ArrayList<Integer> map, int width) {
         //boolean blocked = false;
         int found = -1;
@@ -791,6 +794,11 @@ public class GameMethods {
         return found;
     }
 
+
+
+    /********************************************************************************
+     *
+     ********************************************************************************/
     private int getReverseLocationOfY(ArrayList<Point> tileLoc, int y, int width) {
         int result = -1;
 
@@ -815,6 +823,11 @@ public class GameMethods {
 
     }
 
+
+
+    /********************************************************************************
+     *
+     ********************************************************************************/
     public ArrayList<ObjectPathCreator>replaceObjects(List<UrbieAnimation> objects,
                                                       ArrayList<Integer> matches,
                                                       ArrayList<Obstacles> obstacles, int width,
@@ -952,8 +965,145 @@ public class GameMethods {
 
 
 
+    /********************************************************************************
+     *
+     ********************************************************************************/
+    private int getBestEntryPoint(ArrayList<Integer>entrance, int width, int freeSpace){
+        int entryPoint = -1;
+
+        if (!entrance.isEmpty()) {
+            if (entrance.size() == 1) {
+                entryPoint = entrance.get(0);
+            } else {
+                for (int t = 0; t < entrance.size(); t++) {
+                    if (entrance.get(t) % width == freeSpace % width) {
+                        entryPoint = entrance.get(t);
+                        break;
+                    }
+                }
+            }
+            if (entryPoint == -1 && entrance.size() > 1) {
+                entryPoint = entrance.get(0);
+            }
+        }
+
+        return entryPoint;
+    }
+
+
+    /********************************************************************************
+     *
+     ********************************************************************************/
+    private void myTest(ArrayList<Integer>reference, ArrayList<Integer>entrance,
+                        int width, ArrayList<Integer>map, ArrayList<Integer>missingObjects)
+    {
+
+        int entryPoint = getBestEntryPoint(entrance, width, missingObjects.get(0));
+
+        //1. GET CORRECT ORDERING OF MISSING OBJECTS - ASSUME THAT IT HAS ALREADY BEEN ORDERED CORRECTLY
+        missingObjects = orderByFurthestFromEntry(missingObjects, entryPoint, width);
+
+        //2. ESTABLISH THE ROUTE BETWEEN ENTRANCE AND MISSING OBJECTS[0]
+        LinkedList<int[]> pathway = getPathway(reference, map, entryPoint, missingObjects.get(0), width);
+
+        //3. ADD THE POSITIONS FOR ANY OBJECTS IN THE SAME COLUMN AS ENTRANCE (ABOVE ONLY) TO THE END OF THE ROUTE
+        pathway.addAll(getObjectsAboveEntryPoint(reference, entryPoint, width));
+
+
+        System.out.println("myTest = ");
+        for(Object object : pathway) {
+            int[] element = (int[]) object;
+            System.out.println("path = ["+element[0] + "] [" +element[1] + "]");
+        }
+
+        //4. MOVE OBJECTS TO THE FIRST EMPTY POSITION
+        for(int i = 0; i < pathway.size(); i++){
+            int[] element;
+            element = pathway.get(i);
+            int position = (element[0] * width)+element[1];
+
+            if(reference.get(position) != -3 && reference.get(position) != -5){
+                int[][]temp = new int[i + 1][2];
+                for(int j = 0; j < i+1; j++){
+                    temp[j][0] = pathway.get(j)[0];
+                    temp[j][1] = pathway.get(j)[1];
+                }
+                System.out.println(position);
+                for(int j = 0; j < temp.length; j++) {
+                    System.out.println("temp = " + temp[j][0] + ": "+temp[j][1]);
+
+                }
+                //5. UPDATE REFERENCE ARRAY
+                int value = (pathway.peekFirst()[0] * width) + pathway.peekFirst()[1];
+                int no_value = reference.get(value);
+                reference.set(value, position);
+                reference.set(position, no_value);
+                pathway.pollFirst();
+                i--;
+            }
+        }
+        for(int i = 0; i < reference.size(); i++){
+            System.out.print(reference.get(i) + ", ");
+            if(i % width == 5){
+                System.out.println("");
+            }
+        }
+
+        //6. ARE ALL EMPTY TILES FILLED? OR IS THERE NO MORE OBJECTS THAT CAN BE MOVED DOWN OTHERWISE REPEAT
+        //if by looking in reference all the missing objects are filled then stop OR there is no more
+        //objects in the entry point column to move down
+
+    }
+
+    /********************************************************************************
+     *
+     ********************************************************************************/
+    private ArrayList<int[]> getObjectsAboveEntryPoint(ArrayList<Integer>reference, int entryPoint, int width){
+        ArrayList<int[]>additionals = new ArrayList<>();
+        int num = entryPoint - width;
+
+        while (num >= 0){
+            if(reference.get(num)==-2){
+                break;
+            }
+            else if(reference.get(num) == -3 || reference.get(num) == -5 || reference.get(num) >=0){
+                int[]t = new int[2];
+                t[0] = num / width;
+                t[1] = num % width;
+                additionals.add(t);
+            }
+            num = num - width;
+        }
+        return additionals;
+    }
+
+    /********************************************************************************
+     *
+     ********************************************************************************/
+    private LinkedList<int[]> getPathway(ArrayList<Integer>reference,
+                                                   ArrayList<Integer>map, int entryPoint,
+                                                   int destination, int width)
+    {
+        LinkedList<int[]> pathway = new LinkedList<>();
+
+        PathFinding path = new PathFinding();
+        ArrayList<Integer> blockedPositions = irrelevantPositions(reference, entryPoint, width);
+        int[][] arrayWasteLand = convertArrayListTo2DArray(blockedPositions);
+
+        pathway = path.getPath(map.size() / width, width, (entryPoint / width),
+                (entryPoint % width), destination / width, destination % width,
+                arrayWasteLand);
+
+        return pathway;
+    }
+
+
     //called if a path can be established between matchElement and empty tiles / matched(i). E.g. there is a
     //broken obstacle or free urb
+
+    /********************************************************************************
+     *
+     ********************************************************************************/
     private ArrayList<PositionList> test(ArrayList<Integer>reference, int matchElement, ArrayList<Integer>entrance,
                       int width, ArrayList<Integer>map, ArrayList<Point>tilePos){
 
@@ -1162,6 +1312,8 @@ public class GameMethods {
 
             if(emptyTiles.isEmpty() && !brokenObstacleLocations.isEmpty() && matches.get(i)> brokenObstacleLocations.get(0)) {
                 if(brokenObstacleLocations.contains(matches.get(i) % width)) {
+                    ArrayList<Integer>sample = reference;
+                    myTest(sample, entrance,width,map,emptyTiles);
                     System.out.println("test");
                     positionLists = test(reference, matches.get(i) - width, entrance, width, map, tilePos);
 
@@ -1194,7 +1346,8 @@ public class GameMethods {
             }
 
             else if (!brokenObstacleLocations.isEmpty() && !emptyTiles.isEmpty() && brokenObstacleLocations.contains(matches.get(i) % width)) {
-
+                ArrayList<Integer>sample = reference;
+                myTest(sample, entrance,width,map,emptyTiles);
                 ArrayList<Integer>emptyCol = new ArrayList<>();
                 for(int a = 0; a < emptyTiles.size(); a++){
                     emptyCol.add(emptyTiles.get(a) % width);
@@ -3395,6 +3548,7 @@ e = 18, 19
         Given a list of available tiles and the unblocked (free from obstacles) columns, arrange the
         order of available tiles so that the placement of the new objects do not block other
         available tiles from getting to their destination
+     SHOULD THIS NOT BE ORDER BY FURTHEST AWAY FROM ENTRY
      ***********************************************************************************************/
     private ArrayList<Integer>orderListByColumnWithEntrancesLast(ArrayList<Integer>availableTiles, ArrayList<Integer>entranceList, int width){
         int[][] mArray = new int[availableTiles.size()][2];
@@ -3433,6 +3587,35 @@ e = 18, 19
         return availableTiles;
     }
 
+    /***************************************************************************
+     Orders a list, so that the furthest away from specified value
+     (in a 2D list, by column)is first with the closest last
+     ***************************************************************************/
+    private ArrayList<Integer>orderByFurthestFromEntry(ArrayList<Integer>freeTiles, int entryPoint,
+                                                       int width)
+    {
+        //make sure list is sorted descending order before change takes place
+        Collections.sort(freeTiles, Collections.<Integer>reverseOrder());
 
+        int[][] mArray = new int[freeTiles.size()][2];
+        ArrayList<Integer>sorted = new ArrayList<>();
+
+        int entryColumn = entryPoint % width;
+
+        for(int i = 0; i < freeTiles.size(); i++){
+            mArray[i][0] = freeTiles.get(i);
+            mArray[i][1] = Math.abs(entryColumn - (freeTiles.get(i) % width));
+        }
+
+        for(int i = width-1; i >= 0; i--){
+            for(int j = 0; j < mArray.length; j++){
+                if(mArray[j][1] == i){
+                    sorted.add(mArray[j][0]);
+                }
+            }
+        }
+
+        return sorted;
+    }
 
 }
