@@ -2710,5 +2710,87 @@ console.log(findShortestPath([0,0], grid));
         return values;
     }*/
 
+/*if(emptyTiles.isEmpty() && !brokenObstacleLocations.isEmpty() && matches.get(i)> brokenObstacleLocations.get(0)) {
+                if(brokenObstacleLocations.contains(matches.get(i) % width)) {
+
+
+                    System.out.println("test");
+                    positionLists = test(reference, matches.get(i) - width, entrance, width, map, tilePos);
+
+                    if(!positionLists.isEmpty()) {
+                        for (int h = 0; h < positionLists.size(); h++) {
+                            ObjectPathCreator opc = new ObjectPathCreator();
+                            opc.setElement(positionLists.get(h).getLocation_id());
+                            opc.setPosition(positionLists.get(h).getPosition().get(positionLists.get(h).getPosition().size() - 1));
+                            int sNum = findBitmapByMapLocation(objects, tilePos, opc.getElement());
+                            int sx = objects.get(sNum).getX();
+                            int sy = objects.get(sNum).getY();
+
+                            for (int q = 0; q < positionLists.get(h).getPosition().size(); q++) {
+                                ArrayList<Point> getPath = findLine(sx, sy, positionLists.get(h).getPosition().get(q).x, positionLists.get(h).getPosition().get(q).y);
+                                opc.addToPath(getPath);
+
+                                sx = positionLists.get(h).getPosition().get(q).x;
+                                sy = positionLists.get(h).getPosition().get(q).y;
+                            }
+
+                            int futureLoc = findLocationByPosition(opc.getPosition(), tilePos);
+
+                            if(futureLoc != -1) {
+                                opc.setFutureElement(futureLoc);
+                            }
+                            objectPathCreators.add(opc);
+                        }
+                    }
+                }
+            }
+
+            else if (!brokenObstacleLocations.isEmpty() && !emptyTiles.isEmpty() && brokenObstacleLocations.contains(matches.get(i) % width)) {
+
+                ArrayList<Integer>emptyCol = new ArrayList<>();
+                for(int a = 0; a < emptyTiles.size(); a++){
+                    emptyCol.add(emptyTiles.get(a) % width);
+                }
+
+                if(emptyCol.contains(brokenObstacleLocations)) {
+                    emptyTiles = orderListByColumnWithEntrancesLast(emptyTiles, entrance, width);
+                } else{
+                    Collections.sort(emptyTiles);
+                }
+                reference = tileStatus(matches, map, obstacleLocations, glassLocations, emptyTiles); //update tileStatus
+                positionLists = fillEmptyTiles(matches, width, map, reference, entrance, tilePos, emptyTiles, pathway, i);
+
+                if(!positionLists.isEmpty()) {
+                    for (int h = 0; h < positionLists.size(); h++) {
+                        ObjectPathCreator opc = new ObjectPathCreator();
+                        opc.setElement(positionLists.get(h).getLocation_id());
+                        opc.setPosition(positionLists.get(h).getPosition().get(positionLists.get(h).getPosition().size() - 1));
+                        int sNum = findBitmapByMapLocation(objects, tilePos, opc.getElement());
+                        int sx = objects.get(sNum).getX();
+                        int sy = objects.get(sNum).getY();
+
+                        for (int q = 0; q < positionLists.get(h).getPosition().size(); q++) {
+                            ArrayList<Point> getPath = findLine(sx, sy, positionLists.get(h).getPosition().get(q).x, positionLists.get(h).getPosition().get(q).y);
+                            opc.addToPath(getPath);
+
+                            sx = positionLists.get(h).getPosition().get(q).x;
+                            sy = positionLists.get(h).getPosition().get(q).y;
+                        }
+
+                        int futureLoc = findLocationByPosition(opc.getPosition(), tilePos);
+
+                        if(futureLoc != -1) {
+                            opc.setFutureElement(futureLoc);
+                        }
+                        objectPathCreators.add(opc);
+                    }
+                }
+                if(!positionLists.isEmpty()) {
+                    //need to update reference array with the new positions filled by position lists
+                    reference = tileStatus(matches, map, obstacleLocations, glassLocations, emptyTiles);
+                    emptyTiles.clear(); //this should be placed somewhere else
+                }
+
+            }*/
 
 }

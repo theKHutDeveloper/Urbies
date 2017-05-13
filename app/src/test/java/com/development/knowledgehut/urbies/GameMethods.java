@@ -5,8 +5,10 @@ import com.development.knowledgehut.urbies.Behaviours.PathFinding;
 import org.junit.Test;
 
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -120,6 +122,43 @@ public class GameMethods {
 
         assert true;
     }
+
+    @Test
+    public void sort() throws Exception {
+
+        Integer[][] test = new Integer[5][2];
+        test[0][0] = 1; test[0][1] = 42;
+        test[1][0] = 2; test[1][1] = 8;
+        test[2][0] = 3; test[2][1] = 22;
+        test[3][0] = 4; test[3][1] = 70;
+        test[4][0] = 5; test[4][1] = 41;
+
+        Integer[]sorted = new Integer[5];
+
+        sorted[0] = 42;
+        sorted[1] = 8;
+        sorted[2] = 22;
+        sorted[3] = 70;
+        sorted[4] = 41;
+
+        Arrays.sort(sorted, Collections.<Integer>reverseOrder());
+
+        ArrayList<Integer>s = new ArrayList<>();
+        for(int a = 0; a < 5; a++){
+            for(int i = 0; i < 5; i++) {
+                if(test[i][1].equals(sorted[a])){
+                    s.add(test[i][0]);
+                }
+            }
+        }
+
+
+        for (Integer aSorted : sorted) {
+            System.out.println(aSorted);
+        }
+        System.out.println(s);
+    }
+
 
     @Test
     public void unknown() throws Exception {
