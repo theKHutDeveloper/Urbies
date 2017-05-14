@@ -891,7 +891,7 @@ public class GameMethods {
                 if(futureLoc != -1) {
                     o.setFutureElement(futureLoc);
                 }
-                o.print();
+                //o.print();
 
                 objectPathCreators.add(o);
             }
@@ -913,7 +913,7 @@ public class GameMethods {
             }
 
             availableTiles = orderListByColumnWithEntrancesLast(availableTiles, entrancePoints, width);
-            System.out.println("entrancePoints = "+entrancePoints);
+           // System.out.println("entrancePoints = "+entrancePoints);
             System.out.println("availableTiles = "+availableTiles);
 
             for(int i = 0; i < availableTiles.size(); i++) {
@@ -951,7 +951,7 @@ public class GameMethods {
                 if(futureLoc != -1) {
                     o.setFutureElement(futureLoc);
                 }
-                o.print();
+                //o.print();
                 objectPathCreators.add(o);
 
 
@@ -1250,6 +1250,9 @@ public class GameMethods {
         ArrayList<Integer> emptyTiles;
         ArrayList<Integer> reference;
         ArrayList<PositionList>positionLists = new ArrayList<>();
+        boolean isPopulated = false;
+
+        if(!matchesOffScreen.isEmpty())isPopulated = true;
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         //!!get a list of invisible obstacle locations e.g. WOOD, CEMENT and also GLASS obstacles
@@ -1338,7 +1341,7 @@ public class GameMethods {
         ////////////////////////////////////////////////////////////////////////////////////////////
         ArrayList<Point> tempPosition = new ArrayList<>();
         ArrayList<Integer>down = new ArrayList<>();
-
+        ArrayList<Integer>tempMatchRemove = new ArrayList<>();
 
         if((!emptyTiles.isEmpty() && !entrance.isEmpty()) || (!entrance.isEmpty() && !matches.isEmpty())){
             boolean matchBelowObstacles = false;
@@ -1346,6 +1349,7 @@ public class GameMethods {
             for(int i = matches.size() - 1; i >= 0; i--){
                 if(matches.get(i) >= entrance.get(0) + width){
                     emptyTiles.add(matches.get(i));
+                    tempMatchRemove.add(matches.get(i));
                     matches.remove(i);
                     matchBelowObstacles = true;
                 }
@@ -1374,28 +1378,20 @@ public class GameMethods {
                     if(futureLoc != -1) {
                         o.setFutureElement(futureLoc);
                     }
-                    o.print();
+                    //o.print();
                     objectPathCreators.add(o);
                 }
 
             }
 
-            for(int i = 0; i < emptyTiles.size(); i++){
-                for(int j = 0; j < objectPathCreators.size(); i++){
+            for(int i = emptyTiles.size() -1; i >= 0; i--){
+                for(int j = 0; j < objectPathCreators.size(); j++){
                     if(objectPathCreators.get(j).getFutureElement() == emptyTiles.get(i)){
-                        /*if(!matchesOffScreen.isEmpty()){
-                            matchesOffScreen.remove(matchesOffScreen.indexOf(emptyTiles.get(i)));
-                        }*/
                         emptyTiles.remove(i);
-                        i--;
                         break;
                     }
                 }
             }
-        }
-
-        if(emptyTiles.isEmpty()){
-            matchesOffScreen.clear();
         }
 
         if(!matches.isEmpty()){
@@ -1479,6 +1475,23 @@ public class GameMethods {
         if(!downPathCreators.isEmpty()){
             objectPathCreators.addAll(downPathCreators);
         }
+
+        //Identify any empty tiles
+        emptyTiles = getEmptyTiles(map, tilePos, objects);
+        if(isPopulated){
+            if(!matchesOffScreen.equals(emptyTiles)){
+                matchesOffScreen.clear();
+                matchesOffScreen.addAll(emptyTiles);
+            }
+        }
+
+
+        /*if(!tempMatchRemove.isEmpty()){
+            matches.addAll(tempMatchRemove);
+            Collections.sort(matches, Collections.<Integer>reverseOrder());
+        }*/
+        System.out.println("Empty tiles = " + emptyTiles);
+
 
         return objectPathCreators;
     }

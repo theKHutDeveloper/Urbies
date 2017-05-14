@@ -188,9 +188,9 @@ class MainScreen extends Screen {
         loadGameText();
         loadGui();
 
-        for (int i = 0; i < tileLocations.size(); i++) {
+        /*for (int i = 0; i < tileLocations.size(); i++) {
             System.out.println(tileLocations.get(i));
-        }
+        }*/
     }
 
 
@@ -2014,10 +2014,10 @@ class MainScreen extends Screen {
             /*for (int i = 0; i < Urbs.size(); i++) {
                 System.out.println("locations after replacement " + Urbs.get(i).getLocation() + ", " + Urbs.get(i).getType());
             }*/
-            Urbs.get(8).print();
+            /*Urbs.get(8).print();
             Urbs.get(15).print();
             Urbs.get(20).print();
-            Urbs.get(22).print();
+            Urbs.get(22).print();*/
             canBounce = false;
             urbMatchOne.clear();
             userMatchOne.clear();
