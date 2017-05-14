@@ -45,7 +45,7 @@ public class ObjectPathCreator {
 
     public void print(){
         System.out.println("element = "+element);
-        System.out.println("positon = " +position );
+        System.out.println("position = " +position );
         System.out.println("start & end path " + paths.get(0) + ", " + paths.get(paths.size() -1));
         System.out.println("future location = "+ futureElement);
 

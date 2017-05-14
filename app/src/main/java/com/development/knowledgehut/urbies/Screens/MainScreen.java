@@ -2261,7 +2261,51 @@ class MainScreen extends Screen {
      Urb at position is at status NONE
      Urb location is actually within the tile map
      *******************************************************************/
-    private ArrayList<Integer> getArrayLocations() {
+    private ArrayList<Integer>getArrayLocations(){
+        ArrayList<Integer> mapLevel = levelManager.getLevelTileMap().getMapLevel();
+        ArrayList<Integer> shuffledLocations = new ArrayList<>();
+
+        //add valid locations to ArrayList
+        for (int i = 0; i < mapLevel.size(); i++) {
+            if (mapLevel.get(i) == 1) {
+                shuffledLocations.add(i);
+            }
+        }
+
+        //remove locations where urb is held by an obstacle
+        for (int i = shuffledLocations.size() - 1; i >= 0; i--) {
+            int urbLoc = gameMethods.findObjectByPosition(shuffledLocations.get(i), Urbs);
+            if (urbLoc > -1) {
+                if (Urbs.get(urbLoc).getStatus() != NONE || Urbs.get(urbLoc).getY() < 0) {
+                    shuffledLocations.remove(i);
+                }
+            }
+        }
+
+        if(!obstacleTiles.isEmpty()){
+            //get locations of obstacle tiles
+            ArrayList<Integer>obstacleLocations = new ArrayList<>();
+            for(int i = 0; i < obstacleTiles.size(); i++){
+                obstacleLocations.add(obstacleTiles.get(i).getLocation());
+            }
+
+            //check if obstacles take up the whole row
+            int filledRow = gameMethods.isRowBlocked(mapLevel, tileWidth, obstacleLocations);
+
+            if(filledRow > -1){
+                for(int j = 0; j < shuffledLocations.size(); j++) {
+                    if (shuffledLocations.get(j) > filledRow) {
+                        shuffledLocations.remove(j);
+                    }
+                }
+            }
+        }
+        if (!shuffledLocations.isEmpty()) Collections.shuffle(shuffledLocations);
+        return shuffledLocations;
+    }
+
+
+    /*private ArrayList<Integer> getArrayLocations() {
         ArrayList<Integer> mapLevel = levelManager.getLevelTileMap().getMapLevel();
         ArrayList<Integer> shuffledLocations = new ArrayList<>();
         ArrayList<ArrayList<Integer>> blockedRows;
@@ -2300,7 +2344,7 @@ class MainScreen extends Screen {
 
         if (!shuffledLocations.isEmpty()) Collections.shuffle(shuffledLocations);
         return shuffledLocations;
-    }
+    }*/
 
 
     /********************************************************

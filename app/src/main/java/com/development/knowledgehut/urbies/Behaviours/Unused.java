@@ -2173,7 +2173,7 @@ console.log(findShortestPath([0,0], grid));
                         count = 0;
                     }
                 }
-                if (count == 5) {
+                if (count == width) {
                     blocked = true;
                     break;
                 }
@@ -2183,6 +2183,128 @@ console.log(findShortestPath([0,0], grid));
         return blocked;
     }
 
+    /*for(int i = 0; i < matches.size(); i++) {
+            int mod = matches.get(i) % width;
+            System.out.println("mod = "+mod);
+            System.out.println("bkn obs included in " + matches.get(i) +" % width? = " + brokenObstacleLocations.contains(mod));
+        }
+
+        ArrayList<Integer>myMatch = new ArrayList<>();
+        ArrayList<Integer>sample = new ArrayList<>();
+        Collections.addAll(sample,
+                -5,  1,  2,  3, 4,  5,
+                -5,  7,  8,  9, 10, 11,
+                -5, 13, 14, 15, 16, 17,
+                -2, -2, -2, 21, 22, -2,
+                -5, -5, -5, 27, 28, 29,
+                30, 31, 32, 33, 34, 35);
+        ArrayList<Integer> enter = new ArrayList<>();
+        enter.add(21);
+        enter.add(22);
+        Collections.addAll(myMatch, 26, 25, 24, 12, 6, 0);
+        ArrayList<Integer> empty = new ArrayList<>();
+        //Collections.addAll(empty, 26, 25, 24);
+
+
+        for(int i = 0; i < myMatch.size(); i++){
+            if(myMatch.get(i) > enter.get(0)){
+                empty.add(myMatch.get(i));
+            }
+        }
+        System.out.println("empty or matched = "+empty);
+        myTest(sample, enter,6,map,empty);
+
+*/
+
+    /*for (int i = 0; i < matches.size(); i++) {
+                if(reference.get(matches.get(i)) > width && reference.get(matches.get(i)) == -5){
+                    int num = matches.get(i) - width;
+                    ArrayList<PositionList>pList = new ArrayList<>();
+                    LinkedList<int[]> pathway2 = getPathway(reference, map, num, matches.get(i), width);
+                    pathway2.addAll(getObjectsAboveEntryPoint(reference, num, width));
+
+                    //if all values in the pathway are -3 or -5 then there are no more moves to make
+                    ArrayList<Integer> pathwayTileValues = new ArrayList<>();
+                    for (int m = 0; m < pathway2.size(); m++) {
+                        int[] element;
+                        element = pathway2.get(m);
+                        int position = (element[0] * width) + element[1];
+                        pathwayTileValues.add(reference.get(position));
+                    }
+                    boolean moreObjectsToMove = isThereMoreObjectsToMove(pathwayTileValues, -3, -5);
+
+                    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    //delete when happy
+                    System.out.println("noMoreObjectsToMove = " + moreObjectsToMove);
+                    System.out.println("myTest = ");
+                    for (Object object : pathway2) {
+                        int[] element = (int[]) object;
+                        System.out.println("path = [" + element[0] + "] [" + element[1] + "]");
+                    }
+                    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+                    //move objects to the first empty position
+                    for (int m = 0; m < pathway.size(); m++) {
+                        int[] element;
+                        element = pathway2.get(m);
+                        int position = (element[0] * width) + element[1];
+
+                        if (reference.get(position) != -3 && reference.get(position) != -5) {
+                            int[][] temp = new int[i + 1][2];
+                            for (int j = 0; j < i + 1; j++) {
+                                temp[j][0] = pathway2.get(j)[0];
+                                temp[j][1] = pathway2.get(j)[1];
+                            }
+                            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                            //delete when happy
+                            System.out.println(position);
+                            for (int j = 0; j < temp.length; j++) {
+                                System.out.println("temp = " + temp[j][0] + ": " + temp[j][1]);
+
+                            }
+                            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+                            //I believe that the code goes here for positionList - see below
+                            //update reference arraylist
+                            pList.add(convertPathwayToPositionList(pathway2,tilePos, width, position));
+
+                            int value = (pathway2.peekFirst()[0] * width) + pathway2.peekFirst()[1];
+                            int no_value = reference.get(value);
+                            reference.set(value, reference.get(position));
+                            reference.set(position, no_value);
+                            pathway2.pollFirst();
+                            i--;
+                        }
+                    }
+
+                    for(int j = 0; j < pList.size(); j++) {
+                        ObjectPathCreator o = new ObjectPathCreator();
+                        o.setElement(pList.get(j).getLocation_id());
+                        int sx = pList.get(j).getPositionAt(0).x;
+                        int sy = pList.get(j).getPositionAt(0).y;
+
+                        for(int k = 0; k < pList.get(j).getPosition().size(); k++){
+                            ArrayList<Point> getPath = findLine(sx, sy, pList.get(j).getPosition().get(k).x,
+                                    pList.get(j).getPosition().get(k).y);
+                            o.addToPath(getPath);
+
+                            sx = pList.get(j).getPosition().get(k).x;
+                            sy = pList.get(j).getPosition().get(k).y;
+                        }
+
+                        o.setPosition(o.getPath().get(o.getPath().size() - 1));
+                        int futureLoc = findLocationByPosition(o.getPosition(), tilePos);
+                        if(futureLoc != -1) {
+                            o.setFutureElement(futureLoc);
+                        }
+                        o.print();
+                        objectPathCreators.add(o);
+                    }
+
+                }
+
+
+*/
 
     /*private int isRowBlocked(ArrayList<Integer> map, int width, ArrayList<Integer> obstacleLocations) {
         boolean blocked = false;
@@ -2235,6 +2357,94 @@ console.log(findShortestPath([0,0], grid));
 
         return result;
     }
+
+    /*private ArrayList<PositionList> test(ArrayList<Integer>reference, int matchElement, ArrayList<Integer>entrance,
+                                         int width, ArrayList<Integer>map, ArrayList<Point>tilePos){
+
+        ArrayList<PositionList>positionLists = new ArrayList<>();
+        ArrayList<Integer>moveDowns = new ArrayList<>();
+
+        PathFinding path = new PathFinding();
+
+        //identify all the empty spaces that could be filled
+        for(int i = 0; i < reference.size(); i++){
+            if((reference.get(i) == -3 && matchElement < i) ||
+                    reference.get(i) == -5 && matchElement < i){
+                moveDowns.add(i);
+            }
+        }
+        System.out.println("Move Downs = "+moveDowns);
+
+        //reorder moveDowns is association with columns
+        moveDowns = orderListByColumnWithEntrancesLast(moveDowns, entrance, width);
+        System.out.println("Move Downs = "+moveDowns);
+
+        //get the relevant entry point
+        int entryPoint = -1;
+
+        if (!entrance.isEmpty()) {
+            if (entrance.size() == 1) {
+                entryPoint = entrance.get(0);
+            } else {
+                for (int t = 0; t < entrance.size(); t++) {
+                    if (entrance.get(t) % width == matchElement % width) {
+                        entryPoint = entrance.get(t);
+                        break;
+                    }
+                }
+            }
+            if (entryPoint == -1 && entrance.size() > 1) {
+                entryPoint = entrance.get(0);
+            }
+        }
+        System.out.println("Test Entry Point = " + entryPoint + "matchElement =" + matchElement);
+
+
+        int mCounter = 0;
+
+        while (mCounter < moveDowns.size() && (matchElement >= 0 &&
+                reference.get(matchElement) != -3 || reference.get(matchElement) != -5)){
+
+            //get shortest path
+            ArrayList<Integer> blockedPositions = irrelevantPositions2(reference, entrance, width);
+            int[][] arrayWasteLand = convertArrayListTo2DArray(blockedPositions);
+            ArrayList<ArrayList<int[]>> pathway = new ArrayList<>();
+            PositionList positionList = new PositionList(matchElement);
+
+            pathway.add(path.getPath(
+                    matchElement, map.size() / width, width, (matchElement / width),
+                    (matchElement % width), moveDowns.get(mCounter) / width,
+                    moveDowns.get(mCounter) % width, arrayWasteLand));
+
+
+            //print out pathway
+            for (int j = 0; j < pathway.size(); j++) {
+                System.out.println("===============================");
+                for (int k = 0; k < pathway.get(j).size(); k++) {
+                    System.out.println("pathway = [" + pathway.get(j).get(k)[0] + "][ " + pathway.get(j).get(k)[1] + "]");
+                }
+            }
+
+            for (int j = 0; j < pathway.size(); j++) {
+                for (int k = pathway.get(j).size() - 1; k >= 0; k--) {
+                    int position = (pathway.get(j).get(k)[0] * width) + pathway.get(j).get(k)[1];
+                    positionList.setPosition(tilePos.get(position));
+                }
+            }
+
+            positionLists.add(positionList);
+            int temp = reference.get(moveDowns.get(mCounter));
+            reference.set(moveDowns.get(mCounter), matchElement);
+            reference.set(matchElement, temp);
+
+            System.out.println("reference: "+reference);
+            matchElement = matchElement - width;
+            mCounter++;
+        }
+
+        return positionLists;
+    }
+*/
     /*public ArrayList<ObjectPathCreator> separateTheMadnessTest(
             List<UrbieAnimation> objects, ArrayList<Integer> matches, ArrayList<Obstacles> obstacles,
             int width, ArrayList<Point> tilePos, ArrayList<Integer> map,

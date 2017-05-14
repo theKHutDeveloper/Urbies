@@ -170,7 +170,7 @@ public class LevelManager {
             case 8: moves = 100; glass = 6; break;
             case 9: moves = 100; glass = 8; break;
             case 10: moves = 100; glass = 13; break;
-            case 11: moves = 100; cement = 5; break;
+            case 11: moves = 100; cement = 6; break;
         }
     }
 
