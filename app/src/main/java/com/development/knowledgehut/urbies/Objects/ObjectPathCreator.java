@@ -4,6 +4,7 @@ import android.graphics.Path;
 import android.graphics.Point;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 
 public class ObjectPathCreator {
@@ -30,6 +31,10 @@ public class ObjectPathCreator {
     public void addToPath(ArrayList<Point>path){
         paths.addAll(path);
     }
+
+    /*public void addToPath(LinkedList<int[]> path){
+        paths.addAll(path);
+    }*/
 
     public ArrayList<Point> getPath(){
         return paths;

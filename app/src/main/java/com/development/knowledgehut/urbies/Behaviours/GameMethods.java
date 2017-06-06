@@ -1205,29 +1205,196 @@ public class GameMethods {
         return found;
     }
 
-    /*public boolean isRowBlocked(ArrayList<Integer> map, int width, ArrayList<Integer> obstacleLocations) {
-        boolean blocked = false;
 
-        for (int i = 0; i < map.size(); i = i + width) {
-            int count;
-            if (map.get(i) == 0 || obstacleLocations.contains(i)) {
-                count = 1;
-                for (int j = 1; j < width; j++) {
-                    if (map.get(i + j) == 0 || (map.get(i + j) == 1 && obstacleLocations.contains(i + j))) {
-                        count++;
-                    } else {
-                        count = 0;
-                    }
-                }
-                if (count == width) {
-                    blocked = true;
-                    break;
+    private int[] convertToCells(int position, int width){
+        int[] cells = new int[2];
+
+        cells[0] = position / width;
+        cells[1] = position % width;
+
+        return cells;
+    }
+
+
+    private ArrayList<Integer>columnEntriesEmpty(int width, ArrayList<Integer>reference, int column){
+        ArrayList<Integer>result = new ArrayList<>();
+
+        for(int i = reference.size()-1; i >= 0; i--){
+            if(i % width == column){
+                if(reference.get(i) == -3 || reference.get(i) == -5){
+                    result.add(i);
                 }
             }
         }
 
-        return blocked;
-    }*/
+        return result;
+    }
+
+    private ArrayList<Integer> moveDownByColumn(ArrayList<Integer>reference, int width, ArrayList<ObjectPathCreator>objectPathCreatorTest){
+
+        for(int a = width -1; a >=0; a--) {
+            ArrayList<Integer> columnResults = columnEntriesEmpty(width, reference, a);
+
+            if(!columnResults.isEmpty()){
+                System.out.println(columnResults);
+
+                if(!columnResults.isEmpty()) {
+                    int location = columnResults.get(0) - width;
+
+                    while (!columnResults.isEmpty()) {
+                        if (location >= 0) {
+                            if (reference.get(location) >= 0) {
+
+                                ObjectPathCreator creatorTest = new ObjectPathCreator();
+                                creatorTest.setElement(reference.get(location));
+
+                                Collections.swap(reference, columnResults.get(0), location);
+
+                                LinkedList<int[]> pathway = new LinkedList<>();
+                                pathway.add(convertToCells(columnResults.get(0), width));
+                                pathway.add(convertToCells(location, width));
+
+                                //creatorTest.addToPath(pathway);
+                                creatorTest.print();
+
+                                objectPathCreatorTest.add(creatorTest);
+                                if(!columnResults.contains(location)){
+                                    columnResults.add(location);
+                                    Collections.sort(columnResults, Collections.<Integer>reverseOrder());
+
+                                }
+                                if(columnResults.size() > 1){
+                                    location = columnResults.get(1) - width;
+                                }
+                                columnResults.remove(0);
+                            } else if(reference.get(location) == -5 || reference.get(location) == -3 || reference.get(location) == -4) {
+                                location = location - width;
+                            } else if (reference.get(location) == -2) {
+                                if(columnResults.size() > 1){
+                                    location = columnResults.get(1) - width;
+                                }
+                                columnResults.remove(0);
+                            }
+                        } else {
+
+                            columnResults.remove(0);
+                        }
+                    }
+                }
+            }
+        }
+
+        return reference;
+    }
+
+
+    /********************************************************
+     Updated method to move remaining objects within tile map
+     ********************************************************/
+    public ArrayList<ObjectPathCreator> moveRemainingObjects(List<UrbieAnimation> objects, ArrayList<Integer> matches, ArrayList<Obstacles> obstacles,
+                                                             int width, ArrayList<Point> tilePos, ArrayList<Integer> map,
+                                                             ArrayList<Integer> matchesOffScreen,
+                                                             ArrayList<Integer> entrance){
+        ArrayList<Integer> emptyTiles;
+        ArrayList<Integer> reference;
+        ArrayList<Integer> obstacleLocations = new ArrayList<>();
+        ArrayList<Integer> glassLocations = new ArrayList<>();
+        ArrayList<Integer> nearMatchObstacles;
+        ArrayList<Integer> brokenObstacleLocations = new ArrayList<>();
+        ArrayList<ObjectPathCreator>objectPathCreators =  new ArrayList<>();
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        //!!get a list of invisible obstacle locations e.g. WOOD, CEMENT and also GLASS obstacles
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        if (!obstacles.isEmpty()) {
+            for (int i = 0; i < obstacles.size(); i++) {
+                if (!obstacles.get(i).isVisible() && obstacles.get(i).getDestroyCounter() > 0) {
+                    obstacleLocations.add(obstacles.get(i).getLocation());
+                } else if (obstacles.get(i).getStatus() == GLASS) {
+                    glassLocations.add(obstacles.get(i).getLocation());
+                }
+            }
+        }
+
+        //Identify any empty tiles
+        emptyTiles = getEmptyTiles(map, tilePos, objects);
+        System.out.println("Empty tiles = " + emptyTiles);
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        //1. Are there any obstacles that are damaged near the matched list elements?
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        if (!obstacleLocations.isEmpty()) {
+            nearMatchObstacles = getActualNearMatchesThatAreObstacles(matches, obstacleLocations, width, map);
+
+            //handle damaged urbs e.g. deduct counter etc
+            if (!nearMatchObstacles.isEmpty()) {
+                for (int i = 0; i < obstacles.size(); i++) {
+                    if (nearMatchObstacles.contains(obstacles.get(i).getLocation())) {
+                        obstacles.get(i).deductDestroyCounter();
+                        if (obstacles.get(i).getDestroyCounter() == 0) {
+                            entrance.add(obstacles.get(i).getLocation());
+                            brokenObstacleLocations.add(i);
+                            int urb_num = findBitmapByMapLocation(objects, tilePos, obstacles.get(i).getLocation());
+                            if (urb_num > -1) {
+                                objects.get(urb_num).setStatus(NONE);
+                                objects.get(urb_num).setVisible(Urbies.VisibilityStatus.VISIBLE);
+                                int index = obstacleLocations.indexOf(obstacles.get(i).getLocation());
+                                obstacles.get(i).clearStatus();
+                                obstacleLocations.remove(index);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //if there are no longer any obstacles remove entrance
+        if (obstacleLocations.isEmpty() && !entrance.isEmpty()) {
+            entrance.clear();
+        }
+        System.out.println("Entrance = "+entrance);
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        //2. Does the matched list contain a urb submerged in GLASS? - if so remove glass urb from match list
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        if (!glassLocations.isEmpty()) {
+            for (int i = 0; i < matches.size(); i++) {
+                if (glassLocations.contains(matches.get(i))) {
+                    for (int j = 0; j < obstacles.size(); j++) {
+                        if (obstacles.get(j).getLocation() == matches.get(i)) {
+                            int urb_num = findBitmapByMapLocation(objects, tilePos, obstacles.get(j).getLocation());
+                            if (urb_num > -1) {
+                                objects.get(urb_num).setStatus(NONE);
+                                obstacles.get(j).deductDestroyCounter();
+                                obstacles.get(j).clearStatus();
+                                int index = glassLocations.indexOf(obstacles.get(j).getLocation());
+                                glassLocations.remove(index);
+                            }
+                            break;
+                        }
+                    }
+                    matches.remove(i);
+                    i--;
+                }
+            }
+            System.out.println("Matches = " + matches);
+        }
+        reference = tileStatus(matches, map, obstacleLocations, glassLocations, emptyTiles);
+
+        System.out.println("reference = "+reference);
+        System.out.println("brokenObstacles = "+brokenObstacleLocations);
+        System.out.println("emptyTiles = " + emptyTiles);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        //3. Start looping through matches, considering any broken obstacles and empty tiles
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        return objectPathCreators;
+    }
+
 
     /*************************************************
      to act as a replacement for listOfObjectsToMoveDown
