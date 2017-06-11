@@ -2041,12 +2041,13 @@ class MainScreen extends Screen {
      *********************************************************/
     private void objectsToMoveDown() {
 
-        ArrayList<ObjectPathCreator> creators = gameMethods.separateTheMadness(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen, entrance);
+        ArrayList<ObjectPathCreator> creators = gameMethods.moveRemainingObjects(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen, entrance);
+//        ArrayList<ObjectPathCreator> creators = gameMethods.separateTheMadness(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen, entrance);
 
         for (int i = 0; i < creators.size(); i++) {
             objectsToMoveDown.add(creators.get(i).getElement());
             coordinatesToMoveTo.add(creators.get(i).getPath().get(creators.get(i).getPath().size() - 1));
-            newMoveDownLocations.add(creators.get(i).getFutureElement());
+            newMoveDownLocations.add(creators.get(i).getFutureElement()); //future elements have not been set
 
             int urbNum = gameMethods.findBitmapByMapLocation(Urbs, tileLocations, creators.get(i).getElement());
             if (urbNum > -1) {

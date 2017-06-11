@@ -734,6 +734,20 @@ public class GameMethods {
         return matchShape;
     }
 
+    /********************************************************************************
+     * returns a list of empty tile locations
+     ********************************************************************************/
+    private ArrayList<Integer>getListOfEmptyTiles(ArrayList<Integer>reference){
+        ArrayList<Integer>result = new ArrayList<>();
+
+        for(int i = 0; i < reference.size(); i++){
+            if(reference.get(i) == -3){
+                result.add(i);
+            }
+        }
+        return result;
+    }
+
 
     /********************************************************************************
      * returns a list of empty tile locations, where the tile is active
@@ -1130,6 +1144,35 @@ public class GameMethods {
         return positionList;
     }
 
+    private Point convertPositionToPoint(int []position, ArrayList<Point>tilePos, int width){
+
+        int placement = (position[0] * width) + position[1];
+        Point point = tilePos.get(placement);
+
+        return point;
+    }
+    /********************************************************************************
+     *
+     ********************************************************************************/
+    private ArrayList<Point> convertPathwayToObjectPathCreator(LinkedList<int[]> pathway,
+                                                                ArrayList<Point>tilePos, int width, int loc){
+
+        ArrayList<Point>paths = new ArrayList<>();
+
+        for (int i = pathway.size() - 1; i >= 0; i--) {
+            int[] element;
+            element = pathway.get(i);
+            int position = (element[0] * width) + element[1];
+            paths.add(tilePos.get(position));
+        }
+
+//        ObjectPathCreator objectPathCreator = new ObjectPathCreator();
+//        objectPathCreator.setElement(loc);
+//        objectPathCreator.addToPath(paths);
+
+        return paths;
+    }
+
     /********************************************************************************
      *
      ********************************************************************************/
@@ -1230,7 +1273,10 @@ public class GameMethods {
         return result;
     }
 
-    private ArrayList<Integer> moveDownByColumn(ArrayList<Integer>reference, int width, ArrayList<ObjectPathCreator>objectPathCreatorTest){
+    private ArrayList<Integer> moveDownByColumn(ArrayList<Integer>reference,
+                                                int width,
+                                                ArrayList<Point> tilePos,
+                                                ArrayList<ObjectPathCreator>objectPathCreators){
 
         for(int a = width -1; a >=0; a--) {
             ArrayList<Integer> columnResults = columnEntriesEmpty(width, reference, a);
@@ -1254,10 +1300,14 @@ public class GameMethods {
                                 pathway.add(convertToCells(columnResults.get(0), width));
                                 pathway.add(convertToCells(location, width));
 
-                                //creatorTest.addToPath(pathway);
+                                creatorTest.addToPath(convertPathwayToObjectPathCreator(pathway, tilePos, width, location));
+                                int futureLoc = findLocationByPosition(creatorTest.getPath().get(creatorTest.getPath().size() - 1), tilePos);
+                                if(futureLoc != -1) {
+                                    creatorTest.setFutureElement(futureLoc);
+                                }
                                 creatorTest.print();
 
-                                objectPathCreatorTest.add(creatorTest);
+                                objectPathCreators.add(creatorTest);
                                 if(!columnResults.contains(location)){
                                     columnResults.add(location);
                                     Collections.sort(columnResults, Collections.<Integer>reverseOrder());
@@ -1291,7 +1341,7 @@ public class GameMethods {
     /********************************************************
      Updated method to move remaining objects within tile map
      ********************************************************/
-    public ArrayList<ObjectPathCreator> moveRemainingObjects(List<UrbieAnimation> objects, ArrayList<Integer> matches, ArrayList<Obstacles> obstacles,
+    public ArrayList<ObjectPathCreator> moveRemainingObjects(List<UrbieAnimation> objects, ArrayList<Integer> matches,        ArrayList<Obstacles> obstacles,
                                                              int width, ArrayList<Point> tilePos, ArrayList<Integer> map,
                                                              ArrayList<Integer> matchesOffScreen,
                                                              ArrayList<Integer> entrance){
@@ -1303,6 +1353,9 @@ public class GameMethods {
         ArrayList<Integer> brokenObstacleLocations = new ArrayList<>();
         ArrayList<ObjectPathCreator>objectPathCreators =  new ArrayList<>();
 
+        boolean isPopulated = false;
+
+        if(!matchesOffScreen.isEmpty())isPopulated = true;
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         //!!get a list of invisible obstacle locations e.g. WOOD, CEMENT and also GLASS obstacles
@@ -1391,11 +1444,201 @@ public class GameMethods {
         ////////////////////////////////////////////////////////////////////////////////////////////
         //3. Start looping through matches, considering any broken obstacles and empty tiles
         ////////////////////////////////////////////////////////////////////////////////////////////
+        reference = moveDownByColumn(reference, width, tilePos, objectPathCreators);
+        printReference(reference, width);
 
+        for(int j = 0; j < objectPathCreators.size(); j++){
+            objectPathCreators.get(j).print();
+        }
+
+        if(!entrance.isEmpty()) {
+            System.out.println("There are entrances available");
+            ArrayList<Integer>newMatches = new ArrayList<>();
+
+            do {
+                newMatches.clear();
+                newMatches = getMatchedTiles(reference);
+                System.out.println(newMatches);
+
+                int entryPoint = getBestEntryPoint(entrance, width, newMatches.get(0));
+                int start = getStartOfEntryPointColumn(reference, entryPoint, width, newMatches.get(0));
+
+                LinkedList<int[]> pathway = getPathway(reference, map, start, newMatches.get(0), width);
+
+                for(int i = 0; i < pathway.size(); i++){
+                    System.out.println(pathway.get(i)[0] + ", " + pathway.get(i)[1]);
+                }
+                printPathway(pathway, reference, width, tilePos,objectPathCreators);
+                printReference(reference, width);
+
+                newMatches.clear();
+                newMatches = getMatchedTiles(reference);
+
+            } while (moreToMove(reference, newMatches, entrance, width));
+        }
+
+        //Identify any empty tiles
+        emptyTiles = getListOfEmptyTiles(reference);
+        if(isPopulated){
+            if(!matchesOffScreen.equals(emptyTiles)){
+                matchesOffScreen.clear();
+                matchesOffScreen.addAll(emptyTiles);
+            }
+        }
+
+        System.out.println("matches offscreen" + matchesOffScreen);
         return objectPathCreators;
     }
 
+    private boolean hasOccupiedTile(int element, ArrayList<Integer>reference, int width, ArrayList<Integer>entrance){
+        boolean result = false;
+        int num = element;
 
+        while(num >= 0){
+            if(reference.get(num) >= 0){
+                result = true;
+                break;
+            }
+            if(reference.get(num) == -2 && entrance.isEmpty()){
+                result = false;
+                break;
+            }
+            num = num - width;
+        }
+
+        return result;
+    }
+
+    private boolean moreToMove(ArrayList<Integer>reference, ArrayList<Integer>matches, ArrayList<Integer>entrance, int width){
+        boolean moreToMove = true;
+
+        for(int i = 0; i < matches.size(); i++){
+            int entryPoint = getBestEntryPoint(entrance, width, matches.get(i));
+            int start = getStartOfEntryPointColumn(reference, entryPoint, width, matches.get(i));
+
+            if(matches.get(i) < width || !hasOccupiedTile(matches.get(i),reference, width, entrance) || start == -1){
+                moreToMove = false;
+            }
+            else {
+                moreToMove = true;
+                break;
+            }
+        }
+        return moreToMove;
+    }
+
+
+    private void printPathway(LinkedList<int[]>pathway,
+                              ArrayList<Integer>reference,
+                              int width,
+                              ArrayList<Point>tilePos,
+                              ArrayList<ObjectPathCreator>objectPathCreator)
+    {
+        for (int k = 0; k < pathway.size(); k++) {
+            int[] element;
+            element = pathway.get(k);
+            int position = (element[0] * width) + element[1];
+            int relative_position = reference.get(position);
+
+            if (reference.get(position) != -3 && reference.get(position) != -5) {
+                ArrayList<Point> temp = new ArrayList<>();
+                for (int j = 0; j < k + 1; j++) {
+                    Point point = convertPositionToPoint(pathway.get(j), tilePos, width);
+                    temp.add(point);
+                }
+
+                boolean foundInList = false;
+                int listItem = -1;
+                for(int i = 0; i < objectPathCreator.size(); i++){
+                    if(objectPathCreator.get(i).getElement() == relative_position){
+                        foundInList = true;
+                        listItem = i;
+                        break;
+                    }
+                }
+                if(foundInList){
+                    objectPathCreator.get(listItem).printPath();
+                    for(int i = temp.size() - 1; i >= 0; i--){
+                        System.out.println("testing: " + temp.get(i));
+                        for(int j = 0; j < objectPathCreator.get(listItem).getPath().size(); j++){
+                            //Point point = convertPositionToPoint(temp.get(i), tilePos, width);
+                            if(objectPathCreator.get(listItem).getPath().get(j).equals(temp.get(i))){
+                                temp.remove(i);
+                                break;
+                            }
+                        }
+                    }
+
+                    objectPathCreator.get(listItem).addPathAt(0, temp);
+                    objectPathCreator.get(listItem).print();
+                }
+                else {
+                    ObjectPathCreator creatorTest = new ObjectPathCreator();
+                    creatorTest.setElement(relative_position);
+                    creatorTest.addToPath(temp);
+                    objectPathCreator.add(creatorTest);
+                    objectPathCreator.get(objectPathCreator.size() - 1).print();
+                }
+
+                int value = (pathway.peekFirst()[0] * width) + pathway.peekFirst()[1];
+                int no_value = reference.get(value);
+                reference.set(value, reference.get(position));
+                reference.set(position, no_value);
+                pathway.pollFirst();
+                k--;
+            }
+        }
+    }
+
+
+    private int getStartOfEntryPointColumn(ArrayList<Integer>reference, int entryPoint, int width, int emptyElement){
+        int value = -1;
+        int num = entryPoint;
+        int emptyElementRow = emptyElement / width;
+        int entryPointRow = entryPoint / width;
+
+        if(emptyElementRow > entryPointRow){
+            int val = emptyElementRow - entryPointRow;
+            num = entryPoint + (width * val);
+        }
+
+        while(num >= 0){
+            if(reference.get(num) >= 0){
+                value = reference.get(num);
+            }
+            num = num - width;
+        }
+
+        return value;
+    }
+
+    private ArrayList<Integer>getMatchedTiles(ArrayList<Integer>reference){
+        ArrayList<Integer>matchedTiles = new ArrayList<>();
+
+        for(int i = 0; i < reference.size(); i++){
+            if(reference.get(i) == -5 || reference.get(i) == -3){
+                matchedTiles.add(i);
+            }
+        }
+        Collections.sort(matchedTiles, Collections.<Integer>reverseOrder());
+        return matchedTiles;
+    }
+
+    private void printReference(ArrayList<Integer>reference, int width){
+        for(int i = 0; i < reference.size(); i++){
+            if(reference.get(i) < 0){
+                System.out.print(reference.get(i) + ", ");
+            } else if(reference.get(i) < 10){
+                System.out.print(" " + reference.get(i) + ", ");
+            }
+            else {
+                System.out.print(reference.get(i) + ", ");
+            }
+            if(i % width == 5){
+                System.out.println(" ");
+            }
+        }
+    }
     /*************************************************
      to act as a replacement for listOfObjectsToMoveDown
      *************************************************/

@@ -2519,13 +2519,13 @@ class GameScreen extends Screen {
     }
 
     private void objectsToMoveDown() {
-
-        ArrayList<ObjectPathCreator> creators = gameMethods.separateTheMadness(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen, entrance);
+        gameMethods.moveRemainingObjects(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen, entrance);
+        /*ArrayList<ObjectPathCreator> creators = gameMethods.separateTheMadness(Urbs, userMatchOne, obstacleTiles, tileWidth, tileLocations, levelManager.getLevelTileMap().getMapLevel(), matchesOffScreen, entrance);
 
         for (int i = 0; i < creators.size(); i++) {
             objectsToMoveDown.add(creators.get(i).getElement());
             coordinatesToMoveTo.add(creators.get(i).getPath().get(creators.get(i).getPath().size() - 1));
-        }
+        }*/
 
         System.out.println("objectsToMoveDown = "+objectsToMoveDown);
     }

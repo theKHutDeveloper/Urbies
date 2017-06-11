@@ -27,14 +27,21 @@ public class ObjectPathCreator {
 
     public Point getPosition(){return this.position;}
 
+    public void addPathAt(int index, ArrayList<Point>path){
+        paths.addAll(index, path);
+    }
 
     public void addToPath(ArrayList<Point>path){
         paths.addAll(path);
     }
 
-    /*public void addToPath(LinkedList<int[]> path){
-        paths.addAll(path);
-    }*/
+    public void printPath(){
+        System.out.println(element);
+        for(int i = 0; i < paths.size(); i++){
+            System.out.println("[" + paths.get(i) + "][" + paths.get(i) + "]");
+        }
+    }
+
 
     public ArrayList<Point> getPath(){
         return paths;
