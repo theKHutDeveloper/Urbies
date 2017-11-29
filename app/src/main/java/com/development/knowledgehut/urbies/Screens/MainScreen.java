@@ -129,19 +129,23 @@ class MainScreen extends Screen {
 
         if (Urbies.level == 11) {
             Urbs = fakeUrbies(Urbs, validTiles, validTiles.size(), 10, 5);
-            ArrayList<Integer> locations = new ArrayList<>(levelManager.obstacleTileLocation());
-            for (int i = 0; i < locations.size(); i++) {
-                int pos = gameMethods.findBitmapByMapLocation(Urbs, tileLocations, locations.get(i));
-                obstacleTiles.add(new Obstacles(
-                        new BitmapAnimation(Assets.cement_100, new Point(Urbs.get(pos).getX(), Urbs.get(pos).getY()), 20, 1, 2000, true, locations.get(i), true),
-                        Urbies.UrbieStatus.CEMENT, Urbies.VisibilityStatus.INVISIBLE)
-                );
-                Urbs.get(pos).setStatus(Urbies.UrbieStatus.CEMENT);
-                Urbs.get(pos).setVisible(Urbies.VisibilityStatus.INVISIBLE);
-                matchState = MatchState.AUTO;
-                pState = Procedure.CHECK;
-                levelManager.startTimer();
-            }
+            matchState = MatchState.AUTO;
+            pState = Procedure.CHECK;
+            levelManager.startTimer();
+            //ArrayList<Integer> locations = new ArrayList<>(levelManager.obstacleTileLocation());
+//            for (int i = 0; i < locations.size(); i++) {
+//                int pos = gameMethods.findBitmapByMapLocation(Urbs, tileLocations, locations.get(i));
+//                obstacleTiles.add(new Obstacles(
+//                        new BitmapAnimation(Assets.cement_100, new Point(Urbs.get(pos).getX(), Urbs.get(pos).getY()), 20, 1, 2000, true, locations.get(i), true),
+//                        Urbies.UrbieStatus.CEMENT, Urbies.VisibilityStatus.INVISIBLE)
+//                );
+//
+////                Urbs.get(pos).setStatus(Urbies.UrbieStatus.CEMENT);
+////                Urbs.get(pos).setVisible(Urbies.VisibilityStatus.INVISIBLE);
+//                matchState = MatchState.AUTO;
+//                pState = Procedure.CHECK;
+//                levelManager.startTimer();
+//            }
         } else {
             randomUrbsPlayingInLevel(levelManager.getUrbsInLevel());
             Urbs = createUrbies(Urbs, validTiles, validTiles.size(), 10, 5);
@@ -1711,10 +1715,10 @@ class MainScreen extends Screen {
 
         if (Urbies.level == 11) {
             Collections.addAll(values,
-                    1, 2, 5, 6, 1, 6,
+                    1, 1, 1, 1, 1, 6,
                     1, 5, 6, 1, 2, 1,
                     5, 3, 4, 2, 5, 2,
-                    2, 5, 3, 4, 1, 4,
+                    2, 11, 13, 4, 1, 4,
                     1, 4, 1, 2, 2, 5,
                     3, 1, 6, 2, 6, 5);
             urbTypesInLevel.add(Urbies.UrbieType.BABY);

@@ -8,6 +8,7 @@ import android.graphics.Point;
 import android.view.MotionEvent;
 
 import com.development.knowledgehut.urbies.Behaviours.GameMethods;
+import com.development.knowledgehut.urbies.Behaviours.PathFinding;
 import com.development.knowledgehut.urbies.DrawableObjects.BitmapAnimation;
 import com.development.knowledgehut.urbies.DrawableObjects.Images;
 import com.development.knowledgehut.urbies.DrawableObjects.SpecialFX;
@@ -44,6 +45,7 @@ class GameScreen extends Screen {
         CHECK, MATCH, REPLACE_OBJECTS
     }
 
+    PathFinding pathFinder = new PathFinding();
     private GameMethods gameMethods = new GameMethods();
     private LevelManager levelManager;
     private ArrayList<Point> tileLocations;
@@ -302,6 +304,7 @@ class GameScreen extends Screen {
             case AUTO:
                 switch (pState) {
                     case CHECK:
+
                         ArrayList<MatchedDetails> details;
                         details = gameMethods.findAutomaticMatches(Urbs, tileWidth, levelManager.getLevelTileMap().getMapLevel(), obstacleTiles);
                         ArrayList<ArrayList<Integer>> matchList = new ArrayList<>();
@@ -2148,6 +2151,9 @@ class GameScreen extends Screen {
     }
 
     private void loadGui() {
+
+        pathFinder.getPath("sample", 6, 6, 1, 0, 5, 5, new int[][]{{0,4},{2,2},{3,1},{3,3}});
+
         Coordinates coordinates = new Coordinates();
         pause = new Images(Assets.pause, new Point(coordinates.getX(270), coordinates.getY(30) + OFFSET_Y));
         help = new Images(Assets.help, new Point(coordinates.getX(6), coordinates.getY(30) + OFFSET_Y));

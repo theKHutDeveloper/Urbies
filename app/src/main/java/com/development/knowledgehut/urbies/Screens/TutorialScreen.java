@@ -340,6 +340,12 @@ public class TutorialScreen extends Screen {
         }
 
 
+        for (int i = 0; i < Urbs.size(); i++) {
+            if (Urbs.get(i).getStatus() == NONE) {
+                Urbs.get(i).draw(graphics);
+            }
+        }
+
             for (int i = 0; i < validTiles.size(); i++) {
                 if (tutorialCounter == 0) {
                     if (i != tutorialUrbs[0] && i != tutorialUrbs[1]) {

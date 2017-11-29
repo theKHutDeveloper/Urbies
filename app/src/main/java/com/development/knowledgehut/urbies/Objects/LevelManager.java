@@ -170,7 +170,7 @@ public class LevelManager {
             case 8: moves = 100; glass = 6; break;
             case 9: moves = 100; glass = 8; break;
             case 10: moves = 100; glass = 13; break;
-            case 11: moves = 100; cement = 6; break;
+            case 11: moves = 100; minScore = 8000; break; //cement = 6; break;
         }
     }
 
@@ -300,14 +300,14 @@ public class LevelManager {
                 locations.add(20);
                 locations.add(24);
                 break;
-            case 11:
-                locations.add(18);
-                locations.add(19);
-                locations.add(20);
-                locations.add(21);
-                locations.add(22);
-                locations.add(23);
-                break;
+//            case 11:
+//                locations.add(18);
+//                locations.add(19);
+//                locations.add(20);
+//                locations.add(21);
+//                locations.add(22);
+//                locations.add(23);
+//                break;
             case 13:
                 locations.add(20);
                 locations.add(21);
@@ -331,14 +331,15 @@ public class LevelManager {
             case 3:
             case 4:
             case 5:
-            case 6:if(moves == 0 && score < minScore) failed = true; break;
+            case 6:
+            case 11: if(moves == 0 && score < minScore) failed = true; break;
             case 7:
             case 8:
             case 9:
             case 10:
                 if(moves == 0 && glassCounter < glass) failed = true; break;
-            case 11:
-                if(moves == 0 && cementCounter < cement) failed = true; break;
+//            case 11:
+//                if(moves == 0 && cementCounter < cement) failed = true; break;
         }
 
         return failed;
@@ -357,12 +358,12 @@ public class LevelManager {
             case 4:
             case 5:
             case 6:
-                if(moves >=0 && score >= minScore)  successful = true; break;
+            case 11: if(moves >=0 && score >= minScore)  successful = true; break;
             case 7:
             case 8:
             case 9:
             case 10: if(moves >= 0 && glassCounter >= glass) successful = true; break;
-            case 11: if(moves >= 0 && cementCounter >= cement) successful = true; break;
+//            case 11: if(moves >= 0 && cementCounter >= cement) successful = true; break;
         }
         return successful;
     }
@@ -483,7 +484,7 @@ public class LevelManager {
      ****************************************************************************/
     public void addToCementCounter(){
         switch(level){
-            case 11:
+            //case 11:
             case 30: cementCounter++; break;
         }
     }
